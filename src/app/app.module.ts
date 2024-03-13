@@ -4,19 +4,24 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { HeaderComponent } from './header/header.component';
+import { WelcomeComponent } from './welcome/welcome.component';
+import { AdminComponent } from './admin/admin.component';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    DashboardComponent
-    // Añade aquí otros componentes
+    DashboardComponent,
+    HeaderComponent,
+    WelcomeComponent,
+    AdminComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule, // Añade AppRoutingModule a tus imports
-    FormsModule // Añade FormsModule aquí
+    AppRoutingModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
