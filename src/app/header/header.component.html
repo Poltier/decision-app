@@ -11,7 +11,7 @@
           <li *ngIf="!showAuthSection" class="nav-item">
               <a class="nav-link" routerLink="/register">Register</a>
           </li>
-          <li *ngIf="showAuthSection" class="nav-item">
+          <li *ngIf="!showAuthSection" class="nav-item">
               <a class="nav-link" routerLink="/dashboard">Dashboard</a>
           </li>
           <li *ngIf="showAuthSection" class="nav-item">

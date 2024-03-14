@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-welcome',
@@ -6,13 +7,12 @@ import { Component } from '@angular/core';
   styleUrls: ['./welcome.component.css']
 })
 export class WelcomeComponent {
-  constructor() { }
+  constructor(private router: Router) { }
 
-  onLanguageSelect(event: any) {
-    const language = event.target.value;
-    // Aquí usar un servicio para cambiar el idioma de la app
+  selectLanguage(language: string) {
     console.log('Idioma seleccionado:', language);
     localStorage.setItem('language', language);
-    // this.i18nService.setLanguage(language);
+    // Redirigir al dashboard después de seleccionar el idioma
+    this.router.navigate(['/dashboard']);
   }
 }
