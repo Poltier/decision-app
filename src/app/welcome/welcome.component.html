@@ -1,9 +1,9 @@
-<div>
-    <h1>Bienvenido a Nuestra Aplicación</h1>
-    <select (change)="onLanguageSelect($event)">
-        <option value="es">Español</option>
-        <option value="en">English</option>
-        <!-- Añade más idiomas según sea necesario -->
-    </select>
+<div class="welcome-container">
+    <h1>Bienvenido</h1>
+    <div class="language-buttons">
+      <button (click)="selectLanguage('es')">Español</button>
+      <button (click)="selectLanguage('en')">English</button>
+      <!-- Añadir más botones para otros idiomas si es necesario -->
+    </div>
     <p>Esta es una breve presentación del proyecto...</p>
 </div>
