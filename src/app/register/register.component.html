@@ -1,6 +1,21 @@
 <h2>Registro</h2>
-<form (ngSubmit)="onRegister()">
-    <input type="email" [(ngModel)]="email" name="email" placeholder="Email" required>
-    <input type="password" [(ngModel)]="password" name="password" placeholder="Password" required>
-    <button type="submit">Registrarse</button>
+<form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+    <div>
+        <label for="email">Email:</label>
+        <input type="email" formControlName="email" placeholder="Email" required>
+        <div *ngIf="registerForm.controls['email'].invalid && registerForm.controls['email'].touched">
+            <p *ngIf="registerForm.controls['email'].errors?.required">Email is required.</p>
+            <p *ngIf="registerForm.controls['email'].errors?.email">Email is not valid.</p>
+        </div>
+    </div>
+    <div>
+        <label for="password">Password:</label>
+        <input type="password" formControlName="password" placeholder="Password" required>
+        <div *ngIf="registerForm.controls['password'].invalid && registerForm.controls['password'].touched">
+            <p *ngIf="registerForm.controls['password'].errors?.required">Password is required.</p>
+            <p *ngIf="registerForm.controls['password'].errors?.minlength">Password must be at least 8 characters long.</p>
+        </div>
+    </div>
+    <button type="submit" [disabled]="registerForm.invalid">Registrarse</button>
 </form>
+
