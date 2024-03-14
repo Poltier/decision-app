@@ -34,6 +34,7 @@ export class FirebaseService {
       this.router.navigate(['/dashboard']);
     } catch (error) {
       console.error('Error al iniciar sesión: ', error);
+      throw error;
     }
   }
 
@@ -43,6 +44,7 @@ export class FirebaseService {
       this.router.navigate(['/dashboard']);
     } catch (error) {
       console.error('Error al registrar usuario: ', error);
+      throw error;
     }
   }
 
@@ -52,6 +54,7 @@ export class FirebaseService {
       this.router.navigate(['/login']);
     } catch (error) {
       console.error('Error al cerrar sesión: ', error);
+      throw error;
     }
   }
 }

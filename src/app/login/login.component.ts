@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { FirebaseService } from '../services/firebase.service';
 import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-login',
@@ -11,17 +12,14 @@ import { Router } from '@angular/router';
 export class LoginComponent {
   loginForm: FormGroup;
 
-  constructor(private firebaseService: FirebaseService, private router: Router) {
+  constructor(
+    private firebaseService: FirebaseService,
+    private router: Router,
+    private snackBar: MatSnackBar
+  ) {
     this.loginForm = new FormGroup({
-      email: new FormControl('', [
-        Validators.required,
-        Validators.email
-      ]),
-      password: new FormControl('', [
-        Validators.required,
-        Validators.minLength(8),
-        Validators.maxLength(16)
-      ])
+      email: new FormControl('', [Validators.required, Validators.email]),
+      password: new FormControl('', [Validators.required, Validators.minLength(8)])
     });
   }
 
@@ -29,11 +27,13 @@ export class LoginComponent {
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.value;
       this.firebaseService.signIn(email, password).then(() => {
-        // Navegar al dashboard después del login exitoso
         this.router.navigate(['/dashboard']);
       }).catch(error => {
-        console.error('Error durante el login:', error);
+        this.snackBar.open('Error durante el login: ' + (error.message || 'Por favor, intenta nuevamente.'), 'Cerrar', {
+          duration: 5000,
+        });
       });
     }
   }
 }
+

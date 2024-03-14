@@ -12,9 +12,9 @@ const routes: Routes = [
   { path: '', component: WelcomeComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'dashboard', component: DashboardComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
-  { path: 'administracion', component: AdminComponent, canActivate: [AuthGuard] },
+  { path: 'admin', component: AdminComponent, canActivate: [AuthGuard] },
   // Otras rutas específicas de la aplicación aquí
   { path: '**', redirectTo: '' } // Redirigir a la bienvenida si la ruta no existe
 ];
