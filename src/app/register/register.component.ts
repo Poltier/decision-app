@@ -14,7 +14,12 @@ export class RegisterComponent {
   constructor(private fb: FormBuilder, private firebaseService: FirebaseService, private router: Router) {
     this.registerForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [
+      Validators.required, 
+      Validators.minLength(8),
+      Validators.maxLength(20),
+      // Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})') opcional
+      ]]
     });
   }
 
