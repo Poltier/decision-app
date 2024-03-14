@@ -1,30 +1,37 @@
 import { Injectable } from '@angular/core';
 import { initializeApp } from 'firebase/app';
-import { getAnalytics } from 'firebase/analytics';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FirebaseService {
-  private app: any;
-  private analytics: any;
-  private auth: any;
+  private app = initializeApp(environment.firebaseConfig);
+  private auth = getAuth(this.app);
+  private authStatus = new BehaviorSubject<boolean>(false); // Añadido para manejar el estado de autenticación
 
   constructor(private router: Router) {
-    // Initialize Firebase with environment config
-    this.app = initializeApp(environment.firebaseConfig);
-    this.analytics = getAnalytics(this.app);
-    this.auth = getAuth(this.app);
+    onAuthStateChanged(this.auth, user => {
+      this.authStatus.next(!!user);
+    });
+  }
+
+  getAuthStatusListener() {
+    return this.authStatus.asObservable();
+  }
+
+  // Nuevo método para verificar la autenticación de forma síncrona
+  isAuthenticated(): boolean {
+    return this.auth.currentUser != null;
   }
 
   async signIn(email: string, password: string) {
     try {
       await signInWithEmailAndPassword(this.auth, email, password);
-      console.log('Usuario inició sesión con éxito');
-      this.router.navigate(['/dashboard']); // Navega al dashboard
+      this.router.navigate(['/dashboard']);
     } catch (error) {
       console.error('Error al iniciar sesión: ', error);
     }
@@ -32,9 +39,7 @@ export class FirebaseService {
 
   async signUp(email: string, password: string) {
     try {
-      const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
-      console.log('Usuario registrado con éxito', userCredential);
-      // El usuario ya está logueado en este punto, redirigimos al dashboard
+      await createUserWithEmailAndPassword(this.auth, email, password);
       this.router.navigate(['/dashboard']);
     } catch (error) {
       console.error('Error al registrar usuario: ', error);
@@ -44,22 +49,9 @@ export class FirebaseService {
   async signOut() {
     try {
       await signOut(this.auth);
-      console.log('Sesión cerrada con éxito');
-      this.router.navigate(['/login']); // Navega al login
+      this.router.navigate(['/login']);
     } catch (error) {
       console.error('Error al cerrar sesión: ', error);
     }
-  }
-
-  isAuthenticated(): Promise<boolean> {
-    return new Promise(resolve => {
-      onAuthStateChanged(this.auth, user => {
-        if (user) {
-          resolve(true);
-        } else {
-          resolve(false);
-        }
-      });
-    });
   }
 }
