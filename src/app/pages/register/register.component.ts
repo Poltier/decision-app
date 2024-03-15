@@ -28,12 +28,10 @@ export class RegisterComponent {
       const { email, password } = this.registerForm.value;
       this.firebaseService.signUp(email, password)
         .then(() => {
-          // Navegar al dashboard o mostrar un mensaje de éxito
           this.router.navigate(['/dashboard']);
         })
         .catch(error => {
           console.error("Error en el registro: ", error);
-          // Manejo de errores, por ejemplo, mostrar un mensaje de error al usuario
         });
     }
   }

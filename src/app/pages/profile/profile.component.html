@@ -1,2 +1,10 @@
-<h2>Perfil de Usuario</h2>
-<!-- Contenido del perfil aquí -->
+<!-- <div class="profile-container">
+    <div class="avatar-selection">
+      <img *ngFor="let avatar of avatars" [src]="'path/to/avatars/' + avatar" (click)="selectAvatar(avatar)" [class.selected]="selectedAvatar === avatar">
+    </div>
+  
+    <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+      <button mat-raised-button color="primary" type="submit" [disabled]="!profileForm.valid">Update Profile</button>
+    </form>
+  </div> -->
+  
