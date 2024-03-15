@@ -1,5 +1,71 @@
+/* game-thematic.component.css */
+.game-thematic-container, .final-score-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: calc(100vh - 64px); /* Ajuste para la altura del encabezado */
+  background-color: antiquewhite;
+  text-align: center;
+}
+
+.question-card {
+  width: 90%;
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+}
+
 .options-container {
-    display: flex;
-    justify-content: space-around;
+  display: flex;
+  width: 100%;
+  justify-content: space-around; /* Espaciado entre tarjetas */
+}
+
+.score-container {
+  justify-content: center;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 90vh;
+}
+
+mat-card-image {
+  max-height: 200px;
+  width: auto;
+  margin: 20px auto;
+}
+
+.final-score-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 600px;
+  margin: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.final-score-actions {
+  display: flex;
+  justify-content: center;
+  gap: 20px; /* Espaciado entre botones */
+  width: 100%;
+  padding-top: 20px;
+}
+
+@media (max-width: 600px) {
+  .options-container {
+      flex-direction: column; /* Opciones una encima de otra en móviles */
   }
   
+  .final-score-actions {
+      flex-direction: column; /* Botones uno encima del otro en móviles */
+  }
+}

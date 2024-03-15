@@ -18,6 +18,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
+import {MatCardModule} from '@angular/material/card';
+
 
 import { OptionCardComponent } from './components/option-card/option-card.component';
 import { GameThematicComponent } from './components/game-thematic/game-thematic.component';
@@ -51,7 +53,8 @@ import { environment } from '../environments/environment';
     MatToolbarModule,
     MatIconModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
-    AngularFirestoreModule
+    AngularFirestoreModule,
+    MatCardModule
   ],
   providers: [],
   bootstrap: [AppComponent]

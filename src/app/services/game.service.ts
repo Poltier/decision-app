@@ -11,6 +11,8 @@ export class GameService {
   private score = new BehaviorSubject<number>(0);
   private questions$ = new BehaviorSubject<Question[]>([]);
   private answeredQuestions$ = new BehaviorSubject<string[]>([]);
+  private maxQuestions = 10; // Límite de preguntas
+  private gameFinished = new BehaviorSubject<boolean>(false); // Para controlar el fin del juego
 
   constructor(private firestore: AngularFirestore) {
     this.loadQuestionsFromFirestore();
@@ -39,16 +41,32 @@ export class GameService {
 
   answerQuestion(questionId: string, isCorrect: boolean) {
     this.answeredQuestions$.next([...this.answeredQuestions$.getValue(), questionId]);
-    this.score.next(this.score.getValue() + (isCorrect ? 1 : -1));
+    if (isCorrect) {
+      this.score.next(this.score.getValue() + 1);
+    }
+    if (this.answeredQuestions$.getValue().length >= this.maxQuestions) {
+      this.gameFinished.next(true);
+    } else {
+      this.getRandomUnansweredQuestion().subscribe(question => {
+        if (!question) {
+          this.gameFinished.next(true);
+        }
+      });
+    }
   }
 
   getScore(): Observable<number> {
     return this.score.asObservable();
   }
 
+  isGameFinished(): Observable<boolean> {
+    return this.gameFinished.asObservable();
+  }
+
   resetGame() {
     this.score.next(0);
     this.answeredQuestions$.next([]);
+    this.gameFinished.next(false);
   }
 }
 

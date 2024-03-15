@@ -3,7 +3,7 @@
 
       <mat-form-field appearance="fill">
         <mat-label>Email</mat-label>
-        <input matInput formControlName="email" placeholder="Email">
+        <input matInput formControlName="email">
         <mat-error *ngIf="registerForm.get('email')?.errors?.['required']">
           Email is required.
         </mat-error>
