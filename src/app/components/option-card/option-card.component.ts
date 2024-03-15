@@ -8,9 +8,13 @@ import { QuestionOption } from '../../models/question';
 })
 export class OptionCardComponent {
   @Input() option?: QuestionOption;
+  @Input() isLeft: boolean = false;
+  @Input() isRight: boolean = false; 
   @Output() optionSelected = new EventEmitter<QuestionOption>();
 
   onSelect() {
-    this.optionSelected.emit(this.option);
+    if (this.option) {
+      this.optionSelected.emit(this.option);
+    }
   }
 }

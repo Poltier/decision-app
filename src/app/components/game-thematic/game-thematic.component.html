@@ -1,19 +1,39 @@
-<div *ngIf="currentQuestion" class="game-thematic-container">
-  <h2>{{ currentQuestion.questionText }}</h2>
-  <img [src]="currentQuestion.imageUrl" alt="Question image" class="question-image">
-  
-  <div class="options-container">
-    <app-option-card 
-      *ngFor="let option of currentQuestion.options; let i = index" 
-      [option]="option" 
-      (optionSelected)="onOptionSelected(i, option.isCorrect)">
-    </app-option-card>
+<div *ngIf="!gameFinished">
+  <div *ngIf="currentQuestion" class="game-thematic-container mat-display-3">
+    <mat-card class="question-card">
+      <mat-card-title class="mat-title">{{ currentQuestion.questionText }}</mat-card-title>
+      <img mat-card-image [src]="currentQuestion.imageUrl" alt="Question image">
+      <mat-card-content>
+        <div class="options-container">
+          <app-option-card 
+            *ngFor="let option of currentQuestion.options; let i = index" 
+            [option]="option" 
+            [isLeft]="i === 0" 
+            [isRight]="i === 1"
+            (optionSelected)="onOptionSelected(option)">
+          </app-option-card>
+        </div>
+      </mat-card-content>
+      <mat-card-actions class="score-container">
+        <p>Puntuación: {{ score }}</p>
+      </mat-card-actions>
+    </mat-card>
   </div>
-  
-  <div class="score-container">
-    <p>Puntuación: {{ score }}</p>
+  <div *ngIf="!currentQuestion" class="loading-container">
+    <p>Cargando pregunta...</p>
   </div>
 </div>
-<div *ngIf="!currentQuestion">
-  <p>Cargando pregunta...</p>
+
+<div *ngIf="gameFinished" class="final-score-container">
+  <mat-card class="final-score-card">
+    <mat-card-content class="final-score-content">
+      <h2>Tu puntuación final es: {{ score }}</h2>
+    </mat-card-content>
+    <mat-card-actions class="final-score-actions">
+      <button mat-raised-button color="primary" (click)="restartGame()">Reiniciar Juego</button>
+      <button mat-raised-button color="accent" (click)="goToDashboard()">Nuevo Juego</button>
+    </mat-card-actions>
+  </mat-card>
 </div>
+
+
