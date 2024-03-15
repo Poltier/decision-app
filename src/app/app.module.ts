@@ -5,12 +5,12 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { LoginComponent } from './login/login.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
-import { HeaderComponent } from './header/header.component';
-import { WelcomeComponent } from './welcome/welcome.component';
-import { AdminComponent } from './admin/admin.component';
-import { RegisterComponent } from './register/register.component';
+import { LoginComponent } from './pages/login/login.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { HeaderComponent } from './pages/header/header.component';
+import { WelcomeComponent } from './pages/welcome/welcome.component';
+import { AdminComponent } from './pages/admin/admin.component';
+import { RegisterComponent } from './pages/register/register.component';
 
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,6 +18,13 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
+
+import { OptionCardComponent } from './components/option-card/option-card.component';
+import { GameThematicComponent } from './components/game-thematic/game-thematic.component';
+
+import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
+import { AngularFireModule } from '@angular/fire/compat';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [
@@ -27,7 +34,9 @@ import { MatIconModule } from '@angular/material/icon';
     HeaderComponent,
     WelcomeComponent,
     AdminComponent,
-    RegisterComponent
+    RegisterComponent,
+    OptionCardComponent,
+    GameThematicComponent 
   ],
   imports: [
     BrowserModule,
@@ -41,6 +50,8 @@ import { MatIconModule } from '@angular/material/icon';
     MatButtonModule,
     MatToolbarModule,
     MatIconModule,
+    AngularFireModule.initializeApp(environment.firebaseConfig),
+    AngularFirestoreModule
   ],
   providers: [],
   bootstrap: [AppComponent]
