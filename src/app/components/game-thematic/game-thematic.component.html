@@ -1,0 +1,19 @@
+<div *ngIf="currentQuestion" class="game-thematic-container">
+  <h2>{{ currentQuestion.questionText }}</h2>
+  <img [src]="currentQuestion.imageUrl" alt="Question image" class="question-image">
+  
+  <div class="options-container">
+    <app-option-card 
+      *ngFor="let option of currentQuestion.options; let i = index" 
+      [option]="option" 
+      (optionSelected)="onOptionSelected(i, option.isCorrect)">
+    </app-option-card>
+  </div>
+  
+  <div class="score-container">
+    <p>Puntuación: {{ score }}</p>
+  </div>
+</div>
+<div *ngIf="!currentQuestion">
+  <p>Cargando pregunta...</p>
+</div>

@@ -1,0 +1,19 @@
+.option-card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 5px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+  
+.option-card:hover {
+    transform: scale(1.05);
+}
+  
+.option-text {
+    font-size: 18px;
+}
+  
