@@ -1,0 +1,74 @@
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+  
+.admin-container h2 {
+    color: #333;
+    margin-bottom: 20px;
+}
+  
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+  
+th, td {
+    text-align: center;
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+  
+th {
+    background-color: #f4f4f4;
+    color: #333;
+}
+  
+td a {
+    color: #007bff;
+    text-decoration: none;
+}
+  
+td a:hover {
+    text-decoration: underline;
+}
+  
+button {
+    cursor: pointer;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+  
+button:active {
+    transform: scale(0.98);
+}
+  
+button[color="warn"] {
+    background-color: #f44336;
+    color: white;
+}
+  
+button[color="warn"]:hover {
+    background-color: #d32f2f;
+}
+  
+.ng-template {
+    text-align: center;
+    margin-top: 20px;
+}
+    
+  /* Estilos para los botones dentro de las celdas de acción */
+  .admin-container .action-buttons {
+    display: flex;
+    gap: 10px; /* Espacio entre botones */
+  }
+  
+  .admin-container button {
+    white-space: nowrap; /* Evita que el texto del botón se ajuste a la línea */
+  }
+  

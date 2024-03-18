@@ -1,0 +1,13 @@
+.submit-question-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    background: #fff;
+}
+
+.submita-question-form {
+    display: flex;
+    flex-direction: column;
+}

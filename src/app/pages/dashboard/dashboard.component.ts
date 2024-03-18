@@ -19,4 +19,8 @@ export class DashboardComponent {
     }
     // Añade más condiciones para otros juegos
   }
+
+  goToCreateQuestion() {
+    this.router.navigate(['/submit-question']);
+  }
 }

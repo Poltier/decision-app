@@ -5,6 +5,7 @@ import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { getStorage, ref, listAll, getDownloadURL } from 'firebase/storage';
+import { addDoc, collection, getFirestore, deleteDoc, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -101,4 +102,83 @@ export class FirebaseService {
     if (!user) throw new Error('Not authenticated');
     return updateProfile(user, { photoURL });
   }
+
+  // Función para formatear fechas
+  public formatDate(date: Date): string {
+    const pad = (num: number) => (num < 10 ? `0${num}` : num);
+    return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+  }
+
+  //Add questions
+
+  async submitQuestion(questionData: any): Promise<void> {
+  const db = getFirestore(this.app);
+  const questionsRef = collection(db, 'questions');
+  await addDoc(questionsRef, {
+    ...questionData,
+    approved: false, // Añade un campo para indicar que la pregunta está pendiente de aprobación
+    createdAt: new Date() // Añade un campo para la fecha de creación
+  });
+  }
+  
+  async getPendingQuestions(): Promise<any[]> {
+    const db = getFirestore(this.app);
+    const q = query(collection(db, 'questions'), where('approved', '==', false));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: this.formatDate(doc.data()['createdAt'].toDate()),
+    }));
+  }
+
+  async approveQuestion(questionId: string): Promise<void> {
+  const db = getFirestore(this.app);
+  const questionRef = doc(db, 'questions', questionId);
+  await updateDoc(questionRef, {
+    approved: true
+  });
+  }
+
+  getCurrentUserId(): string {
+    const user = this.auth.currentUser;
+    if (!user) throw new Error('User not authenticated');
+    return user.uid;
+  }
+  
+
+  async getUserQuestions(): Promise<any[]> {
+    const db = getFirestore(this.app);
+    const q = query(collection(db, "questions"), where("approved", "==", true));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  }
+
+  async updateQuestion(questionId: string, questionData: any): Promise<void> {
+    const db = getFirestore(this.app);
+    const questionRef = doc(db, 'questions', questionId);
+    await updateDoc(questionRef, questionData);
+  }
+
+  async rejectQuestion(questionId: string): Promise<void> {
+    const db = getFirestore(this.app);
+    const questionRef = doc(db, 'questions', questionId);
+    await deleteDoc(questionRef);
+  }
+
+  async getApprovedQuestions(): Promise<any[]> {
+    const db = getFirestore(this.app);
+    const q = query(collection(db, 'questions'), where('approved', '==', true));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: this.formatDate(doc.data()['createdAt'].toDate()),
+    }));
+  }
+  
+  
 }
