@@ -1,5 +1,69 @@
-<div>
-    <h1>Panel de Administración</h1>
-    <!-- Contenido de administración aquí -->
+<div class="admin-container">
+  <h2>Pending Questions</h2>
+  <table *ngIf="pendingQuestions.length > 0; else noPendingQuestions">
+    <thead>
+      <tr>
+        <th>User ID</th>
+        <th>Question</th>
+        <th>Correct Option</th>
+        <th>Incorrect Option</th>
+        <th>Image</th>
+        <th>Creation Date</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let question of pendingQuestions">
+        <td>{{ question.submittedBy }}</td>
+        <td>{{ question.questionText }}</td>
+        <td>{{ getCorrectOptionText(question.options) }}</td>
+        <td>{{ getIncorrectOptionText(question.options) }}</td>
+        <td><a [href]="question.imageUrl" target="_blank">View Image</a></td>
+        <td>{{ question.createdAt }}</td>
+        <td>{{ question.approved ? 'Approved' : 'Pending' }}</td>
+        <td>
+          <div class="action-buttons">
+            <button mat-button (click)="approveQuestion(question.id)">Approve</button>
+            <button mat-button color="warn" (click)="rejectQuestion(question.id)">Reject</button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Approved Questions</h2>
+  <div *ngIf="approvedQuestions.length > 0; else noApprovedQuestions">
+    <table>
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>Question</th>
+          <th>Correct Option</th>
+          <th>Incorrect Option</th>
+          <th>Image</th>
+          <th>Creation Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let question of approvedQuestions">
+          <td>{{ question.submittedBy }}</td>
+          <td>{{ question.questionText }}</td>
+          <td>{{ getCorrectOptionText(question.options) }}</td>
+          <td>{{ getIncorrectOptionText(question.options) }}</td>
+          <td><a href="{{ question.imageUrl }}" target="_blank">View Image</a></td>
+          <td>{{ question.createdAt }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #noPendingQuestions>
+    <p>No pending questions.</p>
+  </ng-template>
+
+  <ng-template #noApprovedQuestions>
+    <p>No approved questions.</p>
+  </ng-template>
+
 </div>
-  
