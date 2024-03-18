@@ -1,26 +1,32 @@
 <div class="profile-container">
     <div class="avatar-selection">
+        <h2>Avatar Selection</h2>
       <div *ngFor="let avatar of avatars" (click)="selectAvatar(avatar)">
         <img [src]="avatar" [class.selected]="avatar === selectedAvatar">
       </div>
     </div>
-  
+    <h2>Information Updation</h2>
     <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="profile-form">
       <!-- Email input -->
       <mat-form-field appearance="fill" class="profile-field">
         <mat-label>New Email</mat-label>
-        <input matInput formControlName="email" type="email">
+        <input matInput formControlName="newEmail" type="email">
+        <mat-error *ngIf="profileForm.get('newEmail')?.errors?.['required']">New email is required.</mat-error>
+        <mat-error *ngIf="profileForm.get('newEmail')?.errors?.['email']">New email is not valid.</mat-error>
       </mat-form-field>
   
       <!-- New Password input -->
       <mat-form-field appearance="fill" class="profile-field">
         <mat-label>New Password</mat-label>
         <input matInput formControlName="newPassword" type="password">
+        <mat-error *ngIf="profileForm.get('newPassword')?.errors?.['required']">New password is required.</mat-error>
+        <mat-error *ngIf="profileForm.get('newPassword')?.errors?.['minlength']">New password must be at least 8 characters long.</mat-error>
+          <mat-error *ngIf="profileForm.get('newPassword')?.errors?.['maxlength']">New password must be less than 20 characters long.</mat-error>
       </mat-form-field>
   
       <button mat-raised-button color="primary" type="submit">Update Profile</button>
     </form>
-  
+    <h2>Modify your Questions</h2>
     <div *ngIf="userQuestions.length > 0; else noQuestions">
         <table class="user-questions">
           <thead>
@@ -31,6 +37,7 @@
               <th>Image</th>
               <th>Creation Date</th>
               <th>Status</th>
+              <th *ngIf="isEditing ==false">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -49,38 +56,58 @@
         </table>
       </div>
 
-    <div *ngIf="isEditing">
-        <form [formGroup]="questionForm" (ngSubmit)="saveEditedQuestion()">
-            <div>
-                <label for="questionText">Question</label>
-                <input type="text" id="questionText" formControlName="questionText">
-              </div>
-              <div>
-                <label for="imageUrl">Image URL</label>
-                <input type="text" id="imageUrl" formControlName="imageUrl">
-              </div>
-              <div>
-                <label for="option1">Option 1</label>
-                <input type="text" id="option1" formControlName="option1">
-              </div>
-              <div>
-                <label for="option2">Option 2</label>
-                <input type="text" id="option2" formControlName="option2">
-              </div>
-              <div>
-                <label for="correctOption">Correct Option</label>
-                <select id="correctOption" formControlName="correctOption">
-                  <option value="option1">Option 1</option>
-                  <option value="option2">Option 2</option>
-                </select>
-              </div>
-            <button *ngIf="isEditing" mat-raised-button color="accent" (click)="saveEditedQuestion()">Save</button>
-            <button *ngIf="isEditing" mat-raised-button color="warn" (click)="cancelEdit()">Discard</button>
-        </form>
+    <div *ngIf="isEditing" class="edition-question-container">
+        <form [formGroup]="questionForm" (ngSubmit)="saveEditedQuestion()" class="edition-question-form">
+    
+            <mat-form-field appearance="fill">
+              <mat-label>Question</mat-label>
+              <input matInput type="text" id="questionText" formControlName="questionText">
+              <mat-error *ngIf="questionForm.controls['questionText'].hasError('required')">
+                Question is required.
+              </mat-error>
+            </mat-form-field>
+            
+            <mat-form-field appearance="fill">
+              <mat-label>Image URL</mat-label>
+              <input matInput type="text" id="imageUrl" formControlName="imageUrl">
+              <mat-error *ngIf="questionForm.controls['imageUrl'].hasError('required')">
+                Image URL is required.
+              </mat-error>
+            </mat-form-field>
+            
+            <mat-form-field appearance="fill">
+              <mat-label>Option 1</mat-label>
+              <input matInput type="text" id="option1" formControlName="option1">
+              <mat-error *ngIf="questionForm.controls['option1'].hasError('required')">
+                Option 1 is required.
+              </mat-error>
+            </mat-form-field>
+            
+            <mat-form-field appearance="fill">
+              <mat-label>Option 2</mat-label>
+              <input matInput type="text" id="option2" formControlName="option2">
+              <mat-error *ngIf="questionForm.controls['option2'].hasError('required')">
+                Option 2 is required.
+              </mat-error>
+            </mat-form-field>
+            
+            <mat-form-field appearance="fill">
+              <mat-label>Correct Option</mat-label>
+              <mat-select id="correctOption" formControlName="correctOption">
+                <mat-option value="option1">Option 1</mat-option>
+                <mat-option value="option2">Option 2</mat-option>
+              </mat-select>
+              <mat-error *ngIf="questionForm.controls['correctOption'].hasError('required')">
+              You must select the correct option.
+              </mat-error>
+              </mat-form-field>
+              <button *ngIf="isEditing" mat-raised-button color="accent" (click)="saveEditedQuestion()">Save</button>
+              <button *ngIf="isEditing" mat-raised-button color="warn" (click)="cancelEdit()">Discard</button>
+          </form>
     </div>
 
     <ng-template #noQuestions>
       <p>You have not submitted any questions.</p>
     </ng-template>
-  </div>
+</div>
   

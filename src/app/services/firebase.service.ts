@@ -64,16 +64,16 @@ export class FirebaseService {
 
   //Profile
   
-  async updateProfileData(displayName: string | null, photoURL: string | null) {
+  async updateProfileData( photoURL: string | null) {
     if (this.auth.currentUser) {
-      await updateProfile(this.auth.currentUser, { displayName, photoURL });
+      await updateProfile(this.auth.currentUser, { photoURL });
     }
   }
 
-  async updateUserProfile(displayName: string, photoURL: string): Promise<void> {
+  async updateUserProfile( photoURL: string): Promise<void> {
     const user = this.auth.currentUser;
     if (user) {
-      await updateProfile(user, { displayName, photoURL });
+      await updateProfile(user, { photoURL });
     }
   }
 
@@ -147,9 +147,9 @@ export class FirebaseService {
   }
   
 
-  async getUserQuestions(): Promise<any[]> {
+  async getUserQuestions(userId: string): Promise<any[]> {
     const db = getFirestore(this.app);
-    const q = query(collection(db, "questions"), where("approved", "==", true));
+    const q = query(collection(db, "questions"), where("submittedBy", "==", userId));
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map(doc => ({
       id: doc.id,

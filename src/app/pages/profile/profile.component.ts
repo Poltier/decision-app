@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FirebaseService } from '../../services/firebase.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-profile',
@@ -19,17 +20,17 @@ export class ProfileComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private firebaseService: FirebaseService
+    private firebaseService: FirebaseService,
+    private snackBar: MatSnackBar
   ) {
     this.profileForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      newPassword: ['', [Validators.minLength(8)]],
-      displayName: [''],
+      newEmail: ['', [Validators.required, Validators.email]],
+      newPassword: ['', [Validators.minLength(8), Validators.maxLength(20)]],
       avatar: ['']
     });
     this.questionForm = this.fb.group({
       questionText: ['', [Validators.required]],
-      imageUrl: ['', [Validators.required]], // Campo para la URL de la imagen
+      imageUrl: ['', [Validators.required]],
       option1: ['', [Validators.required]],
       option2: ['', [Validators.required]],
       correctOption: ['', [Validators.required]]
@@ -52,7 +53,7 @@ export class ProfileComponent implements OnInit {
     if (this.firebaseService.isAuthenticated()) {
       const userId = this.firebaseService.getCurrentUserId();
       if (userId) {
-        this.firebaseService.getUserQuestions()
+        this.firebaseService.getUserQuestions(userId)
           .then(questions => {
             this.userQuestions = questions.map(question => {
               const createdAtDate = question.createdAt.toDate();
@@ -70,25 +71,32 @@ export class ProfileComponent implements OnInit {
 
   updateProfile(): void {
     if (this.profileForm.valid) {
-      const { displayName, email, password, avatar } = this.profileForm.value;
-      // Update the user's profile data
-      this.firebaseService.updateProfileData(displayName, avatar).then(() => {
-        console.log('Profile data updated');
+      const { newEmail, newPassword, avatar } = this.profileForm.value;
+      let promises = [];
+
+      if ( avatar) {
+        promises.push(this.firebaseService.updateUserProfile(this.selectedAvatar));
+      }
+
+      if (newEmail) {
+        promises.push(this.firebaseService.updateUserEmail(newEmail));
+      }
+
+      if (newPassword) {
+        promises.push(this.firebaseService.updateUserPassword(newPassword));
+      }
+  
+      Promise.all(promises).then(() => {
+        this.snackBar.open('Profile updated successfully!', 'Close', { duration: 3000 });
+      }).catch(error => {
+        console.error('Error updating profile:', error);
+        this.snackBar.open('Failed to update profile.', 'Close', { duration: 3000 });
       });
-
-      if (email) {
-        this.firebaseService.updateUserEmail(email).then(() => {
-          console.log('Email updated');
-        });
-      }
-
-      if (password) {
-        this.firebaseService.updateUserPassword(password).then(() => {
-          console.log('Password updated');
-        });
-      }
+    } else {
+      this.snackBar.open('Please fill in all required fields correctly.', 'Close', { duration: 3000 });
     }
   }
+  
 
   selectAvatar(avatarUrl: string): void {
     this.selectedAvatar = avatarUrl;

@@ -19,7 +19,7 @@ export class RegisterComponent {
       Validators.minLength(8),
       Validators.maxLength(20),
       // Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})') opcional
-      ]]
+      ]],
     });
   }
 
