@@ -3,7 +3,7 @@
     <span class="example-spacer"></span>
     <div *ngIf="!showAuthSection">
       <a mat-button routerLink="/dashboard">Dashboard</a>
-      <a mat-button routerLink="/login">Login</a>
+      <a mat-button routerLink="">Login</a>
       <a mat-button routerLink="/register">Register</a>
     </div>
     <div *ngIf="showAuthSection">
@@ -11,5 +11,5 @@
       <a mat-button routerLink="/admin">Administración</a>
       <a mat-button (click)="logout()">Cerrar Sesión</a>
     </div>
-</mat-toolbar>
+  </mat-toolbar>
   

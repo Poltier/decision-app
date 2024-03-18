@@ -1,7 +1,6 @@
 //declarations
 
 import { AppComponent } from './app.component';
-import { LoginComponent } from './pages/login/login.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { HeaderComponent } from './pages/header/header.component';
 import { WelcomeComponent } from './pages/welcome/welcome.component';
@@ -36,7 +35,6 @@ import { environment } from '../environments/environment';
 @NgModule({
   declarations: [
     AppComponent,
-    LoginComponent,
     DashboardComponent,
     HeaderComponent,
     WelcomeComponent,

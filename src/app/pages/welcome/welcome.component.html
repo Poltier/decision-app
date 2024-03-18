@@ -1,9 +1,30 @@
 <div class="welcome-container">
-    <h1>Bienvenido</h1>
-    <div class="language-buttons">
-      <button (click)="selectLanguage('es')">Español</button>
-      <button (click)="selectLanguage('en')">English</button>
-      <!-- Añadir más botones para otros idiomas si es necesario -->
-    </div>
-    <p>Esta es una breve presentación del proyecto...</p>
+  <h1>Bienvenido</h1>
+  <div class="language-buttons">
+    <button (click)="selectLanguage('es')">Español</button>
+    <button (click)="selectLanguage('en')">English</button>
+    <!-- Añadir más botones para otros idiomas si es necesario -->
+  </div>
+  <p>Esta es una breve presentación del proyecto...</p>
+  <div class="login-container">
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="login-form">
+      <mat-form-field appearance="fill">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email">
+        <mat-error *ngIf="loginForm.get('email')?.errors?.['required']">Email is required.</mat-error>
+        <mat-error *ngIf="loginForm.get('email')?.errors?.['email']">Email not in a valid format.</mat-error>
+      </mat-form-field>
+      
+      <mat-form-field appearance="fill">
+        <mat-label>Password</mat-label>
+        <input matInput formControlName="password" type="password">
+        <mat-error *ngIf="loginForm.get('password')?.errors?.['required']">Password is required.</mat-error>
+        <mat-error *ngIf="loginForm.get('password')?.errors?.['minlength']">Password must be at least 8 characters long.</mat-error>
+      </mat-form-field>
+  
+      <button mat-raised-button color="primary" type="submit" [disabled]="!loginForm.valid">Login</button>
+    </form>
+  </div>
+  <button (click)="navigateToRegister()">Regístrate aquí</button>
+  <button (click)="continueAsGuest()">Continuar como invitado</button>
 </div>

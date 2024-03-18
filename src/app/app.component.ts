@@ -7,17 +7,13 @@ import { Router, NavigationEnd } from '@angular/router';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  
-  showHeader: boolean = true; // Presupone que el header se mostrará por defecto
+  showHeader = true;
 
   constructor(private router: Router) {
-    // Escucha los eventos del router para ajustar la visibilidad del header
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        // Actualiza showHeader basado en la URL después de las redirecciones
-        this.showHeader = !event.urlAfterRedirects.includes('welcome');
+        this.showHeader = event.url !== '/home';
       }
     });
   }
 }
-
