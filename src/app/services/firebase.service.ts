@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile, updatePassword, updateEmail } from 'firebase/auth';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
+import { getStorage, ref, listAll, getDownloadURL } from 'firebase/storage';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,8 @@ import { BehaviorSubject } from 'rxjs';
 export class FirebaseService {
   private app = initializeApp(environment.firebaseConfig);
   private auth = getAuth(this.app);
-  private authStatus = new BehaviorSubject<boolean>(false); // Añadido para manejar el estado de autenticación
+  private storage = getStorage(this.app);
+  private authStatus = new BehaviorSubject<boolean>(false);
 
   constructor(private router: Router) {
     onAuthStateChanged(this.auth, user => {
@@ -19,11 +21,12 @@ export class FirebaseService {
     });
   }
 
+  //Autenticación / Registro / Login
+
   getAuthStatusListener() {
     return this.authStatus.asObservable();
   }
 
-  // Nuevo método para verificar la autenticación de forma síncrona
   isAuthenticated(): boolean {
     return this.auth.currentUser != null;
   }
@@ -56,5 +59,46 @@ export class FirebaseService {
       console.error('Error al cerrar sesión: ', error);
       throw error;
     }
+  }
+
+  //Profile
+  
+  async updateProfileData(displayName: string | null, photoURL: string | null) {
+    if (this.auth.currentUser) {
+      await updateProfile(this.auth.currentUser, { displayName, photoURL });
+    }
+  }
+
+  async updateUserProfile(displayName: string, photoURL: string): Promise<void> {
+    const user = this.auth.currentUser;
+    if (user) {
+      await updateProfile(user, { displayName, photoURL });
+    }
+  }
+
+  async updateUserEmail(newEmail: string) {
+    if (this.auth.currentUser) {
+      await updateEmail(this.auth.currentUser, newEmail);
+    }
+  }
+
+  async updateUserPassword(newPassword: string) {
+    if (this.auth.currentUser) {
+      await updatePassword(this.auth.currentUser, newPassword);
+    }
+  }
+
+  getAvatars(): Promise<string[]> {
+    const avatarsRef = ref(this.storage, 'avatars/');
+    return listAll(avatarsRef).then((listResult) => {
+      const promises = listResult.items.map((itemRef) => getDownloadURL(itemRef));
+      return Promise.all(promises);
+    });
+  }
+
+  updateUserAvatar(photoURL: string): Promise<void> {
+    const user = this.auth.currentUser;
+    if (!user) throw new Error('Not authenticated');
+    return updateProfile(user, { photoURL });
   }
 }
