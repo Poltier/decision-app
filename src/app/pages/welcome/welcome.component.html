@@ -1,30 +1,56 @@
 <div class="welcome-container">
-  <h1>Bienvenido</h1>
-  <div class="language-buttons">
-    <button (click)="selectLanguage('es')">Español</button>
-    <button (click)="selectLanguage('en')">English</button>
-    <!-- Añadir más botones para otros idiomas si es necesario -->
+  <div class="left-column">
+    <div class="left-column-container">
+      <img src="../../../assets/logo threads.png" alt="Logo" class="logo">
+      <h1>Threads of Fate</h1>
+  
+      <p>Welcome to <strong>Threads of Fate</strong>, a journey where ancient myths come alive, 
+        and your choices weave the fabric of destiny. In this world, inspired by the rich tapestry 
+        of Greek mythology, every decision opens up new paths, leading to untold stories of heroes, 
+        gods, and monsters. Choose wisely, for each step can alter the course of history. 
+        Are you ready to explore the threads of your own fate?</p>
+    </div>
   </div>
-  <p>Esta es una breve presentación del proyecto...</p>
-  <div class="login-container">
-    <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="login-form">
+  <div class="right-column">
+    <div class="right-column-container">
+      <img src="../../../assets/logo threads.png" alt="Logo" class="logo">
+      <h2>Choose your language</h2>
+      <mat-form-field appearance="fill">
+      <mat-label>Language</mat-label>
+      <mat-select (selectionChange)="selectLanguage($event.value)" value="en">
+        <mat-option value="en">English</mat-option>
+        <mat-option value="es">Spanish</mat-option>
+        <!-- Más opciones de idioma -->
+      </mat-select>
+      </mat-form-field>
+      <h2>Login</h2>
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="login-form">
       <mat-form-field appearance="fill">
         <mat-label>Email</mat-label>
         <input matInput formControlName="email" type="email">
         <mat-error *ngIf="loginForm.get('email')?.errors?.['required']">Email is required.</mat-error>
         <mat-error *ngIf="loginForm.get('email')?.errors?.['email']">Email not in a valid format.</mat-error>
       </mat-form-field>
-      
+
       <mat-form-field appearance="fill">
         <mat-label>Password</mat-label>
         <input matInput formControlName="password" type="password">
         <mat-error *ngIf="loginForm.get('password')?.errors?.['required']">Password is required.</mat-error>
         <mat-error *ngIf="loginForm.get('password')?.errors?.['minlength']">Password must be at least 8 characters long.</mat-error>
       </mat-form-field>
-  
+
       <button mat-raised-button color="primary" type="submit" [disabled]="!loginForm.valid">Login</button>
-    </form>
+      </form>
+      <div class="footer">
+      <a href="#">Terms of Use</a> | <a href="#">Privacy Policy</a>
+      </div>
+      <div class="additional-links">
+      Don't have an account yet? 
+      <a href="/register">Register here</a>
+      or 
+      <a href="/dashboard" (click)="continueAsGuest()">Continue as a guest</a>
+      </div>
+    </div>  
   </div>
-  <button (click)="navigateToRegister()">Regístrate aquí</button>
-  <button (click)="continueAsGuest()">Continuar como invitado</button>
+
 </div>

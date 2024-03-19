@@ -1,15 +1,15 @@
 <mat-toolbar color="primary">
-    <a mat-button routerLink="/home" class="navbar-brand">MiApp</a>
+    <a mat-button routerLink="/" class="navbar-brand">MiApp</a>
     <span class="example-spacer"></span>
     <div *ngIf="!showAuthSection">
       <a mat-button routerLink="/dashboard">Dashboard</a>
-      <a mat-button routerLink="">Login</a>
+      <a mat-button routerLink="/">Login</a>
       <a mat-button routerLink="/register">Register</a>
     </div>
     <div *ngIf="showAuthSection">
-      <a mat-button routerLink="/profile">Perfil</a>
-      <a mat-button routerLink="/admin">Administración</a>
-      <a mat-button (click)="logout()">Cerrar Sesión</a>
+      <a mat-button routerLink="/profile">Profile</a>
+      <a mat-button routerLink="/admin">Administration</a>
+      <a mat-button (click)="logout()">Logout</a>
     </div>
   </mat-toolbar>
   
