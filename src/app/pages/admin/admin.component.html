@@ -24,7 +24,7 @@
         <td>{{ question.approved ? 'Approved' : 'Pending' }}</td>
         <td>
           <div class="action-buttons">
-            <button mat-button (click)="approveQuestion(question.id)">Approve</button>
+            <button mat-button color="primary" (click)="approveQuestion(question.id)">Approve</button>
             <button mat-button color="warn" (click)="rejectQuestion(question.id)">Reject</button>
           </div>
         </td>

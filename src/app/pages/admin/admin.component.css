@@ -2,7 +2,6 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
   
 .admin-container h2 {
@@ -46,6 +45,15 @@ button {
   
 button:active {
     transform: scale(0.98);
+}
+
+button[color="primary"] {
+    background-color: #55d124;
+    color: white;
+}
+  
+button[color="primary"]:hover {
+    background-color: #55d32f;
 }
   
 button[color="warn"] {

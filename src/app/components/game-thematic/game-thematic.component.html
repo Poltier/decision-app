@@ -15,19 +15,19 @@
         </div>
       </mat-card-content>
       <mat-card-actions class="score-container">
-        <p>Puntuación: {{ score }}</p>
+        <p>Score: {{ score }}</p>
       </mat-card-actions>
     </mat-card>
   </div>
   <div *ngIf="!currentQuestion" class="loading-container">
-    <p>Cargando pregunta...</p>
+    <p>Loading question...</p>
   </div>
 </div>
 
 <div *ngIf="gameFinished" class="final-score-container">
   <mat-card class="final-score-card">
     <mat-card-content class="final-score-content">
-      <h2>Tu puntuación final es: {{ score }}</h2>
+      <h2>Your final score is: {{ score }}</h2>
     </mat-card-content>
     <mat-card-actions class="final-score-actions">
       <button mat-raised-button color="primary" (click)="restartGame()">Reiniciar Juego</button>
