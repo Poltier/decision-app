@@ -1,41 +1,87 @@
 .welcome-container {
-    text-align: center;
-    margin-top: 50px;
-}
+    display: flex;
+    min-height: 100vh;
+  }
   
-.language-buttons {
-    display: inline-block; 
-    margin: 0 10px;
-}
-  
-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    margin: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: transform 0.5s ease;
-}
-  
-button:hover {
-    animation: shake 0.5s;
-    animation-iteration-count: infinite;
-}
-
-.login-container {
-    max-width: 400px;
-    margin: 50px auto;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    background: #fff;
-}
-  
-.login-form {
+  .left-column, .right-column {
     display: flex;
     flex-direction: column;
-}
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .left-column {
+    flex: 65%;
+    background-image: linear-gradient(to right, #FAFAFA, #EAEAEA);
+    padding: 20px;
+  }
 
+  .left-column-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    background-color: #fff;
+    box-sizing: border-box;
+  }
+  
+  .right-column {
+    flex: 35%;
+    padding: 20px;
+  }
+
+  .right-column-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    background-color: #fff;
+    box-sizing: border-box;
+  }
+  
+  .logo {
+    max-width: 100px;
+    margin-bottom: 20px;
+  }
+  
+  .login-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .footer, .additional-links {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  .footer a, .additional-links a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  @media (max-width: 768px) {
+    .welcome-container {
+      flex-direction: column;
+    }
+  
+    .left-column {
+      display: none;
+    }
+  
+    .right-column {
+      max-width: 100%;
+      padding: 20px;
+    }
+  
+    .logo, .footer, .additional-links {
+      width: 100%;
+    }
+  }
+  
