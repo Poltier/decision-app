@@ -1,15 +1,9 @@
-/* option-card.component.css */
 .option-card {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 150px;
-    width: 100%; /* Se ajustará en el contenedor padre */
-    border-radius: 8px;
-    color: #000000;
-    font-size: 18px;
+    flex-basis: calc(50% - 10px);
+    margin: 5px;
+    text-align: center;
+    padding: 20px;
     cursor: pointer;
-    transition: transform 0.3s ease;
 }
 
 .option-card:hover {
@@ -18,13 +12,45 @@
 
 .card-content {
     padding: 40px 40px;
+    display: flex;
     text-align: center;
+    justify-content: center;
+    flex-direction: column;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: clamp(1.5rem, 2.5vw, 2rem); 
+    letter-spacing: -0.063rem;
+    min-width: 500px;
 }
 
 .left-option mat-card {
     background-color: #ff5252;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px -6px 0px 0px inset;
+    border-top: 2px solid rgba(0, 0, 0, 0.2);
+    border-left: 2px solid rgba(0, 0, 0, 0.2);
+    border-right: 2px solid rgba(0, 0, 0, 0.2);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
 }
 
 .right-option mat-card {
     background-color: #2196f3;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px -6px 0px 0px inset;
+    border-top: 2px solid rgba(0, 0, 0, 0.2);
+    border-left: 2px solid rgba(0, 0, 0, 0.2);
+    border-right: 2px solid rgba(0, 0, 0, 0.2);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
 }
+
+@media (max-width: 768px) {
+    .card-content {
+        min-width: 80px;
+        min-height: 45px;
+    }
+    
+    .option-card {
+        padding: 0px;
+    }
+
+  }

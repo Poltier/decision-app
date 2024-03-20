@@ -1,29 +1,56 @@
-/* game-thematic.component.css */
 .game-thematic-container, .final-score-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
-  min-height: calc(100vh - 64px); /* Ajuste para la altura del encabezado */
-  background-color: antiquewhite;
   text-align: center;
+  min-height: calc(100vh - 64px); /* Ajuste para la altura del encabezado */
+  box-sizing: border-box;
+  background-image: linear-gradient(to right, #FAFAFA, #EAEAEA);
 }
 
 .question-card {
-  width: 90%;
-  max-width: 600px;
+  width: 100%;
+  min-height: calc(100vh - 64px); 
   margin: auto;
-  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: none;
+}
+
+.mat-title {
+  background-color: white;
+  padding: 2rem 5rem;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 2.5vw, 2rem); 
+  letter-spacing: -0.063rem;
+}
+
+.mat-image-container {
+  background-image: linear-gradient(to right, #FAFAFA, #EAEAEA);
+  width: 100%;
+  padding: 1em 0;
+  max-height: 480px;
+}
+
+.mat-image {
+  max-width: 700px;
+  min-height: 480px;
 }
 
 .options-container {
   display: flex;
-  width: 100%;
-  justify-content: space-around; /* Espaciado entre tarjetas */
+  justify-content: space-between;
+  padding: 15px 0;
 }
 
 .score-container {
   justify-content: center;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 2.5vw, 2rem); 
+  letter-spacing: -0.063rem;
+  padding: 10px;
 }
 
 .loading-container {
@@ -31,12 +58,6 @@
   justify-content: center;
   align-items: center;
   height: 90vh;
-}
-
-mat-card-image {
-  max-height: 200px;
-  width: auto;
-  margin: 20px auto;
 }
 
 .final-score-card {
@@ -55,17 +76,23 @@ mat-card-image {
 .final-score-actions {
   display: flex;
   justify-content: center;
-  gap: 20px; /* Espaciado entre botones */
+  gap: 20px;
   width: 100%;
   padding-top: 20px;
 }
 
-@media (max-width: 600px) {
-  .options-container {
-      flex-direction: column; /* Opciones una encima de otra en móviles */
+@media (max-width: 768px) {
+  .game-thematic-container, .final-score-container .question-card {
+    min-height: calc(100vh - 56px);
+    background-image: none;
   }
   
-  .final-score-actions {
-      flex-direction: column; /* Botones uno encima del otro en móviles */
+  .mat-image {
+    max-width: 380px;
+    min-height: 250px;
+  }
+
+  .mat-title {
+    padding: 2rem 2rem;
   }
 }
