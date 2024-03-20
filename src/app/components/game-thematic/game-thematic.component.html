@@ -1,8 +1,10 @@
 <div *ngIf="!gameFinished">
-  <div *ngIf="currentQuestion" class="game-thematic-container mat-display-3">
+  <div *ngIf="currentQuestion" class="game-thematic-container">
     <mat-card class="question-card">
       <mat-card-title class="mat-title">{{ currentQuestion.questionText }}</mat-card-title>
-      <img mat-card-image [src]="currentQuestion.imageUrl" alt="Question image">
+      <div  class="mat-image-container">
+        <img class="mat-image" mat-card-image [src]="currentQuestion.imageUrl" alt="Question image">
+      </div>
       <mat-card-content>
         <div class="options-container">
           <app-option-card 
@@ -30,8 +32,8 @@
       <h2>Your final score is: {{ score }}</h2>
     </mat-card-content>
     <mat-card-actions class="final-score-actions">
-      <button mat-raised-button color="primary" (click)="restartGame()">Reiniciar Juego</button>
-      <button mat-raised-button color="accent" (click)="goToDashboard()">Nuevo Juego</button>
+      <button mat-raised-button color="primary" (click)="restartGame()">Try again</button>
+      <button mat-raised-button color="accent" (click)="goToDashboard()">New game</button>
     </mat-card-actions>
   </mat-card>
 </div>

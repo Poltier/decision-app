@@ -48,10 +48,7 @@
 @media (max-width: 768px) {
     .register-container {
       width: 90vw;
-      height: 75vh; /*maybe auto is better*/
       padding: 15px;
-      margin-top: 50px;
-      margin-bottom: 50px;
     }
 
 }
