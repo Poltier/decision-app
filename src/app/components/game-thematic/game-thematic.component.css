@@ -95,4 +95,8 @@
   .mat-title {
     padding: 2rem 2rem;
   }
+
+  .mat-mdc-card-content {
+    padding: 0;
+  }
 }
