@@ -46,11 +46,10 @@
 @media (max-width: 768px) {
     .card-content {
         min-width: 80px;
-        min-height: 45px;
+        min-height: 60px;
     }
     
     .option-card {
         padding: 0px;
     }
-
   }
