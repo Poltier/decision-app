@@ -1,20 +1,16 @@
 .admin-container {
-    max-width: 1200px;
-    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
     padding: 20px;
-}
+    box-sizing: border-box;
+  }
   
 .admin-container h2 {
     color: #333;
     margin-bottom: 20px;
 }
-  
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 30px;
-}
-  
+    
 th, td {
     text-align: center;
     padding: 8px;
@@ -25,22 +21,76 @@ th {
     background-color: #f4f4f4;
     color: #333;
 }
+      
+/* Modify questions table */
+
+.table-container {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+}
   
-td a {
+mat-table {
+    width: 1200px;
+    max-width: 1200px;
+    margin-bottom: 1rem;
+    display: table;
+    border-collapse: collapse;
+    margin: 0px;
+}
+  
+mat-row,
+mat-header-row {
+    display: table-row;
+}
+  
+mat-cell,
+mat-header-cell {
+    word-wrap: initial;
+    display: table-cell;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    line-break: unset;
+    width: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    vertical-align: middle;
+    text-align: center;
+}
+  
+mat-header-cell {
+    background-color: #f4f4f4 !important;
+    color: #333;
+    font-weight: bold;
+}
+  
+.table-container a {
     color: #007bff;
     text-decoration: none;
 }
   
-td a:hover {
+.table-container a:hover {
     text-decoration: underline;
 }
   
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+  
+.admin-container button {
+    white-space: nowrap;
+}
+
 button {
     cursor: pointer;
     padding: 6px 12px;
     border: none;
     border-radius: 4px;
     transition: background-color 0.3s ease;
+    width: 80px;
 }
   
 button:active {
@@ -64,19 +114,8 @@ button[color="warn"] {
 button[color="warn"]:hover {
     background-color: #d32f2f;
 }
-  
-.ng-template {
+
+ng-template {
     text-align: center;
     margin-top: 20px;
 }
-    
-  /* Estilos para los botones dentro de las celdas de acción */
-  .admin-container .action-buttons {
-    display: flex;
-    gap: 10px; /* Espacio entre botones */
-  }
-  
-  .admin-container button {
-    white-space: nowrap; /* Evita que el texto del botón se ajuste a la línea */
-  }
-  

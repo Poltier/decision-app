@@ -44,13 +44,18 @@ export class FirebaseService {
 
   async signUp(email: string, password: string) {
     try {
-      await createUserWithEmailAndPassword(this.auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
+      const avatars = await this.getAvatars();
+      const randomAvatar = avatars[Math.floor(Math.random() * avatars.length)];
+      if (userCredential.user) {
+        await updateProfile(userCredential.user, { photoURL: randomAvatar });
+      }
       this.router.navigate(['/dashboard']);
     } catch (error) {
       console.error('Error al registrar usuario: ', error);
       throw error;
     }
-  }
+  }  
 
   async signOut() {
     try {

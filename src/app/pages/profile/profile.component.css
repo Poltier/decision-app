@@ -7,6 +7,8 @@
   box-sizing: border-box;
 }
 
+/* Avatar */
+
 .avatar-selection {
   display: flex;
   justify-content: center;
@@ -31,6 +33,8 @@
   border-color: #007bff;
 }
 
+/* Profile */
+
 .profile-form {
   display: flex;
   flex-direction: column;
@@ -43,61 +47,61 @@
   margin-bottom: 15px;
 }
 
-mat-form-field {
+/* Modify questions table */
+
+.table-container {
+  display: block;
   width: 100%;
+  overflow-x: auto;
 }
 
-.user-questions {
-  width: 100%;
-  margin-top: 20px;
+mat-table {
+  width: 1200px;
+  max-width: 1200px;
+  margin-bottom: 1rem;
+  display: table;
   border-collapse: collapse;
+  margin: 0px;
 }
 
-.user-questions th,
-.user-questions td {
-  padding: 10px;
-  border: 1px solid #ddd;
+mat-header-cell {
+  background-color: #f4f4f4 !important;
+  color: #333;
+  font-weight: bold;
+}
+
+mat-row,
+mat-header-row {
+  display: table-row;
+}
+
+mat-cell,
+mat-header-cell {
+  word-wrap: initial;
+  display: table-cell;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  line-break: unset;
+  width: auto;
+  white-space: nowrap;
+  overflow: hidden;
+  vertical-align: middle;
   text-align: center;
 }
 
-.user-questions th {
-  background-color: #f7f7f7;
-}
-
-.user-questions tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-.user-questions tr:hover {
-  background-color: #e8f4ff;
-}
-
-.user-questions a {
+.table-container a {
   color: #007bff;
   text-decoration: none;
 }
 
-.user-questions a:hover {
+.table-container a:hover {
   text-decoration: underline;
 }
 
-button {
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-button.mat-raised-button {
-  margin-right: 8px;
-}
-
-.no-questions {
-  text-align: center;
-  padding: 20px;
-  color: #666;
-}
+/* Edition Questions form */
 
 .edition-question-container {
-  max-width: 400px;
+  max-width:400px;
   margin: 50px auto;
   padding: 20px;
   border-radius: 5px;
@@ -108,4 +112,16 @@ button.mat-raised-button {
 .edition-question-form {
   display: flex;
   flex-direction: column;
+}
+
+
+/* No questions */
+
+ng-template {
+  text-align: center;
+  margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+
 }

@@ -17,6 +17,7 @@ export class ProfileComponent implements OnInit {
   userId: any;
   isEditing = false;
   editingQuestionId: string | null = null;
+  displayedColumns: string[] = ['question', 'correctOption', 'incorrectOption', 'image', 'createdAt', 'status', 'actions'];
 
   constructor(
     private fb: FormBuilder,
@@ -29,10 +30,10 @@ export class ProfileComponent implements OnInit {
       avatar: ['']
     });
     this.questionForm = this.fb.group({
-      questionText: ['', [Validators.required]],
+      questionText: ['', [Validators.required, Validators.maxLength(120)]],
       imageUrl: ['', [Validators.required]],
-      option1: ['', [Validators.required]],
-      option2: ['', [Validators.required]],
+      option1: ['', [Validators.required, Validators.maxLength(40)]],
+      option2: ['', [Validators.required, Validators.maxLength(40)]],
       correctOption: ['', [Validators.required]]
     });
   }

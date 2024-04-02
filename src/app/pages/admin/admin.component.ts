@@ -9,6 +9,8 @@ import { FirebaseService } from '../../services/firebase.service';
 export class AdminComponent implements OnInit {
   pendingQuestions: any[] = [];
   approvedQuestions: any[] = [];
+  pendingDisplayedColumns: string[] = ['userId', 'question', 'correctOption', 'incorrectOption', 'image', 'createdAt', 'status', 'actions'];
+  approvedDisplayedColumns: string[] = ['userId', 'question', 'correctOption', 'incorrectOption', 'image', 'createdAt'];
 
   constructor(private firebaseService: FirebaseService) {}
 

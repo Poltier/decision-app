@@ -7,6 +7,9 @@
       <mat-error *ngIf="questionForm.controls['questionText'].hasError('required')">
         Question is required.
       </mat-error>
+      <mat-error *ngIf="questionForm.controls['questionText'].hasError('maxlength')">
+        Question can not be more than 120 characters.
+      </mat-error>
     </mat-form-field>
     
     <mat-form-field appearance="fill">
@@ -23,6 +26,9 @@
       <mat-error *ngIf="questionForm.controls['option1'].hasError('required')">
         Option 1 is required.
       </mat-error>
+      <mat-error *ngIf="questionForm.controls['option1'].hasError('maxlength')">
+        Option 1 can not be more than 40 characters.
+      </mat-error>
     </mat-form-field>
     
     <mat-form-field appearance="fill">
@@ -30,6 +36,9 @@
       <input matInput type="text" id="option2" formControlName="option2">
       <mat-error *ngIf="questionForm.controls['option2'].hasError('required')">
         Option 2 is required.
+      </mat-error>
+      <mat-error *ngIf="questionForm.controls['option2'].hasError('maxlength')">
+        Option 2 can not be more than 40 characters.
       </mat-error>
     </mat-form-field>
     

@@ -20,10 +20,10 @@ export class SubmitQuestionComponent {
   ) {
     this.userId = this.firebaseService.getCurrentUserId();
     this.questionForm = this.fb.group({
-      questionText: ['', [Validators.required]],
+      questionText: ['', [Validators.required, Validators.maxLength(120)]],
       imageUrl: ['', [Validators.required]],
-      option1: ['', [Validators.required]],
-      option2: ['', [Validators.required]],
+      option1: ['', [Validators.required, Validators.maxLength(40)]],
+      option2: ['', [Validators.required, Validators.maxLength(40)]],
       correctOption: ['', [Validators.required]]
     });
   }
