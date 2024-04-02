@@ -1,0 +1,93 @@
+[
+    {
+        "questionText": "What is the powerhouse of the cell?",
+        "options": [
+            {"text": "Mitochondria", "isCorrect": true},
+            {"text": "Nucleus", "isCorrect": false}
+        ],
+        "imageUrl": "https://example.com/mitochondria.png",
+        "thematic": "Science"
+    },
+    {
+        "questionText": "Which river is the longest in the world?",
+        "options": [
+            {"text": "Nile", "isCorrect": true},
+            {"text": "Amazon", "isCorrect": false}
+        ],
+        "imageUrl": "https://example.com/nile.png",
+        "thematic": "Geography"
+    },
+    {
+        "questionText": "Who was the first president of the United States?",
+        "options": [
+            {"text": "George Washington", "isCorrect": true},
+            {"text": "Abraham Lincoln", "isCorrect": false}
+        ],
+        "imageUrl": "https://example.com/washington.png",
+        "thematic": "History"
+    },
+    {
+        "questionText": "What is the highest score possible in a single throw of bowling?",
+        "options": [
+            {"text": "10", "isCorrect": true},
+            {"text": "30", "isCorrect": false}
+        ],
+        "imageUrl": "https://example.com/bowling.png",
+        "thematic": "Sports"
+    },
+    {
+        "questionText": "Who wrote 'To Kill a Mockingbird'?",
+        "options": [
+            {"text": "Harper Lee", "isCorrect": true},
+            {"text": "Ernest Hemingway", "isCorrect": false}
+        ],
+        "imageUrl": "https://example.com/mockingbird.png",
+        "thematic": "Literature"
+    },
+    {
+        "questionText": "Which river is the longest in the world?",
+        "options": [
+            {"text": "Nile", "isCorrect": true},
+            {"text": "Amazon", "isCorrect": false}
+        ],
+        "imageUrl": "https://example.com/river.png",
+        "thematic": "Geography"
+    },
+    {
+        "questionText": "Who wrote the play 'Romeo and Juliet'?",
+        "options": [
+            {"text": "William Shakespeare", "isCorrect": true},
+            {"text": "Christopher Marlowe", "isCorrect": false}
+        ],
+        "imageUrl": "https://example.com/shakespeare.png",
+        "thematic": "Literature"
+    },
+    {
+        "questionText": "What year did the Titanic sink?",
+        "options": [
+            {"text": "1912", "isCorrect": true},
+            {"text": "1911", "isCorrect": false}
+        ],
+        "imageUrl": "https://example.com/titanic.png",
+        "thematic": "History"
+    },
+    {
+        "questionText": "Which country hosted the 2016 Summer Olympics?",
+        "options": [
+            {"text": "Brazil", "isCorrect": true},
+            {"text": "China", "isCorrect": false}
+        ],
+        "imageUrl": "https://example.com/olympics.png",
+        "thematic": "Sports"
+    },
+    {
+        "questionText": "What is the main component of the sun?",
+        "options": [
+            {"text": "Helium", "isCorrect": false},
+            {"text": "Hydrogen", "isCorrect": true}
+        ],
+        "thematic": "Science"
+    }
+]
+  
+  
