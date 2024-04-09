@@ -51,10 +51,23 @@
       <mat-error *ngIf="questionForm.controls['correctOption'].hasError('required')">
       You must select the correct option.
       </mat-error>
-      </mat-form-field>
-      <button mat-raised-button color="primary" type="submit" [disabled]="questionForm.invalid">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+        <mat-label>Thematic</mat-label>
+        <mat-select formControlName="thematic">
+          <mat-option *ngFor="let thematic of thematics" [value]="thematic">
+            {{ thematic }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="questionForm.controls['thematic'].hasError('required')">
+          Thematic is required.
+        </mat-error>
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" type="submit" [disabled]="questionForm.invalid">
         Submit Question
-      </button>
+    </button>
   </form>
 </div>
   

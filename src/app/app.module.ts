@@ -8,7 +8,6 @@ import { AdminComponent } from './pages/admin/admin.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { SubmitQuestionComponent } from './pages/submit-question/submit-question.component';
-import { OptionCardComponent } from './components/option-card/option-card.component';
 import { GameThematicComponent } from './components/game-thematic/game-thematic.component';
 
 //imports
@@ -43,7 +42,6 @@ import { MatSortModule } from '@angular/material/sort';
     WelcomeComponent,
     AdminComponent,
     RegisterComponent,
-    OptionCardComponent,
     ProfileComponent,
     GameThematicComponent,
     SubmitQuestionComponent

@@ -1,0 +1,28 @@
+.game-options {
+    text-align: center;
+}
+  
+.thematic-cards {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+  
+.thematic-card {
+    cursor: pointer;
+    margin: 10px;
+}
+  
+mat-card {
+    width: 200px;
+}
+  
+mat-card img {
+    width: 100%;
+    height: auto;
+}
+  
+mat-card-content h3 {
+    margin-top: 10px;
+}
+  

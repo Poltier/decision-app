@@ -17,7 +17,7 @@ const routes: Routes = [
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'admin', component: AdminComponent, canActivate: [AuthGuard] },
 
-  { path: 'game-thematic', component: GameThematicComponent },
+  { path: 'game-thematic/:type', component: GameThematicComponent },
   { path: 'submit-question', component: SubmitQuestionComponent },
 
   // Otras rutas específicas de la aplicación aquí

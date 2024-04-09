@@ -7,13 +7,16 @@
       </div>
       <mat-card-content>
         <div class="options-container">
-          <app-option-card 
-            *ngFor="let option of currentQuestion.options; let i = index" 
-            [option]="option" 
-            [isLeft]="i === 0" 
-            [isRight]="i === 1"
-            (optionSelected)="onOptionSelected(option)">
-          </app-option-card>
+          <div *ngFor="let option of currentQuestion.options; let i = index" 
+               [ngClass]="{'left-option': i === 0, 'right-option': i === 1}" 
+               (click)="onOptionSelected(option)"
+               class="option-card">
+            <mat-card>
+              <mat-card-content class="card-content">
+                <p>{{ option.text }}</p>
+              </mat-card-content>
+            </mat-card>
+          </div>
         </div>
       </mat-card-content>
       <mat-card-actions class="score-container">

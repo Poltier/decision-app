@@ -15,14 +15,32 @@ export class GameService {
   private gameFinished = new BehaviorSubject<boolean>(false); // Para controlar el fin del juego
 
   constructor(private firestore: AngularFirestore) {
-    this.loadQuestionsFromFirestore();
+    this.loadAllApprovedQuestions();
   }
 
-  private loadQuestionsFromFirestore() {
-    this.firestore.collection<Question>('questions').valueChanges({ idField: 'id' })
+  loadAllApprovedQuestions() {
+    this.firestore.collection<Question>('questions', ref => ref.where('approved', '==', true))
+      .valueChanges({ idField: 'id' })
       .subscribe(questions => this.questions$.next(questions));
-  }
+  }  
 
+  loadQuestionsFromFirestoreByThematic(thematic: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (!thematic) {
+        reject('Thematic is undefined');
+        return;
+      }
+      this.firestore.collection<Question>('questions', ref => ref
+        .where('thematic', '==', thematic)
+        .where('approved', '==', true))
+        .valueChanges({ idField: 'id' })
+        .subscribe(questions => {
+          this.questions$.next(questions);
+          resolve();
+        }, error => reject(error));
+    });
+  }
+  
   getQuestions(): Observable<Question[]> {
     return this.questions$.asObservable();
   }

@@ -1,25 +1,42 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GameService } from '../../services/game.service';
 import { Question, QuestionOption } from '../../models/question';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-game-thematic',
   templateUrl: './game-thematic.component.html',
   styleUrls: ['./game-thematic.component.css']
 })
-export class GameThematicComponent implements OnInit {
+export class GameThematicComponent implements OnInit, OnDestroy {
   currentQuestion?: Question;
   score: number = 0;
+  private unsubscribe$ = new Subject<void>();
   gameFinished: boolean = false;
 
-  constructor(private gameService: GameService, private router: Router) {}
+  constructor(private gameService: GameService, private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
     this.gameService.resetGame();
     this.getNextQuestion();
     this.gameService.getScore().subscribe(score => this.score = score);
     this.gameService.isGameFinished().subscribe(finished => this.gameFinished = finished);
+    this.route.params.pipe(takeUntil(this.unsubscribe$)).subscribe(params => {
+      const thematic = params['type'];
+      if (thematic && thematic !== 'mix') {
+        this.gameService.loadQuestionsFromFirestoreByThematic(thematic);
+      } else {
+        this.gameService.loadAllApprovedQuestions();
+      }
+      this.restartGame();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   onOptionSelected(option: QuestionOption): void {

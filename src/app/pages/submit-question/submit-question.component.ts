@@ -12,6 +12,8 @@ export class SubmitQuestionComponent {
   questionForm: FormGroup;
   userId: any;
   isLoading = false;
+  thematics = ['Science', 'Geography', 'History', 'Sports', 'Literature']; 
+  defaultImageUrl = 'https://firebasestorage.googleapis.com/v0/b/decisiondevelopmentapp.appspot.com/o/default%2Fgame_default.jpg?alt=media&token=0bf0098b-3893-46f4-85a2-ae4a8d8ad8a7';
 
   constructor(
     private fb: FormBuilder,
@@ -21,10 +23,12 @@ export class SubmitQuestionComponent {
     this.userId = this.firebaseService.getCurrentUserId();
     this.questionForm = this.fb.group({
       questionText: ['', [Validators.required, Validators.maxLength(120)]],
-      imageUrl: ['', [Validators.required]],
+      imageUrl: [''],
+      // imageUrl: ['', [Validators.required]],
       option1: ['', [Validators.required, Validators.maxLength(40)]],
       option2: ['', [Validators.required, Validators.maxLength(40)]],
-      correctOption: ['', [Validators.required]]
+      correctOption: ['', [Validators.required]],
+      thematic: ['', [Validators.required]]
     });
   }
 
@@ -32,13 +36,15 @@ export class SubmitQuestionComponent {
     if (this.questionForm.valid && this.userId) {
       this.isLoading = true;
       const formData = this.questionForm.value;
+
       this.firebaseService.submitQuestion({
         questionText: formData.questionText,
-        imageUrl: formData.imageUrl,
+        imageUrl: formData.imageUrl || this.defaultImageUrl,
         options: [
           { text: formData.option1, isCorrect: formData.correctOption === 'option1' },
           { text: formData.option2, isCorrect: formData.correctOption === 'option2' }
         ],
+        thematic: formData.thematic,
         submittedBy: this.userId,
         approved: false
       }).then(() => {

@@ -1,34 +1,38 @@
 <div class="admin-container">
   <h2>Pending Questions</h2>
-  <div *ngIf="pendingQuestions.length > 0; else noPendingQuestions" class="table-container">
-      <mat-table [dataSource]="pendingQuestions">
+  <div *ngIf="dataSourcePending.data.length > 0; else noPendingQuestions" class="table-container">
+      <mat-table [dataSource]="dataSourcePending">
         <ng-container matColumnDef="userId">
           <mat-header-cell *matHeaderCellDef> User ID </mat-header-cell>
           <mat-cell *matCellDef="let question"> {{ question.submittedBy }} </mat-cell>
         </ng-container>
         <ng-container matColumnDef="question">
-        <mat-header-cell *matHeaderCellDef> Question </mat-header-cell>
-        <mat-cell *matCellDef="let question"> {{ question.questionText }} </mat-cell>
+          <mat-header-cell *matHeaderCellDef> Question </mat-header-cell>
+          <mat-cell *matCellDef="let question"> {{ question.questionText }} </mat-cell>
         </ng-container>
-        <ng-container matColumnDef="correctOption">
-        <mat-header-cell *matHeaderCellDef> Correct Option </mat-header-cell>
-        <mat-cell *matCellDef="let question"> {{ getCorrectOptionText(question.options) }} </mat-cell>
+          <ng-container matColumnDef="correctOption">
+          <mat-header-cell *matHeaderCellDef> Correct Option </mat-header-cell>
+          <mat-cell *matCellDef="let question"> {{ getCorrectOptionText(question.options) }} </mat-cell>
         </ng-container>
         <ng-container matColumnDef="incorrectOption">
-        <mat-header-cell *matHeaderCellDef> Incorrect Option </mat-header-cell>
-        <mat-cell *matCellDef="let question"> {{ getIncorrectOptionText(question.options) }} </mat-cell>
+          <mat-header-cell *matHeaderCellDef> Incorrect Option </mat-header-cell>
+          <mat-cell *matCellDef="let question"> {{ getIncorrectOptionText(question.options) }} </mat-cell>
         </ng-container>
         <ng-container matColumnDef="image">
-        <mat-header-cell *matHeaderCellDef> Image </mat-header-cell>
-        <mat-cell *matCellDef="let question"> <a href="{{ question.imageUrl }}" target="_blank">View Image</a> </mat-cell>
+          <mat-header-cell *matHeaderCellDef> Image </mat-header-cell>
+          <mat-cell *matCellDef="let question"> <a href="{{ question.imageUrl }}" target="_blank">View Image</a> </mat-cell>
         </ng-container>
-        <ng-container matColumnDef="createdAt">
-        <mat-header-cell *matHeaderCellDef> Creation Date </mat-header-cell>
-        <mat-cell *matCellDef="let question"> {{ question.createdAt }} </mat-cell>
+        <ng-container matColumnDef="thematic">
+          <mat-header-cell *matHeaderCellDef> Thematic </mat-header-cell>
+          <mat-cell *matCellDef="let question"> {{ question.thematic }} </mat-cell>
+        </ng-container>
+          <ng-container matColumnDef="createdAt">
+          <mat-header-cell *matHeaderCellDef> Creation Date </mat-header-cell>
+          <mat-cell *matCellDef="let question"> {{ question.createdAt }} </mat-cell>
         </ng-container>
         <ng-container matColumnDef="status">
-        <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
-        <mat-cell *matCellDef="let question"> {{ question.approved ? 'Approved' : 'Pending' }} </mat-cell>
+          <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
+          <mat-cell *matCellDef="let question"> {{ question.approved ? 'Approved' : 'Pending' }} </mat-cell>
         </ng-container>
         <ng-container matColumnDef="actions">
           <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
@@ -42,40 +46,44 @@
         <mat-header-row *matHeaderRowDef="pendingDisplayedColumns"></mat-header-row>
         <mat-row *matRowDef="let row; columns: pendingDisplayedColumns;"></mat-row>
       </mat-table>
-      <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+      <mat-paginator #paginatorPending [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
   </div>
 
   <h2>Approved Questions</h2>
-  <div *ngIf="approvedQuestions.length > 0; else noApprovedQuestions" class="table-container">
-    <mat-table [dataSource]="approvedQuestions">
+  <div *ngIf="dataSourceApproved.data.length > 0; else noApprovedQuestions" class="table-container">
+    <mat-table [dataSource]="dataSourceApproved">
       <ng-container matColumnDef="userId">
         <mat-header-cell *matHeaderCellDef> User ID </mat-header-cell>
         <mat-cell *matCellDef="let question"> {{ question.submittedBy }} </mat-cell>
       </ng-container>
       <ng-container matColumnDef="question">
-      <mat-header-cell *matHeaderCellDef> Question </mat-header-cell>
-      <mat-cell *matCellDef="let question"> {{ question.questionText }} </mat-cell>
+        <mat-header-cell *matHeaderCellDef> Question </mat-header-cell>
+        <mat-cell *matCellDef="let question"> {{ question.questionText }} </mat-cell>
       </ng-container>
       <ng-container matColumnDef="correctOption">
-      <mat-header-cell *matHeaderCellDef> Correct Option </mat-header-cell>
-      <mat-cell *matCellDef="let question"> {{ getCorrectOptionText(question.options) }} </mat-cell>
+        <mat-header-cell *matHeaderCellDef> Correct Option </mat-header-cell>
+        <mat-cell *matCellDef="let question"> {{ getCorrectOptionText(question.options) }} </mat-cell>
       </ng-container>
       <ng-container matColumnDef="incorrectOption">
-      <mat-header-cell *matHeaderCellDef> Incorrect Option </mat-header-cell>
-      <mat-cell *matCellDef="let question"> {{ getIncorrectOptionText(question.options) }} </mat-cell>
+        <mat-header-cell *matHeaderCellDef> Incorrect Option </mat-header-cell>
+        <mat-cell *matCellDef="let question"> {{ getIncorrectOptionText(question.options) }} </mat-cell>
       </ng-container>
       <ng-container matColumnDef="image">
-      <mat-header-cell *matHeaderCellDef> Image </mat-header-cell>
-      <mat-cell *matCellDef="let question"> <a href="{{ question.imageUrl }}" target="_blank">View Image</a> </mat-cell>
+        <mat-header-cell *matHeaderCellDef> Image </mat-header-cell>
+        <mat-cell *matCellDef="let question"> <a href="{{ question.imageUrl }}" target="_blank">View Image</a> </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="thematic">
+        <mat-header-cell *matHeaderCellDef> Thematic </mat-header-cell>
+        <mat-cell *matCellDef="let question"> {{ question.thematic }} </mat-cell>
       </ng-container>
       <ng-container matColumnDef="createdAt">
-      <mat-header-cell *matHeaderCellDef> Creation Date </mat-header-cell>
-      <mat-cell *matCellDef="let question"> {{ question.createdAt }} </mat-cell>
+        <mat-header-cell *matHeaderCellDef> Creation Date </mat-header-cell>
+        <mat-cell *matCellDef="let question"> {{ question.createdAt }} </mat-cell>
       </ng-container>
       <mat-header-row *matHeaderRowDef="approvedDisplayedColumns"></mat-header-row>
       <mat-row *matRowDef="let row; columns: approvedDisplayedColumns;"></mat-row>
     </mat-table>
-    <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+    <mat-paginator #paginatorApproved [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
   </div>
 
   <ng-template #noPendingQuestions>

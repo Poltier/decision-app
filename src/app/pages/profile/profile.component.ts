@@ -17,7 +17,8 @@ export class ProfileComponent implements OnInit {
   userId: any;
   isEditing = false;
   editingQuestionId: string | null = null;
-  displayedColumns: string[] = ['question', 'correctOption', 'incorrectOption', 'image', 'createdAt', 'status', 'actions'];
+  displayedColumns: string[] = ['question', 'correctOption', 'incorrectOption', 'image', 'thematic', 'createdAt', 'status', 'actions'];
+  thematics = ['Science', 'Geography', 'History', 'Sports', 'Literature']; 
 
   constructor(
     private fb: FormBuilder,
@@ -34,7 +35,8 @@ export class ProfileComponent implements OnInit {
       imageUrl: ['', [Validators.required]],
       option1: ['', [Validators.required, Validators.maxLength(40)]],
       option2: ['', [Validators.required, Validators.maxLength(40)]],
-      correctOption: ['', [Validators.required]]
+      correctOption: ['', [Validators.required]],
+      thematic: ['', [Validators.required]]
     });
   }
 
@@ -123,7 +125,8 @@ export class ProfileComponent implements OnInit {
       option1: question.options[0].text,
       option2: question.options[1].text,
       correctOption: question.options[0].isCorrect ? 'option1' : 'option2',
-      imageUrl: question.imageUrl || '' // Asegúrate de que imageUrl tenga un valor predeterminado en caso de ser undefined
+      imageUrl: question.imageUrl || '',
+      thematic: question.thematic
     });
   }
 
@@ -142,16 +145,19 @@ export class ProfileComponent implements OnInit {
           { text: this.questionForm.value.option1, isCorrect: this.questionForm.value.correctOption === 'option1' },
           { text: this.questionForm.value.option2, isCorrect: this.questionForm.value.correctOption === 'option2' },
         ],
-        imageUrl: this.questionForm.value.imageUrl
+        imageUrl: this.questionForm.value.imageUrl,
+        thematic: this.questionForm.value.thematic
       };
+      
       this.firebaseService.updateQuestion(this.editingQuestionId, questionData).then(() => {
-        console.log('Question updated successfully');
+        this.snackBar.open('Question updated successfully!', 'Close', { duration: 3000 });
         this.isEditing = false;
         this.editingQuestionId = null;
         // Recarga las preguntas del usuario para reflejar los cambios
         this.loadUserQuestions();
       }).catch(error => {
         console.error('Error updating question', error);
+        this.snackBar.open('Error updating question. Try again later.', 'Close', { duration: 3000 });
       });
     }
   }

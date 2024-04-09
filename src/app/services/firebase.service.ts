@@ -121,8 +121,8 @@ export class FirebaseService {
   const questionsRef = collection(db, 'questions');
   await addDoc(questionsRef, {
     ...questionData,
-    approved: false, // Añade un campo para indicar que la pregunta está pendiente de aprobación
-    createdAt: new Date() // Añade un campo para la fecha de creación
+    approved: false,
+    createdAt: new Date()
   });
   }
   
