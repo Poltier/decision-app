@@ -44,4 +44,4 @@ testem.log
 Thumbs.db
 
 # Scripts
-/script
+/src/app/script/
