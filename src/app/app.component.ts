@@ -12,7 +12,11 @@ export class AppComponent {
   constructor(private router: Router) {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        this.showHeader = (event.url !== '/' && event.url !== '/register');
+        this.showHeader = !(
+          event.url === '/' || 
+          event.url === '/register' || 
+          event.url.startsWith('/game-thematic')
+        );
       }
     });
   }

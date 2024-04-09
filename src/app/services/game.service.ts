@@ -18,21 +18,24 @@ export class GameService {
     this.loadAllApprovedQuestions();
   }
 
-  loadAllApprovedQuestions() {
-    this.firestore.collection<Question>('questions', ref => ref.where('approved', '==', true))
-      .valueChanges({ idField: 'id' })
-      .subscribe(questions => this.questions$.next(questions));
-  }  
-
+  loadAllApprovedQuestions(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.firestore.collection<Question>('questions', ref => ref.where('approved', '==', true))
+        .valueChanges({ idField: 'id' })
+        .subscribe(questions => {
+          this.questions$.next(questions);
+          resolve();
+        }, error => reject(error));
+    });
+  }
+  
   loadQuestionsFromFirestoreByThematic(thematic: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!thematic) {
         reject('Thematic is undefined');
         return;
       }
-      this.firestore.collection<Question>('questions', ref => ref
-        .where('thematic', '==', thematic)
-        .where('approved', '==', true))
+      this.firestore.collection<Question>('questions', ref => ref.where('thematic', '==', thematic).where('approved', '==', true))
         .valueChanges({ idField: 'id' })
         .subscribe(questions => {
           this.questions$.next(questions);
@@ -57,22 +60,22 @@ export class GameService {
     );
   }
 
-  answerQuestion(questionId: string, isCorrect: boolean) {
+  answerQuestion(questionId: string, isCorrect: boolean, timedOut: boolean = false): void {
     this.answeredQuestions$.next([...this.answeredQuestions$.getValue(), questionId]);
     if (isCorrect) {
       this.score.next(this.score.getValue() + 1);
     }
-    if (this.answeredQuestions$.getValue().length >= this.maxQuestions) {
+    if (this.answeredQuestions$.getValue().length >= this.maxQuestions || timedOut) {
       this.gameFinished.next(true);
     } else {
       this.getRandomUnansweredQuestion().subscribe(question => {
-        if (!question) {
+        if (!question && this.answeredQuestions$.getValue().length >= this.maxQuestions) {
           this.gameFinished.next(true);
         }
       });
     }
   }
-
+  
   getScore(): Observable<number> {
     return this.score.asObservable();
   }

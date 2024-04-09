@@ -6,9 +6,11 @@
         <img class="mat-image" mat-card-image [src]="currentQuestion.imageUrl" alt="Question image">
       </div>
       <mat-card-content>
+        <mat-progress-bar mode="determinate" [value]="progressValue"></mat-progress-bar>
+
         <div class="options-container">
           <div *ngFor="let option of currentQuestion.options; let i = index" 
-               [ngClass]="{'left-option': i === 0, 'right-option': i === 1}" 
+               [ngClass]="{'left-option': i === 0, 'right-option': i === 1, 'selected': option.selected, 'correct': option.correct }" 
                (click)="onOptionSelected(option)"
                class="option-card">
             <mat-card>

@@ -1,6 +1,8 @@
 export interface QuestionOption {
     text: string;
-    isCorrect: boolean;
+  isCorrect: boolean;
+    selected?: boolean;
+    correct?: boolean;
 }
   
   export interface Question {
