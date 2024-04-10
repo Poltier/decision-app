@@ -1,0 +1,130 @@
+[
+    {
+        "questionText": "What is the powerhouse of the cell?",
+        "options": [
+            {"text": "Mitochondria", "isCorrect": true},
+            {"text": "Nucleus", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/5905518/pexels-photo-5905518.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Science"
+    },
+    {
+        "questionText": "What is the main component of the sun?",
+        "options": [
+            {"text": "Helium", "isCorrect": false},
+            {"text": "Hydrogen", "isCorrect": true}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/2705307/pexels-photo-2705307.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Science"
+    },
+    {
+        "questionText": "What is the chemical symbol for the element oxygen?",
+        "options": [
+            {"text": "O2", "isCorrect": true},
+            {"text": "O", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/4894441/pexels-photo-4894441.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Science"
+    },
+    {
+        "questionText": "Which planet is known as the Red Planet?",
+        "options": [
+            {"text": "Mars", "isCorrect": true},
+            {"text": "Jupiter", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/9202683/pexels-photo-9202683.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Science"
+    },
+    {
+        "questionText": "What force keeps us on the ground?",
+        "options": [
+            {"text": "Gravity", "isCorrect": true},
+            {"text": "Magnetism", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/2881230/pexels-photo-2881230.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Science"
+    },
+    {
+        "questionText": "What is the main gas found in the air we breathe?",
+        "options": [
+            {"text": "Nitrogen", "isCorrect": true},
+            {"text": "Oxygen", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/531756/pexels-photo-531756.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Science"
+    },
+    {
+        "questionText": "What part of the plant conducts photosynthesis?",
+        "options": [
+            {"text": "Leaf", "isCorrect": true},
+            {"text": "Root", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/17775497/pexels-photo-17775497/free-photo-of-paisaje-cielo-campo-amanecer.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Science"
+    },
+    {
+        "questionText": "Which river is the longest in the world?",
+        "options": [
+            {"text": "Nile", "isCorrect": true},
+            {"text": "Amazon", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/18132957/pexels-photo-18132957/free-photo-of-paisaje-naturaleza-rocas-bosque.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Geography"
+    },
+    {
+        "questionText": "Who was the first president of the United States?",
+        "options": [
+            {"text": "George Washington", "isCorrect": true},
+            {"text": "Abraham Lincoln", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/1222438/pexels-photo-1222438.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "History"
+    },
+    {
+        "questionText": "What year did the Titanic sink?",
+        "options": [
+            {"text": "1912", "isCorrect": true},
+            {"text": "1911", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/20241698/pexels-photo-20241698/free-photo-of-ciudad-camara-azul-oceano.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "History"
+    },
+    {
+        "questionText": "What is the highest score possible in a single throw of bowling?",
+        "options": [
+            {"text": "10", "isCorrect": true},
+            {"text": "30", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/9821841/pexels-photo-9821841.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Sports"
+    },
+    {
+        "questionText": "Which country hosted the 2016 Summer Olympics?",
+        "options": [
+            {"text": "Brazil", "isCorrect": true},
+            {"text": "China", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/34514/spot-runs-start-la.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Sports"
+    },
+    {
+        "questionText": "Who wrote 'To Kill a Mockingbird'?",
+        "options": [
+            {"text": "Harper Lee", "isCorrect": true},
+            {"text": "Ernest Hemingway", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/7894717/pexels-photo-7894717.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Literature"
+    },
+    {
+        "questionText": "Who wrote the play 'Romeo and Juliet'?",
+        "options": [
+            {"text": "William Shakespeare", "isCorrect": true},
+            {"text": "Christopher Marlowe", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/46274/pexels-photo-46274.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Literature"
+    }
+]
+  
+  

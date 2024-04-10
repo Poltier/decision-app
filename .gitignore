@@ -44,7 +44,4 @@ testem.log
 Thumbs.db
 
 # Scripts
-/src/app/script/
-
-# Environment
-/src/environments
+/src/app/script/serviceAccountKey.json
