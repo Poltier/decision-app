@@ -2,6 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FirebaseService } from '../../services/firebase.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { ReauthenticateDialogComponent } from '../../components/reauthenticate-dialog/reauthenticate-dialog.component';
+import { Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-profile',
@@ -12,7 +16,7 @@ export class ProfileComponent implements OnInit {
   profileForm: FormGroup;
   questionForm: FormGroup;
   avatars: string[] = [];
-  selectedAvatar: string = '';
+  selectedAvatar: string = ''; 
   userQuestions: any[] = [];
   userId: any;
   isEditing = false;
@@ -23,7 +27,9 @@ export class ProfileComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private firebaseService: FirebaseService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog,
+    private router: Router
   ) {
     this.profileForm = this.fb.group({
       newEmail: ['', [Validators.required, Validators.email]],
@@ -75,31 +81,42 @@ export class ProfileComponent implements OnInit {
   updateProfile(): void {
     if (this.profileForm.valid) {
       const { newEmail, newPassword, avatar } = this.profileForm.value;
-      let promises = [];
-
-      if ( avatar) {
-        promises.push(this.firebaseService.updateUserProfile(this.selectedAvatar));
-      }
-
-      if (newEmail) {
-        promises.push(this.firebaseService.updateUserEmail(newEmail));
-      }
-
-      if (newPassword) {
-        promises.push(this.firebaseService.updateUserPassword(newPassword));
-      }
+      let updateOperations = [];
+      const user = this.firebaseService.getAuthCurrentUser();
   
-      Promise.all(promises).then(() => {
-        this.snackBar.open('Profile updated successfully!', 'Close', { duration: 3000 });
-      }).catch(error => {
-        console.error('Error updating profile:', error);
-        this.snackBar.open('Failed to update profile.', 'Close', { duration: 3000 });
-      });
+      // Verifica si el usuario está autenticado
+      if (user) {
+        // Si se proporciona un nuevo correo electrónico y es diferente al actual, actualiza el correo electrónico
+        if (newEmail && newEmail !== user.email) {
+          updateOperations.push(this.firebaseService.updateUserEmail(newEmail));
+        }
+  
+        // Si se proporciona una nueva contraseña, actualiza la contraseña
+        if (newPassword) {
+          updateOperations.push(this.firebaseService.updateUserPassword(newPassword));
+        }
+  
+        // Si se selecciona un nuevo avatar, actualiza el avatar
+        if (avatar && avatar !== user.photoURL) {
+          updateOperations.push(this.firebaseService.updateUserProfile(avatar));
+        }
+  
+        // Ejecuta todas las operaciones de actualización
+        Promise.all(updateOperations)
+          .then(() => {
+            this.snackBar.open('Profile updated successfully!', 'Close', { duration: 3000 });
+          })
+          .catch(error => {
+            console.error('Error updating profile:', error);
+            this.snackBar.open('Failed to update profile.', 'Close', { duration: 3000 });
+          });
+      } else {
+        this.snackBar.open('User not authenticated.', 'Close', { duration: 3000 });
+      }
     } else {
       this.snackBar.open('Please fill in all required fields correctly.', 'Close', { duration: 3000 });
     }
-  }
-  
+  }  
 
   selectAvatar(avatarUrl: string): void {
     this.selectedAvatar = avatarUrl;
@@ -161,4 +178,41 @@ export class ProfileComponent implements OnInit {
       });
     }
   }
+
+  updateEmail(): void {
+    const dialogRef = this.dialog.open(ReauthenticateDialogComponent, {
+      width: '250px'
+    });
+
+    dialogRef.afterClosed().subscribe(async result => {
+      if (result) {
+        try {
+          await this.firebaseService.reauthenticateAndChangeEmail(result.email, result.password, this.profileForm.value.newEmail);
+          this.snackBar.open('Email updated successfully', 'Close', { duration: 3000 });
+        } catch (error) {
+          console.error('Error updating email:', error);
+          this.snackBar.open(`Failed to update email: ${error}`, 'Close', { duration: 3000 });
+        }
+      }
+    });
+  } 
+
+  
+  updatePassword(): void {
+    const email = this.profileForm.value.newEmail || this.firebaseService.getAuthCurrentUser()?.email;
+    if (email) {
+    this.firebaseService.sendPasswordResetEmail(email)
+      .then(() => {
+        this.snackBar.open('Password reset email sent successfully. You will be logged out.', 'Close', { duration: 3000 });
+        this.firebaseService.signOut().then(() => {
+          this.router.navigate(['/home']);
+        });
+      })
+      .catch(error => {
+        console.error('Error sending password reset email:', error);
+        this.snackBar.open('Failed to send password reset email. ' + error, 'Close', { duration: 3000 });
+      });
+  }
+  }
+  
 }

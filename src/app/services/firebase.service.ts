@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
 import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile, updatePassword, updateEmail } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile, updatePassword, updateEmail, sendPasswordResetEmail as firebaseSendPasswordResetEmail } from 'firebase/auth';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { getStorage, ref, listAll, getDownloadURL } from 'firebase/storage';
 import { addDoc, collection, getFirestore, deleteDoc, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+
 
 @Injectable({
   providedIn: 'root'
@@ -30,6 +32,10 @@ export class FirebaseService {
 
   isAuthenticated(): boolean {
     return this.auth.currentUser != null;
+  }
+
+  getAuthCurrentUser() {
+    return this.auth.currentUser;
   }
 
   async signIn(email: string, password: string) {
@@ -69,12 +75,6 @@ export class FirebaseService {
 
   //Profile
   
-  async updateProfileData( photoURL: string | null) {
-    if (this.auth.currentUser) {
-      await updateProfile(this.auth.currentUser, { photoURL });
-    }
-  }
-
   async updateUserProfile( photoURL: string): Promise<void> {
     const user = this.auth.currentUser;
     if (user) {
@@ -106,6 +106,22 @@ export class FirebaseService {
     const user = this.auth.currentUser;
     if (!user) throw new Error('Not authenticated');
     return updateProfile(user, { photoURL });
+  }
+
+  async reauthenticateAndChangeEmail(currentEmail: string, currentPassword: string, newEmail: string): Promise<void> {
+    const user = this.getAuthCurrentUser();
+    if (!user) throw new Error('User not authenticated');
+  
+    // Reautenticación
+    const credential = EmailAuthProvider.credential(currentEmail, currentPassword);
+    await reauthenticateWithCredential(user, credential);
+  
+    // Cambio de email
+    await updateEmail(user, newEmail);
+  }
+  
+  async sendPasswordResetEmail(email: string): Promise<void> {
+    await firebaseSendPasswordResetEmail(this.auth, email);
   }
 
   // Función para formatear fechas

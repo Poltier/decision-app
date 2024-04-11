@@ -30,7 +30,7 @@ export class DashboardComponent {
     this.router.navigate(['/game-thematic', 'mix']);
   }  
 
-  goToCreateQuestion() {
-    this.router.navigate(['/submit-question']);
-  }
+  // goToCreateQuestion() {
+  //   this.router.navigate(['/submit-question']);
+  // }
 }

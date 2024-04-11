@@ -9,6 +9,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { SubmitQuestionComponent } from './pages/submit-question/submit-question.component';
 import { GameThematicComponent } from './components/game-thematic/game-thematic.component';
+import { ReauthenticateDialogComponent } from './components/reauthenticate-dialog/reauthenticate-dialog.component';
 
 //imports
 
@@ -32,6 +33,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDialogModule } from '@angular/material/dialog';
 
 
 
@@ -45,7 +48,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     RegisterComponent,
     ProfileComponent,
     GameThematicComponent,
-    SubmitQuestionComponent
+    SubmitQuestionComponent,
+    ReauthenticateDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -66,7 +70,9 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatMenuModule,
+    MatDialogModule
   ],
   providers: [],
   bootstrap: [AppComponent]

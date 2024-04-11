@@ -8,27 +8,20 @@
   </div>
 
   <h2>Information Updation</h2>
-  <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="profile-form">
-      <!-- Email input -->
-      <mat-form-field appearance="fill" class="profile-field">
+  <form [formGroup]="profileForm" class="profile-form">
+    <!-- Nuevo campo de email -->
+    <mat-form-field appearance="fill">
         <mat-label>New Email</mat-label>
         <input matInput formControlName="newEmail" type="email">
-        <mat-error *ngIf="profileForm.get('newEmail')?.errors?.['required']">New email is required.</mat-error>
-        <mat-error *ngIf="profileForm.get('newEmail')?.errors?.['email']">New email is not valid.</mat-error>
-      </mat-form-field>
-  
-      <!-- New Password input -->
-      <mat-form-field appearance="fill" class="profile-field">
-        <mat-label>New Password</mat-label>
-        <input matInput formControlName="newPassword" type="password">
-        <mat-error *ngIf="profileForm.get('newPassword')?.errors?.['required']">New password is required.</mat-error>
-        <mat-error *ngIf="profileForm.get('newPassword')?.errors?.['minlength']">New password must be at least 8 characters long.</mat-error>
-          <mat-error *ngIf="profileForm.get('newPassword')?.errors?.['maxlength']">New password must be less than 20 characters long.</mat-error>
-      </mat-form-field>
-  
-      <button mat-raised-button color="primary" type="submit">Update Profile</button>
-  </form>
+        <mat-error *ngIf="profileForm.get('newEmail')?.errors?.['email']">Please enter a valid email</mat-error>
+        <mat-error *ngIf="profileForm.get('newEmail')?.errors?.['required']">Email is required</mat-error>
+    </mat-form-field>
 
+    <button mat-raised-button color="primary" (click)="updateEmail()" [disabled]="profileForm.get('newEmail')?.invalid">Update Email</button>
+
+    <!-- Botón de cambio de contraseña -->
+    <button mat-raised-button color="accent" (click)="updatePassword()">Change Password</button>
+  </form>
   <h2>Modify your Questions</h2>
   <div *ngIf="userQuestions.length > 0; else noQuestions" class="table-container">
       <mat-table [dataSource]="userQuestions">

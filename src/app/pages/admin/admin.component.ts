@@ -28,6 +28,7 @@ export class AdminComponent implements OnInit, AfterViewInit {
     this.loadPendingQuestions();
     this.loadApprovedQuestions();
   }
+
   ngAfterViewInit(): void {
     this.dataSourcePending.paginator = this.paginatorPending;
     this.dataSourceApproved.paginator = this.paginatorApproved;

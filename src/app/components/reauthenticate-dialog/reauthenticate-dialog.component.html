@@ -1,0 +1,17 @@
+<h2 mat-dialog-title>Reauthenticate</h2>
+<mat-dialog-content class="mat-typography">
+  <form [formGroup]="reauthForm">
+    <mat-form-field appearance="fill">
+        <mat-label>Current Email</mat-label>
+        <input matInput formControlName="email" type="email">
+      </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Current Password</mat-label>
+      <input matInput formControlName="password" type="password">
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="false">Cancel</button>
+  <button mat-button [mat-dialog-close]="reauthForm.value" cdkFocusInitial>Reauthenticate</button>
+</mat-dialog-actions>
