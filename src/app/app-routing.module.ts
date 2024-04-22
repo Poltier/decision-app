@@ -8,20 +8,19 @@ import { AuthGuard } from './auth/auth.guard';
 import { WelcomeComponent } from './pages/welcome/welcome.component';
 import { GameThematicComponent } from './components/game-thematic/game-thematic.component';
 import { SubmitQuestionComponent } from './pages/submit-question/submit-question.component';
+import { LobbyComponent } from './pages/lobby/lobby.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: 'home', component: WelcomeComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'dashboard', component: DashboardComponent },
+  { path: 'lobby', component: LobbyComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'admin', component: AdminComponent, canActivate: [AuthGuard] },
-
-  { path: 'game-thematic/:type', component: GameThematicComponent },
   { path: 'submit-question', component: SubmitQuestionComponent },
-
-  // Otras rutas específicas de la aplicación aquí
-  { path: '**', redirectTo: '' } // Redirigir a la bienvenida si la ruta no existe
+  { path: 'game-thematic/:theme', component: GameThematicComponent }, // For solo play
+  { path: 'game-room/:roomId/:theme', component: GameThematicComponent }, // For multiplayer
+  { path: '**', redirectTo: '/home' }
 ];
 
 @NgModule({

@@ -1,15 +1,14 @@
-<div class="game-options">
-  <h2>Choose Your Game</h2>
-  <div class="thematic-cards">
-      <div *ngFor="let thematic of thematics" class="thematic-card" (click)="goToGame(thematic)">
-          <mat-card>
-              <img mat-card-image [src]="thematic.imageUrl" alt="{{ thematic.name }}">
-              <mat-card-content>
-                  <h3>{{ thematic.name }}</h3>
-              </mat-card-content>
-          </mat-card>
-      </div>
+<div class="dashboard-container">
+  <h1>Welcome to the Dashboard</h1>
+  
+  <input [(ngModel)]="username" placeholder="Enter your username" required>
+  <button *ngIf="isLoggedIn()" mat-raised-button color="primary" (click)="navigateToLobby('create')">Create Room</button>
+  
+  <div class="join-room">
+    <input [(ngModel)]="roomCode" placeholder="Enter Room Code">
+    <button mat-raised-button color="accent" [disabled]="!roomCode.trim()" (click)="navigateToLobby('join')">Join Room</button>
   </div>
-  <button mat-raised-button color="primary" (click)="goToMixGame()">Mix Thematic Game</button>
-  <!-- <button mat-raised-button color="accent" (click)="goToCreateQuestion()">Create a Question</button> -->
+  
+  <button mat-raised-button color="secondary" (click)="navigateToLobby('solo')">Play Solo Game</button>
+  <p>Username: {{username || 'No username selected'}}</p>
 </div>

@@ -10,6 +10,7 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { SubmitQuestionComponent } from './pages/submit-question/submit-question.component';
 import { GameThematicComponent } from './components/game-thematic/game-thematic.component';
 import { ReauthenticateDialogComponent } from './components/reauthenticate-dialog/reauthenticate-dialog.component';
+import { LobbyComponent } from './pages/lobby/lobby.component';
 
 //imports
 
@@ -35,8 +36,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule } from '@angular/material/dialog';
-
-
+import { MatRadioModule } from '@angular/material/radio';
 
 @NgModule({
   declarations: [
@@ -49,7 +49,8 @@ import { MatDialogModule } from '@angular/material/dialog';
     ProfileComponent,
     GameThematicComponent,
     SubmitQuestionComponent,
-    ReauthenticateDialogComponent
+    ReauthenticateDialogComponent,
+    LobbyComponent
   ],
   imports: [
     BrowserModule,
@@ -72,7 +73,9 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatSortModule,
     MatProgressBarModule,
     MatMenuModule,
-    MatDialogModule
+    MatDialogModule,
+    MatRadioModule,
+
   ],
   providers: [],
   bootstrap: [AppComponent]

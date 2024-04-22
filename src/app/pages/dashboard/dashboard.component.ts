@@ -1,10 +1,8 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-
-interface Thematic {
-  name: string;
-  imageUrl: string;
-}
+import { FirebaseService } from '../../services/firebase.service';
+import { RoomService } from '../../services/room.service';
+import { MatSnackBar } from '@angular/material/snack-bar';  // Import MatSnackBar
 
 @Component({
   selector: 'app-dashboard',
@@ -12,25 +10,47 @@ interface Thematic {
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent {
-  thematics: Thematic[] = [
-    { name: 'Science', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/decisiondevelopmentapp.appspot.com/o/game-thematic%2Fscience-thematic.webp?alt=media&token=3d5179f4-b296-489d-b818-3b54641b2675' },
-    { name: 'Geography', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/decisiondevelopmentapp.appspot.com/o/game-thematic%2Fgeography-thematic.jpeg?alt=media&token=cce6a5f1-c137-427b-b249-9f24fbb48fb2' },
-    { name: 'History', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/decisiondevelopmentapp.appspot.com/o/game-thematic%2Fhistory-thematic.jpeg?alt=media&token=0f1d1b2b-9bb4-481a-9afb-e86cbd800d44' },
-    { name: 'Sports', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/decisiondevelopmentapp.appspot.com/o/game-thematic%2Fsports-thematic.jpeg?alt=media&token=4d8939c8-4362-493c-93c7-3b5299201012' },
-    { name: 'Literature', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/decisiondevelopmentapp.appspot.com/o/game-thematic%2Fliterature-thematic.webp?alt=media&token=5bac1ca6-49b2-4f63-a780-8fcc94eec597' },
-  ];
+  roomCode: string = '';
+  username: string = '';
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router, 
+    private firebaseService: FirebaseService, 
+    private roomService: RoomService,
+    private snackBar: MatSnackBar
+  ) {}
 
-  goToGame(thematic: Thematic) {
-    this.router.navigate(['/game-thematic', thematic.name]);
+  isLoggedIn(): boolean {
+    return this.firebaseService.isAuthenticated();
   }
 
-  goToMixGame() {
-    this.router.navigate(['/game-thematic', 'mix']);
-  }  
+  navigateToLobby(mode: string) {
+    if (!this.username) {
+        this.snackBar.open("Please enter a username.", "Close", {duration: 3000});
+        return;
+    }
 
-  // goToCreateQuestion() {
-  //   this.router.navigate(['/submit-question']);
-  // }
+    const baseParams = { username: this.username, soloPlay: mode === 'solo' };
+
+    if (mode === 'join') {
+        if (!this.roomCode.trim()) {
+            this.snackBar.open("Please enter a room code to join.", "Close", {duration: 3000});
+            return;
+        }
+        this.roomService.getRoomById(this.roomCode).subscribe(room => {
+            if (room) {
+                this.router.navigate(['/lobby', {...baseParams, id: this.roomCode, isHost: false}]);
+            } else {
+                this.snackBar.open("Room does not exist. Please check the room code and try again.", "Close", {duration: 3000});
+            }
+        }, error => {
+            console.error('Error fetching room:', error);
+            this.snackBar.open("Failed to fetch room details. Please try again later.", "Close", {duration: 3000});
+        });
+    } else if (mode === 'create') {
+        this.router.navigate(['/lobby', { ...baseParams, createNew: true }]);
+    } else {
+        this.router.navigate(['/lobby', { ...baseParams, soloPlay: true }]);
+    }
+  }
 }

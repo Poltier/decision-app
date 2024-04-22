@@ -33,12 +33,22 @@
 
 <div *ngIf="gameFinished" class="final-score-container">
   <mat-card class="final-score-card">
-    <mat-card-content class="final-score-content">
-      <h2>Your final score is: {{ score }}</h2>
-    </mat-card-content>
-    <mat-card-actions class="final-score-actions">
-      <button mat-raised-button color="primary" (click)="restartGame()">Try again</button>
-      <button mat-raised-button color="accent" (click)="goToDashboard()">New game</button>
+    <mat-card-title>Final Scores</mat-card-title>
+    <table mat-table [dataSource]="allScores">
+      <ng-container matColumnDef="username">
+        <th mat-header-cell *matHeaderCellDef>Username</th>
+        <td mat-cell *matCellDef="let element">{{element.username}}</td>
+      </ng-container>
+      <ng-container matColumnDef="score">
+        <th mat-header-cell *matHeaderCellDef>Score</th>
+        <td mat-cell *matCellDef="let element">{{element.score}}</td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="['username', 'score']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['username', 'score'];"></tr>
+    </table>
+    <mat-card-actions>
+      <button *ngIf="isHost || soloPlay" mat-button (click)="restartGame()">Restart Game</button>
+      <button mat-button (click)="goToLobby()">Return to Lobby</button>
     </mat-card-actions>
   </mat-card>
 </div>

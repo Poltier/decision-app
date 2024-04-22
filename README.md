@@ -17,9 +17,7 @@ Before begin, ensure you have met the following requirements:
 To install MyApp, follow these steps:
 
 ~~~
-
 npm install
-
 ~~~
 
 ## Development server

@@ -15,7 +15,8 @@ export class AppComponent {
         this.showHeader = !(
           event.url === '/' || 
           event.url === '/register' || 
-          event.url.startsWith('/game-thematic')
+          event.url.startsWith('/game-thematic') || 
+          event.url.startsWith('/game-room')
         );
       }
     });

@@ -9,10 +9,11 @@ import { Question } from '../models/question';
 })
 export class GameService {
   private score = new BehaviorSubject<number>(0);
+  private scores = new BehaviorSubject<{[key: string]: number}>({});
   private questions$ = new BehaviorSubject<Question[]>([]);
   private answeredQuestions$ = new BehaviorSubject<string[]>([]);
   private maxQuestions = 10; // Límite de preguntas
-  private gameFinished = new BehaviorSubject<boolean>(false); // Para controlar el fin del juego
+  private gameFinished = new BehaviorSubject<boolean>(false);
 
   constructor(private firestore: AngularFirestore) {
     this.loadAllApprovedQuestions();
@@ -28,19 +29,52 @@ export class GameService {
         }, error => reject(error));
     });
   }
+
+  setScoreForUser(userId: string, score: number) {
+    const currentScores = this.scores.getValue();
+    currentScores[userId] = score;
+    this.scores.next(currentScores);
+  }
+
+  getAllScores(): Observable<{username: string, score: number}[]> {
+    return this.scores.pipe(
+      map(scores => Object.keys(scores).map(key => ({username: key, score: scores[key]})))
+    );
+  }
+
+  startNewGame(): void {
+    this.resetGame();
+    this.resetScores();
+  }
+
+  resetScores(): void {
+    this.scores.next({});
+  }
   
   loadQuestionsFromFirestoreByThematic(thematic: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      if (!thematic) {
-        reject('Thematic is undefined');
-        return;
-      }
-      this.firestore.collection<Question>('questions', ref => ref.where('thematic', '==', thematic).where('approved', '==', true))
-        .valueChanges({ idField: 'id' })
-        .subscribe(questions => {
-          this.questions$.next(questions);
-          resolve();
-        }, error => reject(error));
+        if (!thematic) {
+            reject('Thematic is undefined');
+            return;
+        }
+        let collectionQuery;
+
+        // Check if the thematic is 'Mix' to decide whether to filter by thematic
+        if (thematic === 'Mix') {
+            // If 'Mix', fetch all approved questions regardless of thematic
+            collectionQuery = this.firestore.collection<Question>('questions', ref => 
+                ref.where('approved', '==', true));
+        } else {
+            // Otherwise, filter by the specific thematic
+            collectionQuery = this.firestore.collection<Question>('questions', ref => 
+                ref.where('thematic', '==', thematic).where('approved', '==', true));
+        }
+
+        collectionQuery.valueChanges({ idField: 'id' })
+            .subscribe(questions => {
+                this.questions$.next(questions);
+                resolve();
+            }, error => reject(error));
     });
   }
   
@@ -84,10 +118,12 @@ export class GameService {
     return this.gameFinished.asObservable();
   }
 
-  resetGame() {
+  resetGame(): void {
+    console.log("Resetting game states");
     this.score.next(0);
     this.answeredQuestions$.next([]);
     this.gameFinished.next(false);
+    this.resetScores();
   }
 }
 

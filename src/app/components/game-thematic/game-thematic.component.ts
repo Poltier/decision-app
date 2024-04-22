@@ -2,15 +2,16 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GameService } from '../../services/game.service';
 import { Question, QuestionOption } from '../../models/question';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { RoomService } from '../../services/room.service';
+import { Room, Participant } from '../../models/room';
 
 @Component({
   selector: 'app-game-thematic',
   templateUrl: './game-thematic.component.html',
   styleUrls: ['./game-thematic.component.css']
 })
-
 export class GameThematicComponent implements OnInit, OnDestroy {
   currentQuestion?: Question;
   score: number = 0;
@@ -18,64 +19,213 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   countdown: number = 10;
   allowAnswer: boolean = true;
   private countdownInterval?: any;
-  private unsubscribe$ = new Subject<void>();
+  private unsubscribe$ = new Subscription();
+  private answersReceived = 0;
   progressValue = 100;
- 
-  constructor(private gameService: GameService, private router: Router, private route: ActivatedRoute) {}
+  allScores: {username: string, score: number}[] = [];
+  soloPlay: boolean = false;
+  isHost: boolean = false; 
+  username: string = '';
+  participants: Participant[] = [];
+  roomId?: string;
+  room?: Room;
+  displayedColumns: string[] = ['username', 'score']; 
 
-  //Se ejecuta cuando se crea el componente. Prepara el juego para comenzar marcando el juego como no terminado e invocando la carga de preguntas basada en la ruta.
+  constructor(private gameService: GameService, 
+    private router: Router, 
+    private route: ActivatedRoute,
+    private snackBar: MatSnackBar,
+    private roomService: RoomService
+  ) {
+    this.subscribeToParams();
+  }
+
   ngOnInit(): void {
-    this.gameFinished = false;
+    this.route.queryParams.subscribe(params => {
+      this.roomId = params['id'];
+      this.username = params['username'] || 'Guest';
+      this.soloPlay = params['soloPlay'] === 'true';
+      this.isHost = params['isHost'] === 'true';
+      this.subscribeToGameStart();
+      this.loadQuestionsBasedOnRoute();
+      this.subscribeToScore();
+    });
+  }
+
+  subscribeToGameStart() {
+    console.log(`Subscribing to game start for Room ID: ${this.roomId}`);
+    const roomSubscription = this.roomService.watchGameStarted(this.roomId!)
+        .subscribe(gameStarted => {
+            console.log(`Received game start update: ${gameStarted} for Room ID: ${this.roomId}`);
+            if (gameStarted) {
+                console.log("Confirmed game start signal, initializing game start...");
+                this.startGame();
+            } else {
+                console.log("Game start signal not received yet.");
+            }
+        }, error => {
+            console.error('Error in receiving game start signal:', error);
+        });
+    this.unsubscribe$.add(roomSubscription);
+  }
+
+  
+  fetchParticipants() {
+    if (this.roomId) {
+      this.roomService.getRoomById(this.roomId).subscribe(room => {
+        if (room) {
+          this.participants = room.participants;
+          console.log("Participants fetched: ", this.participants);
+        }
+      });
+    }
+  }
+
+  subscribeToParams() {
+    this.route.queryParams.subscribe(params => {
+      this.roomId = params['roomId'];
+      this.username = params['username'] || 'Guest'; // Set username or default to 'Guest'
+      this.soloPlay = params['soloPlay'] === 'true'; // Determine if it is a solo play
+      this.isHost = params['isHost'] === 'true'; // Determine if the user is the host
+      console.log(`Game initialized with username: ${this.username}, soloPlay: ${this.soloPlay}, isHost: ${this.isHost}`);
+
+      if (!this.soloPlay && this.roomId) {
+        this.waitForGameStart();
+      } else {
+        this.startGame();
+      }
+    });
+  }
+
+  waitForGameStart() {
+    const roomSubscription = this.roomService.watchGameStarted(this.roomId!).subscribe(gameStarted => {
+        console.log(`Game start status received: ${gameStarted}`);  // Log the received game start status
+        if (gameStarted) {
+            console.log("Game start signal received, starting game...");
+            this.startGame();
+        }
+    }, error => {
+        console.error('Error waiting for game to start:', error);
+        this.snackBar.open('Error waiting for game to start. Please try again.', 'Close', { duration: 3000 });
+    });
+    this.unsubscribe$.add(roomSubscription);
+  }
+ 
+  startGame() {
+    console.log("Starting game process now...");
     this.loadQuestionsBasedOnRoute();
   }
 
-  //Determina si cargar todas las preguntas aprobadas o solo aquellas de una temática específica basada en la ruta. Luego inicia el juego.
-  private loadQuestionsBasedOnRoute(): void {
-    this.route.params.pipe(takeUntil(this.unsubscribe$)).subscribe(params => {
-      const thematic = params['type'];
-      const questionsLoader = thematic && thematic !== 'mix'
-        ? this.gameService.loadQuestionsFromFirestoreByThematic(thematic)
-        : this.gameService.loadAllApprovedQuestions();
-  
-      questionsLoader.then(() => this.startNewGame())
-        .catch(error => console.error('Error loading questions:', error));
+  subscribeToScore() {
+    this.gameService.getScore().subscribe(score => {
+      this.score = score;
+      console.log(`Score updated: ${score}`);
     });
   }
-  
-  //Resetea el puntaje a 0, marca el juego como no terminado y carga la primera pregunta.
-  private startNewGame(): void {
-    console.log("Iniciando nuevo juego");
-    this.score = 0;
-    this.gameFinished = false;
-    this.getNextQuestion();
-  }
-  
-  // Limpia recursos al destruir el componente, como detener el contador.
-  ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
-    this.stopCountdown();
+
+  loadQuestionsBasedOnRoute(): void {
+    const theme = this.route.snapshot.params['theme'];
+    console.log(`Loading questions for theme: ${theme}`);
+    this.gameService.loadQuestionsFromFirestoreByThematic(theme).then(() => {
+      console.log("Questions loaded, starting new game...");
+      this.resetGame();
+      this.getNextQuestion();
+    }).catch(error => {
+      console.error("Error loading questions: ", error);
+    });
   }
 
-  //Maneja la lógica cuando se selecciona una opción de respuesta. Detiene el contador, actualiza el puntaje si la respuesta es correcta, y prepara la próxima pregunta después de un retraso.
+  startNewGame(): void {
+    console.log("Starting new game");
+    this.resetGame();
+    this.getNextQuestion();
+  }
+
+  resetGame() {
+    this.score = 0;
+    this.gameFinished = false;
+    this.allowAnswer = true;
+    this.progressValue = 100;
+    this.allScores = [];
+    this.gameService.resetGame(); // Reset game logic in the service
+    console.log("Game state has been reset.");
+  }
+
+  restartGame(): void {
+    if (this.isHost || this.soloPlay) {
+      console.log("Restarting game...");
+      this.resetGame();
+      this.getNextQuestion();
+    } else {
+      console.error("Attempt to restart game failed: Not host or solo player");
+    }
+  }
+
+  ngOnDestroy(): void {
+    console.log("Component being destroyed, cleaning up...");
+    this.unsubscribe$.unsubscribe();  // Properly clean up all subscriptions
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);  // Clean up any existing intervals
+    }
+  }
+
   onOptionSelected(option: QuestionOption): void {
     if (!this.currentQuestion || !this.allowAnswer) return;
-  
+
+    this.answersReceived++; 
     this.allowAnswer = false;
     this.stopCountdown();
     this.countdown = 0;
-  
     option.selected = true;
+
     if (option.isCorrect) {
       this.score++;
+      this.gameService.setScoreForUser(this.username, this.score);  // Update score for user
     }
     this.markCorrectAnswer();
-    this.gameService.answerQuestion(this.currentQuestion.id!, option.isCorrect);
-  
-    setTimeout(() => this.prepareForNextQuestion(), 6000);
+    if (this.answersReceived >= this.participants.length || this.countdown === 0) {
+      this.gameService.answerQuestion(this.currentQuestion.id!, option.isCorrect);
+      setTimeout(() => this.prepareForNextQuestion(), 3000);
+    }
   }
 
-  //Carga la siguiente pregunta si el juego no ha terminado; de lo contrario, finaliza el juego.
+  getNextQuestion(): void {
+    console.log("Obteniendo la siguiente pregunta");
+    this.resetQuestionState();
+    this.gameService.getRandomUnansweredQuestion().subscribe(question => {
+      if (question) {
+        console.log("Question loaded: ", question);
+        this.currentQuestion = question;
+        this.currentQuestion.options = this.shuffleOptions(this.currentQuestion.options);
+        this.resetAndStartCountdown();
+      } else {
+        console.log("No hay más preguntas, preparando para terminar el juego");
+        this.waitForEndGame();
+        this.showResults();
+      }
+    });
+  }
+
+  private resetAndStartCountdown(): void {
+    console.log("Resetting and starting countdown...");
+    this.stopCountdown();
+    this.countdown = 10;
+    this.allowAnswer = true;
+    this.answersReceived = 0;
+    this.startCountdown();
+  }
+
+  private waitForEndGame(): void {
+    this.markGameAsFinished();
+  }
+
+  private markGameAsFinished(): void {
+    this.gameFinished = true;
+    this.stopCountdown();
+    console.log("El juego ha terminado. Mostrando pantalla de resultados.");
+  }
+
+
   private prepareForNextQuestion(): void {
     if (this.gameFinished) {
       console.log("El juego ya ha terminado. No cargar más preguntas.");
@@ -83,8 +233,7 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     }
     this.getNextQuestion();
   }
-  
-  //Resetea el estado de la pregunta actual, eliminando las marcas de selección y corrección de las opciones.
+
   private resetQuestionState(): void {
     if (this.currentQuestion) {
       this.currentQuestion.options.forEach(option => {
@@ -94,43 +243,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     }
   }
 
-  //Carga la siguiente pregunta del juego. Si no hay más preguntas, espera el final del juego.
-  private getNextQuestion(): void {
-    console.log("Obteniendo la siguiente pregunta");
-    this.resetQuestionState();
-    this.gameService.getRandomUnansweredQuestion().subscribe(question => {
-      console.log("Pregunta cargada: ", question);
-      if (question) {
-        this.currentQuestion = question;
-        this.resetAndStartCountdown();
-      } else {
-        console.log("No hay más preguntas, preparando para terminar el juego");
-        this.waitForEndGame();
-      }
-    });
-  }
-
-  //Marca el juego como terminado después de un retraso.
-  private waitForEndGame(): void {
-    this.markGameAsFinished();
-  }
-  
-  //Marca el juego como terminado y detiene el contador. Muestra el resultado final.
-  private markGameAsFinished(): void {
-    this.gameFinished = true;
-    this.stopCountdown();
-    console.log("El juego ha terminado. Mostrando pantalla de resultados.");
-  }
-
-  //Restablece y comienza el contador para la nueva pregunta.
-  private resetAndStartCountdown(): void {
-    this.stopCountdown();
-    this.countdown = 10;
-    this.allowAnswer = true;
-    this.startCountdown();
-  }
-
-  //Mezcla las opciones de respuesta de la pregunta actual.
   private shuffleOptions(options: QuestionOption[]): QuestionOption[] {
     for (let i = options.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -139,16 +251,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     return options;
   }
 
-  //Reinicia el juego, restableciendo el estado inicial y cargando la primera pregunta.
-  restartGame(): void {
-    this.gameFinished = false;
-    this.allowAnswer = true;
-    this.score = 0;
-    this.gameService.resetGame();
-    this.getNextQuestion();
-  }
-
-  // Inicia el contador para la respuesta, deteniéndolo y marcando la respuesta correcta cuando se acaba el tiempo.
   private startCountdown(): void {
     console.log("Iniciando el contador.");
     const countdownDuration = this.countdown;
@@ -168,43 +270,48 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     }, 1000);
   }
 
-  //Detiene el contador activo.
   private stopCountdown(): void {
-  if (this.countdownInterval) {
-    clearInterval(this.countdownInterval);
-    console.log("Deteniendo el contador.");
-    this.progressValue = 0;
-  }
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+      console.log("Deteniendo el contador.");
+      this.progressValue = 0;
+    }
   }
 
-  //Marca la respuesta correcta de la pregunta actual y, si se especifica, avanza automáticamente después de un retraso.
   private markCorrectAnswer(autoAdvance: boolean = false): void {
-  if (this.currentQuestion) {
-      this.currentQuestion.options.forEach(option => {
-          if (option.isCorrect) {
-              option.correct = true;
-          }
-      });
-
-      this.allowAnswer = false;
-
-      if (autoAdvance) {
-          this.gameService.answerQuestion(this.currentQuestion.id!, false, true);
-          setTimeout(() => {
-              if (!this.gameFinished) {
-                  this.getNextQuestion();
-              } else {
-                  this.markGameAsFinished();
-              }
-          }, 6000);
-      }
-  }
-  }
+    if (this.currentQuestion) {
+        this.currentQuestion.options.forEach(option => {
+            if (option.isCorrect) {
+                option.correct = true;
+            }
+        });
   
-  //Navega de regreso al dashboard del juego.
-  goToDashboard(): void {
+        this.allowAnswer = false;
+  
+        if (autoAdvance) {
+            this.gameService.answerQuestion(this.currentQuestion.id!, false, true);
+            setTimeout(() => {
+                if (!this.gameFinished) {
+                    this.getNextQuestion();
+                } else {
+                    this.markGameAsFinished();
+                }
+            }, 6000);
+        }
+    }
+  }
+
+  showResults(): void {
+    console.log("Showing results, game finished.");
+    this.allScores.push({username: this.username, score: this.score});
+    this.allScores.sort((a, b) => b.score - a.score);
+    console.log("Final scores: ", this.allScores);
+  }
+
+  goToLobby(): void {
+    this.allScores = [];
     this.router.navigate(['/dashboard']);
   }
-
 }
+
 

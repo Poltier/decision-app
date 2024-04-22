@@ -1,0 +1,58 @@
+<!-- lobby.component.html -->
+<div class="lobby-container">
+  <h1>Welcome to the Lobby</h1>
+  <div *ngIf="creatingRoom || joiningRoom">
+    <div *ngIf="joiningRoom" class="join-room-container">
+      <p class="join-room-text">Join to the room with the code:</p>
+      <div class="room-code-container" (click)="copyRoomCodeToClipboard()">
+        <span class="room-code">{{ roomId }}</span>
+      </div>
+    </div>
+
+    <p *ngIf="participants.length <= 1">Waiting for other players...</p>
+
+    <div class="lobby-columns">
+      <div class="participant-list">
+        <h2>Players: {{ participants.length }}/{{ room?.maxPlayers }}</h2>
+        <ul>
+          <li *ngFor="let participant of participants">
+            {{ participant.username }}
+            <span *ngIf="participant.userId === room?.hostId" class="host-icon">👑</span>
+          </li>
+        </ul>
+      </div>
+      <div class="game-selection">
+        <h2>Choose a thematic game:</h2>
+        <div class="games-grid">
+          <div class="game-card" *ngFor="let thematic of thematics" [class.selected]="selectedTheme?.name === thematic.name" (click)="selectTheme(thematic)">
+            <img [src]="thematic.imageUrl" [alt]="thematic.name">
+            <p>{{ thematic.name }}</p>
+          </div>
+        </div>
+        <button *ngIf="room?.isHost && participants.length >= 2" (click)="startSelectedGame()">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="soloPlay">
+    <div>
+      <p class="join-room-text">Playing solo game</p>
+    </div>
+    <div class="game-selection-solo">
+      <h2>Choose a thematic game:</h2>
+      <div class="games-grid">
+        <div class="game-card" *ngFor="let thematic of thematics" [class.selected]="selectedTheme?.name === thematic.name" (click)="selectTheme(thematic)">
+          <img [src]="thematic.imageUrl" [alt]="thematic.name">
+          <p>{{ thematic.name }}</p>
+        </div>
+      </div>
+      <button *ngIf="soloPlay" (click)="startSelectedGame()">Start Game</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
