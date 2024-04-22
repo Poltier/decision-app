@@ -18,7 +18,7 @@ export class RoomService {
   ) {}
 
   // Method to create a new room and return the generated Room ID
-  createRoom(roomData: any): Promise<string> {
+  async createRoom(roomData: any): Promise<string> {
     const newRoomData = {
       ...roomData,
       hostId: this.getCurrentUserIdOrGuest(),
@@ -26,28 +26,37 @@ export class RoomService {
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       gameStarted: false
     };
-    return this.firestore.collection('rooms').add(newRoomData)
-      .then(docRef => {
-        console.log("Room created with ID:", docRef.id); // Log for debugging
-        return docRef.id;
-      })
-      .catch(error => {
-        console.error("Error creating room:", error);
-        throw error;
-      });
+
+    try {
+      const docRef = await this.firestore.collection('rooms').add(newRoomData);
+      console.log("Room created with ID:", docRef.id);
+      localStorage.setItem('currentRoomId', docRef.id);  // Store room ID in localStorage
+      return docRef.id;
+    } catch (error) {
+      console.error("Error creating room:", error);
+      throw error;
+    }
   }
 
-  startGame(roomId: string): Promise<void> {
-    console.log(`Attempting to start game for room ID: ${roomId}`);
-    return this.firestore.collection('rooms').doc(roomId).update({
-        gameStarted: true
-    }).then(() => {
-        console.log("Game started successfully for all players in room ID:", roomId);
-    }).catch(err => {
-        console.error("Error starting game:", err);
-        throw err;
-    });
+  isUsernameAvailable(roomId: string, username: string): Observable<boolean> {
+    return this.firestore.collection<Room>('rooms').doc(roomId).valueChanges().pipe(
+      map(room => {
+        const usernames = room?.participants.map(p => p.username.toLowerCase());
+        return !usernames?.includes(username.toLowerCase());
+      })
+    );
   }
+
+  async startGame(roomId: string): Promise<void> {
+    try {
+      console.log(`Attempting to start game for room ID: ${roomId}`);
+      await this.firestore.collection('rooms').doc(roomId).update({ gameStarted: true });
+      console.log("Game started successfully for all players in room ID:", roomId);
+    } catch (err) {
+      console.error("Error starting game:", err);
+      throw err;
+    }
+  }  
 
   // Fetches room data and determines if the current user is the host
   getRoomById(id: string): Observable<Room | null> {
@@ -90,17 +99,18 @@ export class RoomService {
     }
   }
 
-  addParticipant(roomId: string, participant: Participant): Promise<void> {
-    return this.firestore.collection('rooms').doc(roomId).update({
-      participants: firebase.firestore.FieldValue.arrayUnion(participant)
-    }).then(() => {
+  async addParticipant(roomId: string, participant: Participant): Promise<void> {
+    try {
+      await this.firestore.collection('rooms').doc(roomId).update({
+        participants: firebase.firestore.FieldValue.arrayUnion(participant)
+      });
       console.log("Participant added:", participant, "to Room ID:", roomId);
-    }).catch(err => {
+    } catch (err) {
       console.error("Failed to add participant:", err);
       throw err;
-    });
+    }
   }
-
+  
   removeParticipant(roomId: string, participant: Participant): Promise<void> {
     return this.firestore.collection('rooms').doc(roomId).update({
       participants: firebase.firestore.FieldValue.arrayRemove(participant)

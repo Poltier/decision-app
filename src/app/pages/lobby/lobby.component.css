@@ -1,130 +1,166 @@
-/* lobby.component.css */
 .lobby-container {
-    max-width: 1000px;
-    margin: auto;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
   
-  .lobby-columns {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-  }
+.lobby-columns {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
 
-  .participant-list, .game-selection {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .participant-list {
-    width: 30%;
-    background-color: #f4f4f4;
-    padding: 20px;
-    border-radius: 8px;
-    margin-right: 2%;
-    justify-content: flex-start;
-  }
-  
-  .game-selection {
-    width: 68%;
-    background-color: #f4f4f4;
-    padding: 20px;
-    border-radius: 8px;
-    justify-content: center;
-  }
+.participant-list, .game-selection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-  .game-selection-solo {
-    width: 100%;
-    background-color: #f4f4f4;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-  }
+.participant-ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
   
-  .games-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    margin-bottom: 20px;
-  }
-  
-  .game-card {
-    background-color: #e0e0e0;
-    padding: 10px;
-    border-radius: 8px;
-    text-align: center;
-    cursor: pointer;
-    transition: transform 0.3s;
-    border: 2px solid transparent;
-  }
-  
-  .game-card:hover {
-    transform: scale(1.05);
-  }
+.participant-list {
+  width: 30%;
+  background-color: #f4f4f4;
+  padding: 20px;
+  border-radius: 8px;
+  margin-right: 2%;
+  justify-content: flex-start;
+}
 
-  .game-card.selected {
-    border-color: #5c6bc0;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  }
-  
-  .game-card img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-  }
-  
-  button {
-    background-color: #5c6bc0;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-  }
-  
-  button:hover {
-    background-color: #3949ab;
-  }
+.participant-ul li, .empty-slot {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 10px 20px;
+  margin-bottom: 8px; 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-  .join-room-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #f6ffa1;
-    margin-top: 20px;
-    margin-bottom: 20px;
-  }
+.participant-name, .empty-slot {
+  flex-grow: 1;
+  text-align: left;
+}
 
-  .host-room-container {
-    background-color: #28b761;
-  }
+.participant-name {
+  text-align: left;
+}
 
-  .join-room-container {
-    background-color: #f6ffa1;
-  }
+.host-icon {
+  margin-left: auto;
+  padding-left: 20px;
+}
+
+.empty-slot {
+  color: #cccccc;
+  font-style: italic;
+}
   
-  .join-room-text, .host-room-text {
-    margin: 0 10px 0 0;
-    font-size: 18px;
-  }
+.game-selection {
+  width: 68%;
+  background-color: #f4f4f4;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.game-selection-solo {
+  width: 100%;
+  background-color: #f4f4f4;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+}
   
-  .room-code-container {
-    background-color: white;
-    border-radius: 5px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-  }
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+}
   
-  .room-code {
-    font-weight: bold;
-    padding: 10px;
-  }
+.game-card {
+  background-color: #e0e0e0;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.3s;
+  border: 2px solid transparent;
+}
+  
+.game-card:hover {
+  transform: scale(1.05);
+}
+
+.game-card.selected {
+  border-color: #5c6bc0;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+  
+.game-card img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+  
+button {
+  background-color: #5c6bc0;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+  
+button:hover {
+  background-color: #3949ab;
+}
+
+.join-room-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f6ffa1;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.join-room-container {
+  background-color: #f6ffa1;
+}
+  
+.join-room-text {
+  margin: 0 10px 0 0;
+  font-size: 18px;
+}
+  
+.room-code-container {
+  background-color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+  
+.room-code {
+  font-weight: bold;
+  padding: 10px;
+}
+
+.is-me .participant-name {
+  font-weight: bold;
+  color: #4CAF50; 
+}

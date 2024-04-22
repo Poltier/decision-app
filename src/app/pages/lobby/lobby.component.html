@@ -1,4 +1,3 @@
-<!-- lobby.component.html -->
 <div class="lobby-container">
   <h1>Welcome to the Lobby</h1>
   <div *ngIf="creatingRoom || joiningRoom">
@@ -14,11 +13,12 @@
     <div class="lobby-columns">
       <div class="participant-list">
         <h2>Players: {{ participants.length }}/{{ room?.maxPlayers }}</h2>
-        <ul>
-          <li *ngFor="let participant of participants">
-            {{ participant.username }}
+        <ul class="participant-ul">
+          <li *ngFor="let participant of participants" [class.is-me]="participant.userId === currentUserId">
+            <span class="participant-name">{{ participant.username }}</span>
             <span *ngIf="participant.userId === room?.hostId" class="host-icon">👑</span>
           </li>
+          <li *ngFor="let empty of emptySlots(room?.maxPlayers, participants.length)" class="empty-slot">Empty</li>
         </ul>
       </div>
       <div class="game-selection">

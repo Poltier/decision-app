@@ -41,16 +41,27 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.roomId = localStorage.getItem('currentRoomId') || this.roomId;
+
     this.route.queryParams.subscribe(params => {
-      this.roomId = params['id'];
-      this.username = params['username'] || 'Guest';
-      this.soloPlay = params['soloPlay'] === 'true';
-      this.isHost = params['isHost'] === 'true';
-      this.subscribeToGameStart();
-      this.loadQuestionsBasedOnRoute();
-      this.subscribeToScore();
+        this.roomId = params['id'] || this.roomId;  // Use param if available, otherwise use stored roomId
+        localStorage.setItem('currentRoomId', this.roomId ?? 'defaultRoomId');  // Update localStorage with new roomId
+        this.username = params['username'] || 'Guest';
+        this.soloPlay = params['soloPlay'] === 'true';
+        this.isHost = params['isHost'] === 'true';
+
+        if (this.roomId) {
+            this.subscribeToGameStart();
+            this.loadQuestionsBasedOnRoute();
+            this.fetchParticipants();
+        } else {
+            console.error('Room ID is undefined.');
+        }
+
+        this.subscribeToScore();
     });
   }
+
 
   subscribeToGameStart() {
     console.log(`Subscribing to game start for Room ID: ${this.roomId}`);
@@ -310,7 +321,13 @@ export class GameThematicComponent implements OnInit, OnDestroy {
 
   goToLobby(): void {
     this.allScores = [];
-    this.router.navigate(['/dashboard']);
+    if (this.roomId) {
+        this.router.navigate(['/lobby'], { queryParams: { id: this.roomId, username: this.username } });
+        console.log("Returning to the lobby with Room ID:", this.roomId);
+    } else {
+        this.router.navigate(['/dashboard']);
+        console.log("Room ID was undefined, navigating back to the dashboard.");
+    }
   }
 }
 

@@ -24,6 +24,7 @@ export class LobbyComponent implements OnInit {
   soloPlay: boolean = false;
   username: string = '';
   selectedTheme: Thematic | null = null;
+  currentUserId: string = this.roomService.getCurrentUserIdOrGuest();
 
   thematics: Thematic[] = [
     { name: 'Science', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/decisiondevelopmentapp.appspot.com/o/game-thematic%2Fscience-thematic.webp?alt=media&token=3d5179f4-b296-489d-b818-3b54641b2675' },
@@ -44,7 +45,7 @@ export class LobbyComponent implements OnInit {
 
   @HostListener('window:beforeunload', ['$event'])
   beforeUnloadHandler(event: BeforeUnloadEvent) {
-    event.returnValue = "Changes you made may not be saved.";
+    event.returnValue = "Changes you made may not be saved."; //is set to maintain compatibility with current browsers, it is deprecated
     sessionStorage.removeItem('roomId');
     sessionStorage.removeItem('theme');
   }
@@ -59,6 +60,11 @@ export class LobbyComponent implements OnInit {
       this.username = params['username'] || 'Guest';
       this.handleRoomCreation(params);
     });
+  }
+
+  emptySlots(maxPlayers: number | null | undefined, currentCount: number): string[] {
+    const count = Math.max((maxPlayers || 0) - currentCount, 0);
+    return Array(count).fill('Empty');
   }
 
   handleRoomCreation(params: any) {
@@ -110,6 +116,7 @@ export class LobbyComponent implements OnInit {
         });
     } else if (this.room?.isHost) {
         this.roomService.startGame(this.roomId!).then(() => {
+            console.log(`Using Room ID: ${this.roomId} for subscribing to game start.`);
             this.router.navigate(['/game-room', this.roomId, this.selectedTheme?.name], {
                 queryParams: {username: this.username, isHost: this.room?.isHost}
             });

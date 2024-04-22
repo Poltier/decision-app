@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { FirebaseService } from '../../services/firebase.service';
 import { RoomService } from '../../services/room.service';
-import { MatSnackBar } from '@angular/material/snack-bar';  // Import MatSnackBar
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-dashboard',
@@ -26,31 +27,32 @@ export class DashboardComponent {
 
   navigateToLobby(mode: string) {
     if (!this.username) {
-        this.snackBar.open("Please enter a username.", "Close", {duration: 3000});
-        return;
+      this.snackBar.open("Please enter a username.", "Close", {duration: 3000});
+      return;
     }
-
+  
     const baseParams = { username: this.username, soloPlay: mode === 'solo' };
-
+  
     if (mode === 'join') {
-        if (!this.roomCode.trim()) {
-            this.snackBar.open("Please enter a room code to join.", "Close", {duration: 3000});
-            return;
+      if (!this.roomCode.trim()) {
+        this.snackBar.open("Please enter a room code to join.", "Close", {duration: 3000});
+        return;
+      }
+      // Check if the username is available in the room before navigating
+      this.roomService.isUsernameAvailable(this.roomCode, this.username).subscribe(isAvailable => {
+        if (isAvailable) {
+          this.router.navigate(['/lobby', {...baseParams, id: this.roomCode, isHost: false}]);
+        } else {
+          this.snackBar.open("This username is already taken in this room. Please choose another one.", "Close", {duration: 3000});
         }
-        this.roomService.getRoomById(this.roomCode).subscribe(room => {
-            if (room) {
-                this.router.navigate(['/lobby', {...baseParams, id: this.roomCode, isHost: false}]);
-            } else {
-                this.snackBar.open("Room does not exist. Please check the room code and try again.", "Close", {duration: 3000});
-            }
-        }, error => {
-            console.error('Error fetching room:', error);
-            this.snackBar.open("Failed to fetch room details. Please try again later.", "Close", {duration: 3000});
-        });
+      }, error => {
+        console.error('Error checking username availability:', error);
+        this.snackBar.open("Failed to check username availability. Please try again later.", "Close", {duration: 3000});
+      });
     } else if (mode === 'create') {
-        this.router.navigate(['/lobby', { ...baseParams, createNew: true }]);
+      this.router.navigate(['/lobby', { ...baseParams, createNew: true }]);
     } else {
-        this.router.navigate(['/lobby', { ...baseParams, soloPlay: true }]);
+      this.router.navigate(['/lobby', { ...baseParams, soloPlay: true }]);
     }
   }
 }
