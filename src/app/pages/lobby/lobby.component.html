@@ -1,6 +1,7 @@
 <div class="lobby-container">
   <h1>Welcome to the Lobby</h1>
   <div *ngIf="creatingRoom || joiningRoom">
+    <button (click)="onExitRoom()">Exit</button>
     <div *ngIf="joiningRoom" class="join-room-container">
       <p class="join-room-text">Join to the room with the code:</p>
       <div class="room-code-container" (click)="copyRoomCodeToClipboard()">
@@ -17,6 +18,7 @@
           <li *ngFor="let participant of participants" [class.is-me]="participant.userId === currentUserId">
             <span class="participant-name">{{ participant.username }}</span>
             <span *ngIf="participant.userId === room?.hostId" class="host-icon">👑</span>
+            <button *ngIf="room?.isHost && participant.userId !== currentUserId" class="remove-participant-btn" (click)="removeParticipant(participant)">✕</button>
           </li>
           <li *ngFor="let empty of emptySlots(room?.maxPlayers, participants.length)" class="empty-slot">Empty</li>
         </ul>

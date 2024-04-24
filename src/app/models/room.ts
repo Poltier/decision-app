@@ -14,6 +14,7 @@ export class Room {
   hostId?: string;
   isHost: boolean; 
   gameStarted: boolean; // Ensure this is always initialized
+  selectedThemeName?: string;
 
   constructor(
     name: string,

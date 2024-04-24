@@ -57,9 +57,37 @@
 }
 
 .host-icon {
-  margin-left: auto;
-  padding-left: 20px;
+  font-size: 16px;
+  width: 24px;
+  height: 24px;
 }
+
+.remove-participant-btn {
+  margin-left: auto;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background-color: transparent;
+  color: #ff6347; /* Rojo para la X */
+  cursor: pointer;
+  font-size: 16px; /* Tamaño de la fuente para la X */
+  transition: background-color 0.3s, color 0.3s; /* Transición suave para los colores */
+}
+
+.remove-participant-btn:hover {
+  background-color: #ff6347; /* Fondo rojo */
+  color: white; /* X blanca */
+}
+
+/* Asegurar que el foco y la activación no cambien el estilo */
+.remove-participant-btn:focus, .remove-participant-btn:active {
+  outline: none;
+}
+
 
 .empty-slot {
   color: #cccccc;

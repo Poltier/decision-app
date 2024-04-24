@@ -14,6 +14,7 @@ export class GameService {
   private answeredQuestions$ = new BehaviorSubject<string[]>([]);
   private maxQuestions = 10; // Límite de preguntas
   private gameFinished = new BehaviorSubject<boolean>(false);
+  currentQuestionIndex = new BehaviorSubject<number>(0);
 
   constructor(private firestore: AngularFirestore) {
     this.loadAllApprovedQuestions();
@@ -34,12 +35,6 @@ export class GameService {
     const currentScores = this.scores.getValue();
     currentScores[userId] = score;
     this.scores.next(currentScores);
-  }
-
-  getAllScores(): Observable<{username: string, score: number}[]> {
-    return this.scores.pipe(
-      map(scores => Object.keys(scores).map(key => ({username: key, score: scores[key]})))
-    );
   }
 
   startNewGame(): void {
@@ -78,10 +73,6 @@ export class GameService {
     });
   }
   
-  getQuestions(): Observable<Question[]> {
-    return this.questions$.asObservable();
-  }
-
   getRandomUnansweredQuestion(): Observable<Question | undefined> {
     return this.questions$.pipe(
       map(questions => {
@@ -114,16 +105,12 @@ export class GameService {
     return this.score.asObservable();
   }
 
-  isGameFinished(): Observable<boolean> {
-    return this.gameFinished.asObservable();
-  }
-
   resetGame(): void {
-    console.log("Resetting game states");
     this.score.next(0);
     this.answeredQuestions$.next([]);
     this.gameFinished.next(false);
     this.resetScores();
   }
 }
+
 

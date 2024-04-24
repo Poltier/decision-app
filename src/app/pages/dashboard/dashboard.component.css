@@ -12,26 +12,21 @@ h1 {
     text-align: center;
 }
 
-input {
-    width: 100%;
-    padding: 8px 15px;
-    margin: 10px 0;
-    box-sizing: border-box;
-    border: 2px solid #ccc;
-    border-radius: 4px;
-    display: inline-block;
-    background-color: #fff;
+mat-form-field {
+    width: 100%; /* Full width to align with your input style */
+    margin-top: 20px; /* Consistent spacing */
 }
 
 button {
     width: 100%;
     padding: 10px;
-    margin: 5px 0 15px;
+    margin-top: 10px; /* Consistent top margin */
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
     transition: background-color 0.3s, color 0.3s;
+    display: block; /* Ensure buttons are full-width */
 }
 
 button:hover {
@@ -51,6 +46,7 @@ button[color="accent"] {
 button[color="secondary"] {
     background-color: #e7e7e7;
     color: black;
+    margin-top: 30px;
 }
 
 button:disabled {
@@ -62,4 +58,5 @@ p {
     text-align: center;
     color: #666;
     font-style: italic;
+    margin-top: 20px; /* Ensure spacing is consistent above paragraph */
 }

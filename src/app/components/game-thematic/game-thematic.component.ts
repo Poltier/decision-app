@@ -41,35 +41,29 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.roomId = localStorage.getItem('currentRoomId') || this.roomId;
-
-    this.route.queryParams.subscribe(params => {
-        this.roomId = params['id'] || this.roomId;  // Use param if available, otherwise use stored roomId
-        localStorage.setItem('currentRoomId', this.roomId ?? 'defaultRoomId');  // Update localStorage with new roomId
-        this.username = params['username'] || 'Guest';
-        this.soloPlay = params['soloPlay'] === 'true';
-        this.isHost = params['isHost'] === 'true';
-
-        if (this.roomId) {
-            this.subscribeToGameStart();
-            this.loadQuestionsBasedOnRoute();
-            this.fetchParticipants();
-        } else {
-            console.error('Room ID is undefined.');
+    this.route.params.subscribe(params => {
+        this.roomId = params['roomId'];  // Cambiado a params para coincidir con la configuración de ruta
+        if (!this.roomId) {
+            this.snackBar.open('Room ID is missing. Please join a room first.', 'Close', {duration: 5000});
+            this.router.navigate(['/dashboard']);
+            return;
         }
-
-        this.subscribeToScore();
+        this.initializeGame();
     });
+}
+
+  initializeGame() {
+    this.subscribeToGameStart();
+    this.loadQuestionsBasedOnRoute();
+    this.fetchParticipants();
+    this.subscribeToScore();
   }
 
 
   subscribeToGameStart() {
-    console.log(`Subscribing to game start for Room ID: ${this.roomId}`);
     const roomSubscription = this.roomService.watchGameStarted(this.roomId!)
         .subscribe(gameStarted => {
-            console.log(`Received game start update: ${gameStarted} for Room ID: ${this.roomId}`);
             if (gameStarted) {
-                console.log("Confirmed game start signal, initializing game start...");
                 this.startGame();
             } else {
                 console.log("Game start signal not received yet.");
@@ -86,7 +80,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
       this.roomService.getRoomById(this.roomId).subscribe(room => {
         if (room) {
           this.participants = room.participants;
-          console.log("Participants fetched: ", this.participants);
         }
       });
     }
@@ -98,7 +91,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
       this.username = params['username'] || 'Guest'; // Set username or default to 'Guest'
       this.soloPlay = params['soloPlay'] === 'true'; // Determine if it is a solo play
       this.isHost = params['isHost'] === 'true'; // Determine if the user is the host
-      console.log(`Game initialized with username: ${this.username}, soloPlay: ${this.soloPlay}, isHost: ${this.isHost}`);
 
       if (!this.soloPlay && this.roomId) {
         this.waitForGameStart();
@@ -110,9 +102,7 @@ export class GameThematicComponent implements OnInit, OnDestroy {
 
   waitForGameStart() {
     const roomSubscription = this.roomService.watchGameStarted(this.roomId!).subscribe(gameStarted => {
-        console.log(`Game start status received: ${gameStarted}`);  // Log the received game start status
         if (gameStarted) {
-            console.log("Game start signal received, starting game...");
             this.startGame();
         }
     }, error => {
@@ -123,22 +113,18 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
  
   startGame() {
-    console.log("Starting game process now...");
     this.loadQuestionsBasedOnRoute();
   }
 
   subscribeToScore() {
     this.gameService.getScore().subscribe(score => {
       this.score = score;
-      console.log(`Score updated: ${score}`);
     });
   }
 
   loadQuestionsBasedOnRoute(): void {
     const theme = this.route.snapshot.params['theme'];
-    console.log(`Loading questions for theme: ${theme}`);
     this.gameService.loadQuestionsFromFirestoreByThematic(theme).then(() => {
-      console.log("Questions loaded, starting new game...");
       this.resetGame();
       this.getNextQuestion();
     }).catch(error => {
@@ -147,7 +133,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
 
   startNewGame(): void {
-    console.log("Starting new game");
     this.resetGame();
     this.getNextQuestion();
   }
@@ -159,12 +144,10 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     this.progressValue = 100;
     this.allScores = [];
     this.gameService.resetGame(); // Reset game logic in the service
-    console.log("Game state has been reset.");
   }
 
   restartGame(): void {
     if (this.isHost || this.soloPlay) {
-      console.log("Restarting game...");
       this.resetGame();
       this.getNextQuestion();
     } else {
@@ -173,7 +156,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    console.log("Component being destroyed, cleaning up...");
     this.unsubscribe$.unsubscribe();  // Properly clean up all subscriptions
     if (this.countdownInterval) {
       clearInterval(this.countdownInterval);  // Clean up any existing intervals
@@ -201,16 +183,13 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
 
   getNextQuestion(): void {
-    console.log("Obteniendo la siguiente pregunta");
     this.resetQuestionState();
     this.gameService.getRandomUnansweredQuestion().subscribe(question => {
       if (question) {
-        console.log("Question loaded: ", question);
         this.currentQuestion = question;
         this.currentQuestion.options = this.shuffleOptions(this.currentQuestion.options);
         this.resetAndStartCountdown();
       } else {
-        console.log("No hay más preguntas, preparando para terminar el juego");
         this.waitForEndGame();
         this.showResults();
       }
@@ -218,7 +197,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
 
   private resetAndStartCountdown(): void {
-    console.log("Resetting and starting countdown...");
     this.stopCountdown();
     this.countdown = 10;
     this.allowAnswer = true;
@@ -233,7 +211,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   private markGameAsFinished(): void {
     this.gameFinished = true;
     this.stopCountdown();
-    console.log("El juego ha terminado. Mostrando pantalla de resultados.");
   }
 
 
@@ -263,15 +240,12 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
 
   private startCountdown(): void {
-    console.log("Iniciando el contador.");
     const countdownDuration = this.countdown;
     this.progressValue = 100;
     this.countdownInterval = setInterval(() => {
-      console.log(`Contador: ${this.countdown}`);
     if (this.countdown > 0) {
       this.countdown--;
       this.progressValue = (this.countdown / countdownDuration) * 100;
-      console.log(`Contador: ${this.countdown}, Progreso: ${this.progressValue}`);
     } else {
       console.log("Tiempo agotado, marcando respuesta correcta.");
       this.stopCountdown();
@@ -284,7 +258,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   private stopCountdown(): void {
     if (this.countdownInterval) {
       clearInterval(this.countdownInterval);
-      console.log("Deteniendo el contador.");
       this.progressValue = 0;
     }
   }
@@ -313,22 +286,17 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
 
   showResults(): void {
-    console.log("Showing results, game finished.");
     this.allScores.push({username: this.username, score: this.score});
     this.allScores.sort((a, b) => b.score - a.score);
-    console.log("Final scores: ", this.allScores);
   }
 
   goToLobby(): void {
     this.allScores = [];
     if (this.roomId) {
         this.router.navigate(['/lobby'], { queryParams: { id: this.roomId, username: this.username } });
-        console.log("Returning to the lobby with Room ID:", this.roomId);
     } else {
         this.router.navigate(['/dashboard']);
-        console.log("Room ID was undefined, navigating back to the dashboard.");
     }
   }
 }
-
 

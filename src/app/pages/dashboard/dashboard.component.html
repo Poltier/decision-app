@@ -1,14 +1,33 @@
 <div class="dashboard-container">
   <h1>Welcome to the Dashboard</h1>
   
-  <input [(ngModel)]="username" placeholder="Enter your username" required>
-  <button *ngIf="isLoggedIn()" mat-raised-button color="primary" (click)="navigateToLobby('create')">Create Room</button>
-  
-  <div class="join-room">
-    <input [(ngModel)]="roomCode" placeholder="Enter Room Code">
-    <button mat-raised-button color="accent" [disabled]="!roomCode.trim()" (click)="navigateToLobby('join')">Join Room</button>
-  </div>
-  
-  <button mat-raised-button color="secondary" (click)="navigateToLobby('solo')">Play Solo Game</button>
-  <p>Username: {{username || 'No username selected'}}</p>
+  <!-- Added ngSubmit for handling form submission through Angular -->
+  <form [formGroup]="form" (ngSubmit)="navigateToLobby('join')" class="dashboard-form">
+    <!-- Username Input -->
+    <mat-form-field appearance="fill">
+      <mat-label>Enter your username</mat-label>
+      <input matInput formControlName="username" required>
+      <mat-error *ngIf="form.get('username')?.hasError('required')">Username is required.</mat-error>
+      <mat-error *ngIf="form.get('username')?.hasError('maxlength')">Username cannot be more than 20 characters.</mat-error>
+    </mat-form-field>
+
+    <!-- Create Room Button -->
+    <button *ngIf="isLoggedIn()" mat-raised-button color="primary" type="button" (click)="navigateToLobby('create')">Create Room</button>
+    
+    <!-- Room Code Input and Join Room Button -->
+    <mat-form-field appearance="fill">
+      <mat-label>Enter Room Code</mat-label>
+      <input matInput formControlName="roomCode">
+      <mat-error *ngIf="form.get('roomCode')?.hasError('maxlength')">Room code cannot be more than 20 characters.</mat-error>
+    </mat-form-field>
+    <button mat-raised-button color="accent" type="submit">Join Room</button>
+    
+    <!-- Solo Play Button -->
+    <button mat-raised-button color="secondary" type="button" (click)="navigateToLobby('solo')">Play Solo Game</button>
+    
+    <p>Username: {{form.get('username')?.value || 'No username selected'}}</p>
+  </form>
 </div>
+
+
+

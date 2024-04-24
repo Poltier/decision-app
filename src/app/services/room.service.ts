@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map } from 'rxjs/operators'; 
 import { Room, Participant } from '../models/room';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
@@ -27,31 +27,59 @@ export class RoomService {
       gameStarted: false
     };
 
-    try {
-      const docRef = await this.firestore.collection('rooms').add(newRoomData);
-      console.log("Room created with ID:", docRef.id);
-      localStorage.setItem('currentRoomId', docRef.id);  // Store room ID in localStorage
-      return docRef.id;
-    } catch (error) {
-      console.error("Error creating room:", error);
-      throw error;
+    const docRef = await this.firestore.collection('rooms').add(newRoomData);
+    localStorage.setItem('currentRoomId', docRef.id);
+    return docRef.id;
+  }
+
+  async closeRoom(roomId: string): Promise<void> {
+    await this.firestore.collection('rooms').doc(roomId).delete();
+    console.log(`Room ${roomId} closed and all participants should be redirected.`);
+  }
+
+  async leaveRoom(roomId: string, userId: string): Promise<boolean> {
+    const roomRef = this.firestore.collection('rooms').doc(roomId);
+    const roomDoc = await roomRef.get().toPromise();
+
+    if (!roomDoc?.exists) {
+      console.error("Room not found or already closed:", roomId);
+      return true;  // Indicar que la sala ya no existe, adecuado para la redirección
+    }
+
+    if (!roomDoc.exists) {
+      console.error("Room not found or already closed:", roomId);
+      this.cleanUpSessionStorage();  // Limpieza cuando la sala no se encuentra o ya está cerrada
+      return true;
+    }
+
+    const room = roomDoc.data() as Room;
+    if (room.hostId === userId) {
+      await this.closeRoom(roomId);
+      this.cleanUpSessionStorage();  // Limpieza cuando el host abandona y cierra la sala
+      return true;
+    } else {
+      const participantToRemove = room.participants.find(p => p.userId === userId);
+      if (participantToRemove) {
+          await roomRef.update({
+              participants: firebase.firestore.FieldValue.arrayRemove(participantToRemove)
+          });
+          console.log(`Participant ${userId} left the room ${roomId}.`);
+          this.cleanUpSessionStorage();  // Limpieza cuando un participante no anfitrión abandona
+          return false;
+      }
+      console.error("Participant not found in room:", userId);
+      throw new Error("Participant not found");
     }
   }
 
-  isUsernameAvailable(roomId: string, username: string): Observable<boolean> {
-    return this.firestore.collection<Room>('rooms').doc(roomId).valueChanges().pipe(
-      map(room => {
-        const usernames = room?.participants.map(p => p.username.toLowerCase());
-        return !usernames?.includes(username.toLowerCase());
-      })
-    );
+  private cleanUpSessionStorage() {
+    sessionStorage.removeItem('userId');
+    sessionStorage.removeItem('roomId');
   }
-
+  
   async startGame(roomId: string): Promise<void> {
     try {
-      console.log(`Attempting to start game for room ID: ${roomId}`);
       await this.firestore.collection('rooms').doc(roomId).update({ gameStarted: true });
-      console.log("Game started successfully for all players in room ID:", roomId);
     } catch (err) {
       console.error("Error starting game:", err);
       throw err;
@@ -59,69 +87,73 @@ export class RoomService {
   }  
 
   // Fetches room data and determines if the current user is the host
-  getRoomById(id: string): Observable<Room | null> {
-    return this.firestore.collection<Room>('rooms').doc(id).snapshotChanges().pipe(
-        map(action => {
-            const data = action.payload.data() as Room;
-            if (data) {
+// RoomService
+getRoomById(id: string): Observable<Room | null> {
+  return this.firestore.collection<Room>('rooms').doc(id).snapshotChanges().pipe(
+      map(action => {
+          const data = action.payload.data() as Room;
+          if (data) {
               console.log(`Room data retrieved for ID: ${id}`, data);
               data.isHost = data.hostId === this.getCurrentUserIdOrGuest();
               return data;
-            }
-            return null;
-        })
-    );
-  }
+          }
+          return null;
+      })
+  );
+}
+
 
   watchGameStarted(roomId: string): Observable<boolean> {
-    console.log(`Watching game start status for Room ID: ${roomId}`);
     return this.firestore.collection('rooms').doc<Room>(roomId).valueChanges().pipe(
-        map(room => {
-            console.log(`Current game start status for Room ID: ${roomId}:`, room?.gameStarted);
-            return room ? room.gameStarted : false;
-        })
+      map(room => room ? room.gameStarted : false)
     );
   }
 
-  // Generates a unique ID for guests or returns the user ID if logged in
+  setSelectedThemeForRoom(roomId: string, themeName: string): Promise<void> {
+    return this.firestore.collection('rooms').doc(roomId).update({
+      selectedThemeName: themeName
+    });
+  }
+
   getCurrentUserIdOrGuest(): string {
+    let userId = sessionStorage.getItem('userId');
     const currentUser = this.authService.getAuthCurrentUser();
     if (currentUser) {
-      return currentUser.uid;  // Use Firebase Auth UID if logged in
-    } else {
-      // Generate a guest user ID if not logged in
-      let guestId = sessionStorage.getItem('userId');
-      if (!guestId) {
-        guestId = `guest_${Math.random().toString(36).substring(2)}_${Date.now()}`;
-        sessionStorage.setItem('userId', guestId);
-      }
-      return guestId;
+      userId = currentUser.uid;
+      sessionStorage.setItem('userId', userId);
+    } else if (!userId) {
+      userId = `guest_${Math.random().toString(36).substring(2)}_${Date.now()}`;
+      sessionStorage.setItem('userId', userId);
     }
+    return userId;
   }
 
   async addParticipant(roomId: string, participant: Participant): Promise<void> {
     try {
-      await this.firestore.collection('rooms').doc(roomId).update({
+      const result = await this.firestore.collection('rooms').doc(roomId).update({
         participants: firebase.firestore.FieldValue.arrayUnion(participant)
       });
-      console.log("Participant added:", participant, "to Room ID:", roomId);
+      console.log("Participant added:", participant, "to Room ID:", roomId, "Result:", result);
+      // Deberías ver el resultado de esta operación para confirmar que se completa correctamente
     } catch (err) {
       console.error("Failed to add participant:", err);
       throw err;
     }
-  }
+  }  
   
-  removeParticipant(roomId: string, participant: Participant): Promise<void> {
-    return this.firestore.collection('rooms').doc(roomId).update({
-      participants: firebase.firestore.FieldValue.arrayRemove(participant)
-    });
+  async removeParticipant(roomId: string, participant: Participant): Promise<void> {
+    try {
+      const roomRef = this.firestore.collection('rooms').doc(roomId);
+      await roomRef.update({
+        participants: firebase.firestore.FieldValue.arrayRemove(participant)
+      });
+      console.log("Participant removed:", participant.username, "from Room ID:", roomId);
+    } catch (err) {
+      console.error("Error removing participant:", err);
+      throw err;
+    }
   }
 
-  getParticipants(roomId: string): Observable<Participant[]> {
-    return this.firestore.collection<Room>('rooms').doc(roomId).valueChanges().pipe(
-      map(room => room && room.participants ? room.participants as Participant[] : [])
-    );
-  }
 }
 
 
