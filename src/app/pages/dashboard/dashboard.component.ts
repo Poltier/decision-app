@@ -60,6 +60,7 @@ export class DashboardComponent {
                 return;
             }
             if (room.participants.some(p => p.username.toLowerCase() === username.toLowerCase())) {
+                console.log("que esta pasando");
                 this.snackBar.open("This username is already taken in this room. Please choose another one.", "Close", {duration: 3000});
                 return;
             }

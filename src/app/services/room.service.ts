@@ -40,42 +40,43 @@ export class RoomService {
   async leaveRoom(roomId: string, userId: string): Promise<boolean> {
     const roomRef = this.firestore.collection('rooms').doc(roomId);
     const roomDoc = await roomRef.get().toPromise();
-
+  
+    // Verifica si la sala existe o ya está cerrada.
     if (!roomDoc?.exists) {
       console.error("Room not found or already closed:", roomId);
-      return true;  // Indicar que la sala ya no existe, adecuado para la redirección
+      this.cleanUpSessionStorage();  // Limpia los datos de sesión si la sala no existe.
+      return true;  // Indica que la sala ya no existe, adecuado para la redirección.
     }
-
-    if (!roomDoc.exists) {
-      console.error("Room not found or already closed:", roomId);
-      this.cleanUpSessionStorage();  // Limpieza cuando la sala no se encuentra o ya está cerrada
-      return true;
-    }
-
+  
     const room = roomDoc.data() as Room;
+    // Si el usuario es el host, cierra la sala.
     if (room.hostId === userId) {
       await this.closeRoom(roomId);
-      this.cleanUpSessionStorage();  // Limpieza cuando el host abandona y cierra la sala
-      return true;
-    } else {
-      const participantToRemove = room.participants.find(p => p.userId === userId);
-      if (participantToRemove) {
-          await roomRef.update({
-              participants: firebase.firestore.FieldValue.arrayRemove(participantToRemove)
-          });
-          console.log(`Participant ${userId} left the room ${roomId}.`);
-          this.cleanUpSessionStorage();  // Limpieza cuando un participante no anfitrión abandona
-          return false;
-      }
-      console.error("Participant not found in room:", userId);
-      throw new Error("Participant not found");
+      this.cleanUpSessionStorage();
+      return true;  // Retorna true para indicar que la sala fue cerrada por el host.
     }
+  
+    // Encuentra al participante y remuévelo.
+    const participantIndex = room.participants.findIndex(p => p.userId === userId);
+    if (participantIndex > -1) {
+      room.participants.splice(participantIndex, 1);
+      await roomRef.update({
+        participants: room.participants
+      });
+      console.log(`Participant ${userId} left the room ${roomId}.`);
+      this.cleanUpSessionStorage();
+      return false;  // Retorna false indicando que el usuario dejó la sala, pero no la cerró.
+    }
+  
+    console.error("Participant not found in room:", userId);
+    throw new Error("Participant not found");  // Mantiene el lanzamiento de una excepción si el participante no se encuentra.
   }
-
+  
   private cleanUpSessionStorage() {
     sessionStorage.removeItem('userId');
     sessionStorage.removeItem('roomId');
   }
+  
   
   async startGame(roomId: string): Promise<void> {
     try {
@@ -88,19 +89,19 @@ export class RoomService {
 
   // Fetches room data and determines if the current user is the host
 // RoomService
-getRoomById(id: string): Observable<Room | null> {
-  return this.firestore.collection<Room>('rooms').doc(id).snapshotChanges().pipe(
-      map(action => {
-          const data = action.payload.data() as Room;
-          if (data) {
-              console.log(`Room data retrieved for ID: ${id}`, data);
-              data.isHost = data.hostId === this.getCurrentUserIdOrGuest();
-              return data;
-          }
-          return null;
-      })
+  getRoomById(id: string): Observable<Room | null> {
+  return this.firestore.collection<Room>('rooms').doc(id).valueChanges().pipe(
+    map(room => {
+      if (room) {
+        console.log(`Room data retrieved for ID: ${id}`, room);
+        room.isHost = room.hostId === this.getCurrentUserIdOrGuest(); // Determinar si el usuario actual es el host
+        return room;
+      }
+      return null;
+    })
   );
-}
+  }
+
 
 
   watchGameStarted(roomId: string): Observable<boolean> {
@@ -134,12 +135,12 @@ getRoomById(id: string): Observable<Room | null> {
         participants: firebase.firestore.FieldValue.arrayUnion(participant)
       });
       console.log("Participant added:", participant, "to Room ID:", roomId, "Result:", result);
-      // Deberías ver el resultado de esta operación para confirmar que se completa correctamente
     } catch (err) {
       console.error("Failed to add participant:", err);
       throw err;
     }
-  }  
+  }
+  
   
   async removeParticipant(roomId: string, participant: Participant): Promise<void> {
     try {

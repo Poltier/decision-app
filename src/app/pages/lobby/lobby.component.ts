@@ -54,13 +54,6 @@ export class LobbyComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeRoom();
-    if (this.roomId) {
-      this.roomService.watchGameStarted(this.roomId).subscribe(gameStarted => {
-        if (gameStarted) {
-          this.startGame();
-        }
-      });
-    }
   }
 
   ngOnDestroy(): void {
@@ -69,7 +62,7 @@ export class LobbyComponent implements OnInit, OnDestroy {
 
   initializeRoom() {
     this.route.params.subscribe(params => {
-      console.log("Lobby parameters:", params);  // Debug
+      console.log("Lobby parameters:", params);
       this.username = params['username'] || 'Guest';
       this.handleRoomCreation(params);
     });
@@ -158,7 +151,6 @@ export class LobbyComponent implements OnInit, OnDestroy {
     this.thematics.forEach(t => t.selected = false);
     theme.selected = true;
     if (this.roomId) {
-      // Guardar el tema seleccionado en Firebase
       this.roomService.setSelectedThemeForRoom(this.roomId, theme.name).catch(err => {
         console.error('Error setting theme for room:', err);
       });
@@ -204,9 +196,9 @@ export class LobbyComponent implements OnInit, OnDestroy {
   }
 
   fetchRoom(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
+    if (!this.roomId) return;
+    let wasParticipant = false; // Variable para rastrear si el usuario estaba en la sala.
+  
     this.subscription = this.roomService.getRoomById(this.roomId).subscribe(room => {
       if (!room) {
         console.error("Room not found:", this.roomId);
@@ -214,41 +206,50 @@ export class LobbyComponent implements OnInit, OnDestroy {
         this.router.navigate(['/dashboard']);
         return;
       }
+      
       this.room = room;
-      const updatedParticipants = room.participants || [];
-      // Comprueba si el usuario actual sigue siendo un participante
-      const isStillParticipant = updatedParticipants.some(p => p.userId === this.currentUserId);
+      this.participants = room.participants || [];
 
-      if (!isStillParticipant) {
-        console.log("Current user has been removed from the room.");
-        this.router.navigate(['/dashboard']).then(() => {
-          this.snackBar.open("You have been removed from the room.", "Close", { duration: 3000 });
-        });
-        return;
-      }
-
-      this.participants = updatedParticipants;
+      this.selectedTheme = this.thematics.find(t => t.name === room.selectedThemeName) ?? null;
+      this.thematics.forEach(theme => theme.selected = (theme.name === room.selectedThemeName));
       this.ref.detectChanges();
+      
+      const isParticipant = this.participants.some(p => p.userId === this.currentUserId);
+  
+      // Comprobar si el usuario ha sido eliminado después de estar en la sala.
+      if (wasParticipant && !isParticipant) {
+        this.snackBar.open("You have been removed from the room.", "Close", {duration: 3000});
+        // Retrasar la redirección para que el usuario pueda leer el mensaje
+        setTimeout(() => {
+          this.router.navigate(['/dashboard']).then(() => {
+            window.location.reload(); // Recarga para limpiar completamente el estado
+          });
+        }, 3200); // Retraso de 3200 milisegundos (3.2 segundos)
+      }
+  
+      wasParticipant = isParticipant; // Actualiza el estado de la participación para la próxima comprobación.
+      this.ref.detectChanges(); // Actualizar la interfaz de usuario con los datos más recientes
     }, error => {
-        console.error("Failed to fetch room:", error);
-        this.snackBar.open("Failed to fetch room details. Please try again.", "Close", { duration: 3000 });
+      console.error("Failed to fetch room:", error);
+      this.snackBar.open("Failed to fetch room details. Please try again.", "Close", { duration: 3000 });
+    });
+  }  
+
+  // Método para añadir participante con manejo de errores y confirmación de adición
+  addParticipant(participant: Participant) {
+  if (!this.roomId) return;
+  this.roomService.addParticipant(this.roomId, participant)
+    .then(() => {
+      this.snackBar.open('Participant added successfully!', 'Close', { duration: 3000 });
+      this.fetchRoomDataAndNavigate(); // Refresca inmediatamente la lista de participantes después de añadir uno
+    })
+    .catch(err => {
+      console.error("Failed to add participant", err);
+      this.snackBar.open('Failed to add participant. Please try again.', 'Close', { duration: 3000 });
     });
   }
 
-  
-  addParticipant(participant: Participant) {
-    if (!this.roomId) return;
-    this.roomService.addParticipant(this.roomId, participant)
-      .then(() => {
-        this.snackBar.open('Participant added successfully!', 'Close', {duration: 3000});
-        // Forzar la recarga de los datos de la sala para reflejar el participante añadido
-        this.fetchRoomDataAndNavigate();
-      })
-      .catch(err => {
-        console.error("Failed to add participant", err);
-        this.snackBar.open('Failed to add participant. Please try again.', 'Close', { duration: 3000 });
-      });
-  }
+
   
   // Método para recargar los datos de la sala y luego navegar al lobby
   fetchRoomDataAndNavigate() {
@@ -266,21 +267,6 @@ export class LobbyComponent implements OnInit, OnDestroy {
     });
   }
 
-  fetchRoomData() {
-  if (!this.roomId) return;
-
-  this.roomService.getRoomById(this.roomId).subscribe(room => {
-    if (room) {
-      this.room = room;
-      this.participants = room.participants;
-      this.ref.detectChanges();
-    }
-  }, error => {
-    console.error("Failed to fetch room data:", error);
-    this.snackBar.open("Failed to fetch room data. Please try again.", 'Close', { duration: 3000 });
-  });
-}
-
   copyRoomCodeToClipboard(): void {
     if (!this.roomId) return;
   
@@ -294,22 +280,25 @@ export class LobbyComponent implements OnInit, OnDestroy {
   }
 
   onExitRoom(): void {
+    if (!this.roomId) return;
+  
     this.roomService.leaveRoom(this.roomId, this.currentUserId)
-    .then((closedByHost) => {
-        if (closedByHost) {
-            this.snackBar.open("Host has left, room closed.", "Close", {duration: 3000});
-            this.router.navigate(['/dashboard']);
-        } else {
-            this.snackBar.open("You have left the room.", "Close", {duration: 3000});
-            // Cambiar aquí para asegurar que no redirija al lobby si el usuario quiere salir
-            this.router.navigate(['/dashboard']);
-        }
-    })
-    .catch(error => {
-        console.error("Error when trying to leave or close the room:", error);
-        this.snackBar.open("Failed to leave or close the room. Please try again.", "Close", {duration: 3000});
-    });
+      .then((closedByHost) => {
+          this.snackBar.open(closedByHost ? "Host has left, room closed." : "You have left the room.", "Close", {duration: 3000});
+          // Limpiar datos locales
+          this.participants = [];  // Asegura que la lista local de participantes se limpie
+          this.room = null;  // Opcional, dependiendo de si deseas resetear los datos de la sala
+          this.ref.detectChanges();
+          this.router.navigate(['/dashboard']).then(() => {
+            window.location.reload();  // Considera recargar la página si es necesario para restablecer completamente el estado de la app
+          });
+      })
+      .catch(error => {
+          console.error("Error when trying to leave or close the room:", error);
+          this.snackBar.open("Failed to leave or close the room. Please try again.", "Close", {duration: 3000});
+      });
   }
+  
   
 }
 
