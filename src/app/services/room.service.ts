@@ -85,10 +85,33 @@ export class RoomService {
       console.error("Error starting game:", err);
       throw err;
     }
-  }  
+  }
+
+  async restartGame(roomId: string, userId: string): Promise<void> {
+    const roomRef = this.firestore.collection('rooms').doc(roomId);
+    const doc = await roomRef.get().toPromise();
+  
+    if (!doc || !doc.exists) {  // Asegúrate de que 'doc' no sea undefined y de que el documento exista
+      throw new Error("Room not found");
+    }
+  
+    const room = doc.data() as Room;
+    if (room.hostId !== userId) {
+      throw new Error("Only the host can restart the game");
+    }
+  
+    // Restablece participantes y otros estados del juego
+    await roomRef.update({
+      gameStarted: false,
+      participants: [],  // Considera cómo manejar los participantes durante el reinicio
+      currentRound: 0,
+      scores: {}
+    });
+  }
+  
 
   // Fetches room data and determines if the current user is the host
-// RoomService
+  // RoomService
   getRoomById(id: string): Observable<Room | null> {
   return this.firestore.collection<Room>('rooms').doc(id).valueChanges().pipe(
     map(room => {

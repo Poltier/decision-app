@@ -54,6 +54,7 @@ export class LobbyComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeRoom();
+    this.subscribeToGameStart();
   }
 
   ngOnDestroy(): void {
@@ -66,6 +67,20 @@ export class LobbyComponent implements OnInit, OnDestroy {
       this.username = params['username'] || 'Guest';
       this.handleRoomCreation(params);
     });
+  }
+
+  subscribeToGameStart(): void {
+    if (this.roomId) {
+      this.subscription.add(
+        this.roomService.watchGameStarted(this.roomId).subscribe(gameStarted => {
+          if (gameStarted) {
+            this.router.navigate(['/game-room', this.roomId, this.selectedTheme?.name], {
+              queryParams: { username: this.username, isHost: this.room?.isHost }
+            });
+          }
+        })
+      );
+    }
   }
 
   handleRoomCreation(params: any) {
@@ -96,13 +111,15 @@ export class LobbyComponent implements OnInit, OnDestroy {
 
   startGame(): void {
     if (!this.roomId || !this.selectedTheme?.name) {
-      console.error("Room ID or selected theme name is undefined");
       this.snackBar.open('Cannot start game. Room ID or Theme is not set.', 'Close', { duration: 3000 });
       return;
     }
   
-    this.router.navigate(['/game-room', this.roomId, this.selectedTheme.name], {
-        queryParams: {username: this.username, isHost: this.room?.isHost}
+    this.roomService.startGame(this.roomId).then(() => {
+      // La navegación a la sala del juego se maneja ahora en subscribeToGameStart()
+    }).catch(err => {
+      console.error('Failed to start game:', err);
+      this.snackBar.open('Failed to start game. Please try again.', 'Close', { duration: 3000 });
     });
   }
 
@@ -237,17 +254,32 @@ export class LobbyComponent implements OnInit, OnDestroy {
 
   // Método para añadir participante con manejo de errores y confirmación de adición
   addParticipant(participant: Participant) {
-  if (!this.roomId) return;
-  this.roomService.addParticipant(this.roomId, participant)
-    .then(() => {
-      this.snackBar.open('Participant added successfully!', 'Close', { duration: 3000 });
-      this.fetchRoomDataAndNavigate(); // Refresca inmediatamente la lista de participantes después de añadir uno
-    })
-    .catch(err => {
-      console.error("Failed to add participant", err);
-      this.snackBar.open('Failed to add participant. Please try again.', 'Close', { duration: 3000 });
+    if (!this.roomId) return;
+  
+    this.roomService.getRoomById(this.roomId).subscribe(room => {
+      if (!room) {  // Verifica que 'room' no sea null antes de continuar
+        console.error("Room not found");
+        return;
+      }
+  
+      const isAlreadyParticipant = room.participants.some(p => p.userId === participant.userId);
+      if (!isAlreadyParticipant) {
+        this.roomService.addParticipant(this.roomId, participant)
+          .then(() => {
+            this.snackBar.open('Participant added successfully!', 'Close', { duration: 3000 });
+            this.fetchRoom(); // Actualiza la lista de participantes
+          })
+          .catch(err => {
+            console.error("Failed to add participant", err);
+            this.snackBar.open('Failed to add participant. Please try again.', 'Close', { duration: 3000 });
+          });
+      } else {
+        console.log("Participant already exists, not adding again.");
+        this.fetchRoom(); // Solo actualiza la lista para asegurarse de que está sincronizada
+      }
     });
   }
+  
 
 
   

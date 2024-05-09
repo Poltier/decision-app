@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RoomService } from '../../services/room.service';
 import { Room, Participant } from '../../models/room';
+import { FirebaseService } from '../../services/firebase.service'; 
 
 @Component({
   selector: 'app-game-thematic',
@@ -35,7 +36,8 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     private router: Router, 
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
-    private roomService: RoomService
+    private roomService: RoomService,
+    private authService: FirebaseService 
   ) {
     this.subscribeToParams();
   }
@@ -61,17 +63,18 @@ export class GameThematicComponent implements OnInit, OnDestroy {
 
 
   subscribeToGameStart() {
-    const roomSubscription = this.roomService.watchGameStarted(this.roomId!)
-        .subscribe(gameStarted => {
-            if (gameStarted) {
-                this.startGame();
-            } else {
-                console.log("Game start signal not received yet.");
-            }
-        }, error => {
-            console.error('Error in receiving game start signal:', error);
-        });
-    this.unsubscribe$.add(roomSubscription);
+    this.unsubscribe$.add(
+      this.roomService.watchGameStarted(this.roomId!).subscribe(gameStarted => {
+        if (gameStarted) {
+          this.startGame();
+        } else {
+          console.log("Waiting for game to restart or start.");
+        }
+      }, error => {
+        console.error('Error in receiving game start signal:', error);
+        this.snackBar.open('Error in game start signal. Please try again.', 'Close', { duration: 3000 });
+      })
+    );
   }
 
   
@@ -147,11 +150,25 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
 
   restartGame(): void {
-    if (this.isHost || this.soloPlay) {
-      this.resetGame();
-      this.getNextQuestion();
+    if (!this.isHost) {
+      this.snackBar.open("Only the host can restart the game.", "Close", { duration: 3000 });
+      return;
+    }
+  
+    if (this.roomId) {
+      this.roomService.restartGame(this.roomId, this.authService.getCurrentUserId())
+        .then(() => {
+          this.snackBar.open("Game restarted successfully. Waiting for game to start.", "Close", { duration: 3000 });
+          // Aquí también puedes querer resetear el estado local del juego si es necesario
+          this.resetGame();
+        })
+        .catch(error => {
+          console.error("Failed to restart game", error);
+          this.snackBar.open("Failed to restart game: " + error.message, "Close", { duration: 3000 });
+        });
     } else {
-      console.error("Attempt to restart game failed: Not host or solo player");
+      console.error("Room ID is missing");
+      this.snackBar.open("Error: Room ID is missing.", "Close", { duration: 3000 });
     }
   }
 
@@ -164,22 +181,11 @@ export class GameThematicComponent implements OnInit, OnDestroy {
 
   onOptionSelected(option: QuestionOption): void {
     if (!this.currentQuestion || !this.allowAnswer) return;
-
-    this.answersReceived++; 
+  
     this.allowAnswer = false;
     this.stopCountdown();
     this.countdown = 0;
     option.selected = true;
-
-    if (option.isCorrect) {
-      this.score++;
-      this.gameService.setScoreForUser(this.username, this.score);  // Update score for user
-    }
-    this.markCorrectAnswer();
-    if (this.answersReceived >= this.participants.length || this.countdown === 0) {
-      this.gameService.answerQuestion(this.currentQuestion.id!, option.isCorrect);
-      setTimeout(() => this.prepareForNextQuestion(), 3000);
-    }
   }
 
   getNextQuestion(): void {
@@ -211,6 +217,7 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   private markGameAsFinished(): void {
     this.gameFinished = true;
     this.stopCountdown();
+    this.showResults();  // Llama aquí para asegurar que los puntajes finales sean mostrados
   }
 
 
@@ -286,9 +293,22 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
 
   showResults(): void {
-    this.allScores.push({username: this.username, score: this.score});
-    this.allScores.sort((a, b) => b.score - a.score);
+    // Asegúrate de tener el roomId antes de intentar recuperar los datos
+    if (this.roomId) {
+      this.roomService.getRoomById(this.roomId).subscribe(room => {
+        if (room && room.participants) {
+          // Asigna un puntaje predeterminado (por ejemplo, 0) si 'score' es undefined
+          this.allScores = room.participants.map(p => ({
+            username: p.username,
+            score: p.score !== undefined ? p.score : 0  // Asigna 0 si score es undefined
+          }));
+  
+          this.allScores.sort((a, b) => b.score - a.score); // Ordena los puntajes de mayor a menor
+        }
+      });
+    }
   }
+  
 
   goToLobby(): void {
     this.allScores = [];

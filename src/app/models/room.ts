@@ -1,6 +1,7 @@
 export interface Participant {
   username: string;
   userId: string;
+  score?: number;
 }
 
 export class Room {
