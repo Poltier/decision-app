@@ -52,7 +52,7 @@ export class GameThematicComponent implements OnInit, OnDestroy {
         }
         this.initializeGame();
     });
-}
+ }
 
   initializeGame() {
     this.subscribeToGameStart();
