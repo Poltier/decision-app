@@ -5,14 +5,18 @@ import { FirebaseService } from '../../services/firebase.service';
 import { RoomService } from '../../services/room.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Room, Participant } from '../../models/room';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent {
+export class DashboardComponent  {
   form: FormGroup;
+  sub: Subscription = new Subscription();
+  username:string = "";
+  roomCode:string = "";
 
   constructor(
     private fb: FormBuilder,
@@ -33,9 +37,9 @@ export class DashboardComponent {
 
   navigateToLobby(mode: string) {
     if (this.validateForm(mode)) {
-      const username = this.form.value.username.trim();
-      const roomCode = this.form.value.roomCode.trim();
-      this.processRoomEntry(mode, username, roomCode);
+      this.username = this.username.trim();
+      this.roomCode = this.roomCode.trim();
+      this.processRoomEntry(mode);
     }
   }
 
@@ -53,21 +57,21 @@ export class DashboardComponent {
     return true;
   }
 
-  private processRoomEntry(mode: string, username: string, roomCode: string) {
-    if (mode === 'join') {
-      this.joinRoom(username, roomCode);
-    } else {
-      this.router.navigate(['/lobby', mode === 'create' ? { username, createNew: true } : { username, soloPlay: true }]);
+  private processRoomEntry(mode: string) {
+    if (mode != 'join') {
+      this.router.navigate(['/lobby', mode === 'create' ? { username: this.username, createNew: true } : { username: this.username, soloPlay: true }]);
+    }else{
+      this.joinRoom()
     }
   }
 
-  private joinRoom(username: string, roomCode: string) {
-    this.roomService.getRoomById(roomCode).subscribe((room: Room | null) => {
+  private joinRoom() {
+    this.roomService.getRoomByIdentifier(this.roomCode).subscribe((room: Room | null) => {
       if (!room || room.gameStarted || room.participants.length >= room.maxPlayers ||
-          room.participants.some((p: Participant) => p.username.toLowerCase() === username.toLowerCase())) {
-        this.handleRoomEntryErrors(room, username);
+          room.participants.some((p: Participant) => p.username.toLowerCase() === this.username.toLowerCase())) {
+        this.handleRoomEntryErrors(room, this.username);
       } else {
-        this.router.navigate(['/lobby', { id: roomCode, username, isHost: false }]);
+        this.router.navigate(['/lobby', { id: this.roomCode, username: this.username, isHost: false }]);
       }
     }, error => {
       console.error("Failed to get room details:", error);
@@ -93,5 +97,6 @@ export class DashboardComponent {
   private openSnackBar(message: string, duration: number) {
     this.snackBar.open(message, "Close", { duration });
   }
+
 }
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 import { Question } from '../models/question';
 
 @Injectable({
@@ -12,7 +12,7 @@ export class GameService {
   private scores = new BehaviorSubject<{[key: string]: number}>({});
   private questions$ = new BehaviorSubject<Question[]>([]);
   private answeredQuestions$ = new BehaviorSubject<string[]>([]);
-  private maxQuestions = 10; // Límite de preguntas
+  private maxQuestions = 10; // Limit of questions
   private gameFinished = new BehaviorSubject<boolean>(false);
   currentQuestionIndex = new BehaviorSubject<number>(0);
 
@@ -20,15 +20,13 @@ export class GameService {
     this.loadAllApprovedQuestions();
   }
 
-  loadAllApprovedQuestions(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.firestore.collection<Question>('questions', ref => ref.where('approved', '==', true))
+  loadAllApprovedQuestions(): void {
+    this.firestore.collection<Question>('questions', ref => ref.where('approved', '==', true))
         .valueChanges({ idField: 'id' })
-        .subscribe(questions => {
-          this.questions$.next(questions);
-          resolve();
-        }, error => reject(error));
-    });
+        .pipe(
+          tap(questions => this.questions$.next(questions)),
+          catchError(error => throwError(() => new Error(`Error loading questions: ${error}`)))
+        ).subscribe();
   }
 
   setScoreForUser(userId: string, score: number) {
@@ -42,45 +40,28 @@ export class GameService {
     this.resetScores();
   }
 
-  resetScores(): void {
-    this.scores.next({});
-  }
-  
-  loadQuestionsFromFirestoreByThematic(thematic: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-        if (!thematic) {
-            reject('Thematic is undefined');
-            return;
-        }
-        let collectionQuery;
+  loadQuestionsFromFirestoreByThematic(thematic: string): void {
+    if (!thematic) throw new Error('Thematic is undefined');
 
-        // Check if the thematic is 'Mix' to decide whether to filter by thematic
-        if (thematic === 'Mix') {
-            // If 'Mix', fetch all approved questions regardless of thematic
-            collectionQuery = this.firestore.collection<Question>('questions', ref => 
-                ref.where('approved', '==', true));
-        } else {
-            // Otherwise, filter by the specific thematic
-            collectionQuery = this.firestore.collection<Question>('questions', ref => 
-                ref.where('thematic', '==', thematic).where('approved', '==', true));
-        }
+    let query = this.firestore.collection<Question>('questions', ref => 
+        ref.where('approved', '==', true).where('thematic', thematic !== 'Mix' ? '==' : '!=', thematic));
 
-        collectionQuery.valueChanges({ idField: 'id' })
-            .subscribe(questions => {
-                this.questions$.next(questions);
-                resolve();
-            }, error => reject(error));
-    });
+    query.valueChanges({ idField: 'id' })
+      .pipe(
+        tap(questions => this.questions$.next(questions)),
+        catchError(error => throwError(() => new Error(`Error loading thematic questions: ${error}`)))
+      ).subscribe();
   }
   
   getRandomUnansweredQuestion(): Observable<Question | undefined> {
     return this.questions$.pipe(
       map(questions => {
-        const unansweredQuestions = questions.filter(question => 
-          !this.answeredQuestions$.getValue().includes(question.id!));
-        if (unansweredQuestions.length === 0) return undefined;
-        const randomIndex = Math.floor(Math.random() * unansweredQuestions.length);
-        return unansweredQuestions[randomIndex];
+        const unansweredQuestions = questions.filter(question => {
+          const questionId = question.id;  // Ensure id is defined
+          return questionId && !this.answeredQuestions$.getValue().includes(questionId);
+        });
+        return unansweredQuestions.length === 0 ? undefined :
+          unansweredQuestions[Math.floor(Math.random() * unansweredQuestions.length)];
       })
     );
   }
@@ -92,12 +73,6 @@ export class GameService {
     }
     if (this.answeredQuestions$.getValue().length >= this.maxQuestions || timedOut) {
       this.gameFinished.next(true);
-    } else {
-      this.getRandomUnansweredQuestion().subscribe(question => {
-        if (!question && this.answeredQuestions$.getValue().length >= this.maxQuestions) {
-          this.gameFinished.next(true);
-        }
-      });
     }
   }
   
@@ -111,6 +86,9 @@ export class GameService {
     this.gameFinished.next(false);
     this.resetScores();
   }
-}
 
+  resetScores(): void {
+    this.scores.next({});
+  }
+}
 

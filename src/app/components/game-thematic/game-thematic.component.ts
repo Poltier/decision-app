@@ -6,7 +6,7 @@ import { Subscription } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RoomService } from '../../services/room.service';
 import { Room, Participant } from '../../models/room';
-import { FirebaseService } from '../../services/firebase.service'; 
+import { FirebaseService } from '../../services/firebase.service';
 
 @Component({
   selector: 'app-game-thematic',
@@ -25,14 +25,15 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   progressValue = 100;
   allScores: {username: string, score: number}[] = [];
   soloPlay: boolean = false;
-  isHost: boolean = false; 
+  isHost: boolean = false;
   username: string = '';
   participants: Participant[] = [];
   roomId?: string;
   room?: Room;
-  displayedColumns: string[] = ['username', 'score']; 
+  displayedColumns: string[] = ['username', 'score'];
 
-  constructor(private gameService: GameService, 
+  constructor(
+    private gameService: GameService, 
     private router: Router, 
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
@@ -44,15 +45,15 @@ export class GameThematicComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
-        this.roomId = params['roomId'];  // Cambiado a params para coincidir con la configuración de ruta
-        if (!this.roomId) {
-            this.snackBar.open('Room ID is missing. Please join a room first.', 'Close', {duration: 5000});
-            this.router.navigate(['/dashboard']);
-            return;
-        }
-        this.initializeGame();
+      this.roomId = params['roomId'];
+      if (!this.roomId) {
+        this.snackBar.open('Room ID is missing. Please join a room first.', 'Close', {duration: 5000});
+        this.router.navigate(['/dashboard']);
+        return;
+      }
+      this.initializeGame();
     });
- }
+  }
 
   initializeGame() {
     this.subscribeToGameStart();
@@ -60,7 +61,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     this.fetchParticipants();
     this.subscribeToScore();
   }
-
 
   subscribeToGameStart() {
     this.unsubscribe$.add(
@@ -77,7 +77,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     );
   }
 
-  
   fetchParticipants() {
     if (this.roomId) {
       this.roomService.getRoomById(this.roomId).subscribe(room => {
@@ -127,12 +126,14 @@ export class GameThematicComponent implements OnInit, OnDestroy {
 
   loadQuestionsBasedOnRoute(): void {
     const theme = this.route.snapshot.params['theme'];
-    this.gameService.loadQuestionsFromFirestoreByThematic(theme).then(() => {
+    if (theme) {
+      this.gameService.loadQuestionsFromFirestoreByThematic(theme);
       this.resetGame();
       this.getNextQuestion();
-    }).catch(error => {
-      console.error("Error loading questions: ", error);
-    });
+    } else {
+      console.error("Theme is missing");
+      this.snackBar.open("Theme is missing from the route parameters.", "Close", { duration: 5000 });
+    }
   }
 
   startNewGame(): void {
@@ -159,7 +160,7 @@ export class GameThematicComponent implements OnInit, OnDestroy {
       this.roomService.restartGame(this.roomId, this.authService.getCurrentUserId())
         .then(() => {
           this.snackBar.open("Game restarted successfully. Waiting for game to start.", "Close", { duration: 3000 });
-          // Aquí también puedes querer resetear el estado local del juego si es necesario
+          // Here, you might also want to reset the local game state if necessary
           this.resetGame();
         })
         .catch(error => {
@@ -185,7 +186,13 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     this.allowAnswer = false;
     this.stopCountdown();
     this.countdown = 0;
+    
     option.selected = true;
+    if (option.isCorrect) {
+      this.score++;
+    }
+    this.markCorrectAnswer(true);
+  
   }
 
   getNextQuestion(): void {
@@ -217,13 +224,12 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   private markGameAsFinished(): void {
     this.gameFinished = true;
     this.stopCountdown();
-    this.showResults();  // Llama aquí para asegurar que los puntajes finales sean mostrados
+    this.showResults();  // Call here to ensure that final scores are displayed
   }
-
 
   private prepareForNextQuestion(): void {
     if (this.gameFinished) {
-      console.log("El juego ya ha terminado. No cargar más preguntas.");
+      console.log("The game has already ended. No more questions to load.");
       return;
     }
     this.getNextQuestion();
@@ -254,7 +260,7 @@ export class GameThematicComponent implements OnInit, OnDestroy {
       this.countdown--;
       this.progressValue = (this.countdown / countdownDuration) * 100;
     } else {
-      console.log("Tiempo agotado, marcando respuesta correcta.");
+      console.log("Time ran out, marking correct answer.");
       this.stopCountdown();
       this.allowAnswer = false;
       this.markCorrectAnswer(true);
@@ -293,17 +299,17 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
 
   showResults(): void {
-    // Asegúrate de tener el roomId antes de intentar recuperar los datos
+    // Ensure you have the roomId before attempting to retrieve the data
     if (this.roomId) {
       this.roomService.getRoomById(this.roomId).subscribe(room => {
         if (room && room.participants) {
-          // Asigna un puntaje predeterminado (por ejemplo, 0) si 'score' es undefined
+          // Assign a default score (e.g., 0) if 'score' is undefined
           this.allScores = room.participants.map(p => ({
             username: p.username,
-            score: p.score !== undefined ? p.score : 0  // Asigna 0 si score es undefined
+            score: p.score !== undefined ? p.score : 0  // Assign 0 if score is undefined
           }));
   
-          this.allScores.sort((a, b) => b.score - a.score); // Ordena los puntajes de mayor a menor
+          this.allScores.sort((a, b) => b.score - a.score); // Sort scores from highest to lowest
         }
       });
     }
@@ -319,4 +325,5 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     }
   }
 }
+
 

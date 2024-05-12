@@ -48,7 +48,7 @@
     </table>
     <mat-card-actions>
       <button *ngIf="isHost || soloPlay" mat-button (click)="restartGame()">Restart Game</button>
-      <button mat-button (click)="goToLobby()">Return to Lobby</button>
+      <button *ngIf="isHost || soloPlay" mat-button (click)="goToLobby()">Return to Lobby</button>
     </mat-card-actions>
   </mat-card>
 </div>

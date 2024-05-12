@@ -24,6 +24,7 @@ export class Room {
     maxPlayers: number = 8, // default number of players
     settings: any = {},
     createdAt: Date = new Date(), // default to current date/time
+    hostId: string = '',
     gameStarted: boolean = false, // default value
     id?: string,
     isHost: boolean = false  // default to false
@@ -34,6 +35,7 @@ export class Room {
     this.maxPlayers = maxPlayers;
     this.settings = settings;
     this.createdAt = createdAt;
+    this.hostId = hostId;
     this.id = id;
     this.isHost = isHost;
     this.gameStarted = gameStarted;

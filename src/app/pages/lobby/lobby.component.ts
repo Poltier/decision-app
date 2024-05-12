@@ -238,10 +238,8 @@ export class LobbyComponent implements OnInit, OnDestroy {
         this.snackBar.open("You have been removed from the room.", "Close", {duration: 3000});
         // Retrasar la redirección para que el usuario pueda leer el mensaje
         setTimeout(() => {
-          this.router.navigate(['/dashboard']).then(() => {
-            window.location.reload(); // Recarga para limpiar completamente el estado
-          });
-        }, 3200); // Retraso de 3200 milisegundos (3.2 segundos)
+          this.router.navigate(['/dashboard']);
+        }, 3200) // Retraso de 3200 milisegundos (3.2 segundos)
       }
   
       wasParticipant = isParticipant; // Actualiza el estado de la participación para la próxima comprobación.
@@ -321,9 +319,9 @@ export class LobbyComponent implements OnInit, OnDestroy {
           this.participants = [];  // Asegura que la lista local de participantes se limpie
           this.room = null;  // Opcional, dependiendo de si deseas resetear los datos de la sala
           this.ref.detectChanges();
-          this.router.navigate(['/dashboard']).then(() => {
-            window.location.reload();  // Considera recargar la página si es necesario para restablecer completamente el estado de la app
-          });
+          /*this.router.navigate(['/dashboard']).then(() => {
+            //window.location.reload();  // Considera recargar la página si es necesario para restablecer completamente el estado de la app
+          });*/
       })
       .catch(error => {
           console.error("Error when trying to leave or close the room:", error);
