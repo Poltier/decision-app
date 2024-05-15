@@ -328,8 +328,9 @@ export class LobbyComponent implements OnInit, OnDestroy {
           this.snackBar.open("Failed to leave or close the room. Please try again.", "Close", {duration: 3000});
       });
   }
-  
-  
+
+  ExitToDashboard(): void {
+    this.router.navigate(['/dashboard']);
+  }
+
 }
-
-

@@ -44,25 +44,28 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.initializeGame();
+  }
+
+  initializeGame() {
     this.route.params.subscribe(params => {
       this.roomId = params['roomId'];
-      if (!this.roomId) {
+      if (!this.roomId && !this.soloPlay) {
         this.snackBar.open('Room ID is missing. Please join a room first.', 'Close', {duration: 5000});
         this.router.navigate(['/dashboard']);
         return;
       }
-      this.initializeGame();
+      this.subscribeToGameStart();
+      this.loadQuestionsBasedOnRoute();
+      this.fetchParticipants();
+      this.subscribeToScore();
     });
   }
 
-  initializeGame() {
-    this.subscribeToGameStart();
-    this.loadQuestionsBasedOnRoute();
-    this.fetchParticipants();
-    this.subscribeToScore();
-  }
-
   subscribeToGameStart() {
+    if (this.soloPlay) {
+      return; // No hacer nada en modo soloPlay
+    }
     this.unsubscribe$.add(
       this.roomService.watchGameStarted(this.roomId!).subscribe(gameStarted => {
         if (gameStarted) {
@@ -76,6 +79,7 @@ export class GameThematicComponent implements OnInit, OnDestroy {
       })
     );
   }
+  
 
   fetchParticipants() {
     if (this.roomId) {
@@ -93,14 +97,15 @@ export class GameThematicComponent implements OnInit, OnDestroy {
       this.username = params['username'] || 'Guest'; // Set username or default to 'Guest'
       this.soloPlay = params['soloPlay'] === 'true'; // Determine if it is a solo play
       this.isHost = params['isHost'] === 'true'; // Determine if the user is the host
-
-      if (!this.soloPlay && this.roomId) {
-        this.waitForGameStart();
-      } else {
+  
+      if (this.soloPlay) {
         this.startGame();
+      } else if (this.roomId) {
+        this.waitForGameStart();
       }
     });
   }
+  
 
   waitForGameStart() {
     const roomSubscription = this.roomService.watchGameStarted(this.roomId!).subscribe(gameStarted => {
@@ -115,8 +120,9 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
  
   startGame() {
+    this.resetGame();
     this.loadQuestionsBasedOnRoute();
-  }
+  }  
 
   subscribeToScore() {
     this.gameService.getScore().subscribe(score => {
@@ -127,14 +133,21 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   loadQuestionsBasedOnRoute(): void {
     const theme = this.route.snapshot.params['theme'];
     if (theme) {
-      this.gameService.loadQuestionsFromFirestoreByThematic(theme);
-      this.resetGame();
-      this.getNextQuestion();
+      this.gameService.loadQuestionsFromFirestoreByThematic(theme)
+        .then(() => {
+          this.resetGame();
+          this.getNextQuestion();
+        })
+        .catch(error => {
+          console.error("Error loading questions:", error);
+          this.snackBar.open("Error loading questions. Please try again.", "Close", { duration: 5000 });
+        });
     } else {
       console.error("Theme is missing");
       this.snackBar.open("Theme is missing from the route parameters.", "Close", { duration: 5000 });
     }
   }
+  
 
   startNewGame(): void {
     this.resetGame();
@@ -147,29 +160,47 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     this.allowAnswer = true;
     this.progressValue = 100;
     this.allScores = [];
-    this.gameService.resetGame(); // Reset game logic in the service
+    
+    // Detiene cualquier temporizador existente
+    if (this.countdownInterval) {
+        clearInterval(this.countdownInterval);
+        this.countdownInterval = null; // Asegúrate de limpiar la referencia
+    }
+    
+    this.countdown = 10;  // Reinicia el contador a su valor inicial
+    
+    // Reinicia cualquier lógica de juego adicional
+    this.gameService.resetGame();  
+
+    // Inicia el temporizador nuevamente
+    this.startCountdown();
   }
 
   restartGame(): void {
-    if (!this.isHost) {
-      this.snackBar.open("Only the host can restart the game.", "Close", { duration: 3000 });
-      return;
+    // Permitir reiniciar si el usuario es el host o está en modo soloPlay.
+    if (!this.isHost && !this.soloPlay) {
+        this.snackBar.open("Only the host or solo players can restart the game.", "Close", { duration: 3000 });
+        return;
     }
   
-    if (this.roomId) {
-      this.roomService.restartGame(this.roomId, this.authService.getCurrentUserId())
-        .then(() => {
-          this.snackBar.open("Game restarted successfully. Waiting for game to start.", "Close", { duration: 3000 });
-          // Here, you might also want to reset the local game state if necessary
-          this.resetGame();
-        })
-        .catch(error => {
-          console.error("Failed to restart game", error);
-          this.snackBar.open("Failed to restart game: " + error.message, "Close", { duration: 3000 });
-        });
+    // Para modo soloPlay, no es necesario un roomId, por lo que podemos omitir esa comprobación.
+    if (this.soloPlay) {
+        this.resetGame();
+        this.snackBar.open("Game restarted successfully.", "Close", { duration: 3000 });
+    } else if (this.roomId) {
+        // Reiniciar el juego en modo multijugador requiere un roomId.
+        this.roomService.restartGame(this.roomId, this.authService.getCurrentUserId())
+            .then(() => {
+                this.snackBar.open("Game restarted successfully. Waiting for game to start.", "Close", { duration: 3000 });
+                this.resetGame();
+            })
+            .catch(error => {
+                console.error("Failed to restart game", error);
+                this.snackBar.open("Failed to restart game: " + error.message, "Close", { duration: 3000 });
+            });
     } else {
-      console.error("Room ID is missing");
-      this.snackBar.open("Error: Room ID is missing.", "Close", { duration: 3000 });
+        console.error("Room ID is missing");
+        this.snackBar.open("Error: Room ID is missing.", "Close", { duration: 3000 });
     }
   }
 
@@ -227,14 +258,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     this.showResults();  // Call here to ensure that final scores are displayed
   }
 
-  private prepareForNextQuestion(): void {
-    if (this.gameFinished) {
-      console.log("The game has already ended. No more questions to load.");
-      return;
-    }
-    this.getNextQuestion();
-  }
-
   private resetQuestionState(): void {
     if (this.currentQuestion) {
       this.currentQuestion.options.forEach(option => {
@@ -253,20 +276,21 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
 
   private startCountdown(): void {
-    const countdownDuration = this.countdown;
+    this.stopCountdown();  // Asegúrate de detener cualquier temporizador existente
+    this.countdown = 10;  // Establece el contador
     this.progressValue = 100;
     this.countdownInterval = setInterval(() => {
-    if (this.countdown > 0) {
-      this.countdown--;
-      this.progressValue = (this.countdown / countdownDuration) * 100;
-    } else {
-      console.log("Time ran out, marking correct answer.");
-      this.stopCountdown();
-      this.allowAnswer = false;
-      this.markCorrectAnswer(true);
-    }
+        if (this.countdown > 0) {
+            this.countdown--;
+            this.progressValue = (this.countdown / 10) * 100;
+        } else {
+            console.log("Time ran out, marking correct answer.");
+            this.stopCountdown();
+            this.allowAnswer = false;
+            this.markCorrectAnswer(true);
+        }
     }, 1000);
-  }
+  } 
 
   private stopCountdown(): void {
     if (this.countdownInterval) {
@@ -299,31 +323,48 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
 
   showResults(): void {
-    // Ensure you have the roomId before attempting to retrieve the data
-    if (this.roomId) {
-      this.roomService.getRoomById(this.roomId).subscribe(room => {
-        if (room && room.participants) {
-          // Assign a default score (e.g., 0) if 'score' is undefined
-          this.allScores = room.participants.map(p => ({
-            username: p.username,
-            score: p.score !== undefined ? p.score : 0  // Assign 0 if score is undefined
-          }));
-  
-          this.allScores.sort((a, b) => b.score - a.score); // Sort scores from highest to lowest
-        }
-      });
+    if (this.soloPlay) {
+        // En modo solo, solo muestra la puntuación del jugador actual
+        this.allScores = [{
+            username: this.username || 'Guest',  // Usa 'Guest' si no hay un nombre de usuario
+            score: this.score
+        }];
+    } else if (this.roomId) {
+        // En modo multijugador, recupera las puntuaciones de todos los participantes
+        this.roomService.getRoomById(this.roomId).subscribe(room => {
+            if (room && room.participants) {
+                this.allScores = room.participants.map(p => ({
+                    username: p.username,
+                    score: p.score !== undefined ? p.score : 0
+                }));
+                this.allScores.sort((a, b) => b.score - a.score); // Ordena de mayor a menor
+            }
+        }, error => {
+            console.error('Error fetching room details:', error);
+            this.snackBar.open('Failed to fetch room details.', 'Close', { duration: 3000 });
+        });
+    } else {
+        // Si no es modo solo y falta roomId, muestra un error
+        console.error("Room ID is missing and not in solo play mode.");
+        this.snackBar.open("Error: Room ID is missing.", "Close", { duration: 3000 });
     }
   }
-  
 
   goToLobby(): void {
-    this.allScores = [];
-    if (this.roomId) {
-        this.router.navigate(['/lobby'], { queryParams: { id: this.roomId, username: this.username } });
+    this.allScores = [];  // Limpiar las puntuaciones
+    this.resetGame();  // Resetear el juego para limpieza
+
+    // Navegar al lobby con o sin roomId
+    if (this.roomId || this.soloPlay) {
+        // Usa el roomId si está disponible, de lo contrario, no incluyas el roomId en los parámetros
+        const queryParams = this.roomId ? { id: this.roomId, username: this.username } : { username: this.username, soloPlay: 'true' };
+        this.router.navigate(['/lobby'], { queryParams });
     } else {
+        // Si no hay roomId y no es soloPlay, navega al dashboard por defecto
         this.router.navigate(['/dashboard']);
     }
   }
+
 }
 
 

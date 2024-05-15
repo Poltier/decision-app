@@ -66,19 +66,29 @@ export class DashboardComponent  {
   }
 
   private joinRoom() {
-    this.roomService.getRoomByIdentifier(this.roomCode).subscribe((room: Room | null) => {
-      if (!room || room.gameStarted || room.participants.length >= room.maxPlayers ||
-          room.participants.some((p: Participant) => p.username.toLowerCase() === this.username.toLowerCase())) {
-        this.handleRoomEntryErrors(room, this.username);
-      } else {
-        this.router.navigate(['/lobby', { id: this.roomCode, username: this.username, isHost: false }]);
-      }
-    }, error => {
-      console.error("Failed to get room details:", error);
-      this.openSnackBar("Failed to check room details. Please try again.", 3000);
+    this.roomService.getRoomByIdentifier(this.roomCode).subscribe({
+        next: (room: Room | null) => {
+            // Verificar primero si la sala existe
+            if (!room || !room.participants) {
+                this.openSnackBar("Room not found. Please check the room code.", 3000);
+                return; // Asegura que el método termine aquí si no hay sala
+            }
+
+            // Ahora es seguro acceder a room.participants ya que sabemos que room no es null
+            if (room.gameStarted || room.participants.length >= room.maxPlayers ||
+                room.participants.some(p => p.username.toLowerCase() === this.username.toLowerCase())) {
+                this.handleRoomEntryErrors(room, this.username);
+            } else {
+                this.router.navigate(['/lobby', { id: this.roomCode, username: this.username, isHost: false }]);
+            }
+        },
+        error: error => {
+            console.error("Failed to get room details:", error);
+            this.openSnackBar("Failed to check room details. Please try again.", 3000);
+        }
     });
   }
-  
+
   private handleRoomEntryErrors(room: Room | null, username: string) {
     if (!room) {
       this.openSnackBar("Room not found. Please check the room code.", 3000);

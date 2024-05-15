@@ -40,18 +40,27 @@ export class GameService {
     this.resetScores();
   }
 
-  loadQuestionsFromFirestoreByThematic(thematic: string): void {
+  loadQuestionsFromFirestoreByThematic(thematic: string): Promise<void> {
     if (!thematic) throw new Error('Thematic is undefined');
-
-    let query = this.firestore.collection<Question>('questions', ref => 
+  
+    return new Promise((resolve, reject) => {
+      let query = this.firestore.collection<Question>('questions', ref => 
         ref.where('approved', '==', true).where('thematic', thematic !== 'Mix' ? '==' : '!=', thematic));
-
-    query.valueChanges({ idField: 'id' })
-      .pipe(
-        tap(questions => this.questions$.next(questions)),
-        catchError(error => throwError(() => new Error(`Error loading thematic questions: ${error}`)))
-      ).subscribe();
+  
+      query.valueChanges({ idField: 'id' })
+        .pipe(
+          tap(questions => {
+            this.questions$.next(questions);
+            resolve(); // Resolve the promise when questions are successfully loaded
+          }),
+          catchError(error => {
+            reject(`Error loading thematic questions: ${error}`);
+            return throwError(() => new Error(`Error loading thematic questions: ${error}`));
+          })
+        ).subscribe();
+    });
   }
+  
   
   getRandomUnansweredQuestion(): Observable<Question | undefined> {
     return this.questions$.pipe(
