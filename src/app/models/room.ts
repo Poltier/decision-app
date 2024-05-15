@@ -23,7 +23,7 @@ export class Room {
     participants: Participant[] = [],
     maxPlayers: number = 8,
     settings: any = {},
-    createdAt: Date = new Date(), 
+    createdAt: Date = new Date(),
     hostId: string = '',
     gameStarted: boolean = false,
     id?: string,

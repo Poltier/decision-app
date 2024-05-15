@@ -345,27 +345,24 @@ export class GameThematicComponent implements OnInit, OnDestroy {
 
   showResults(): void {
     if (this.soloPlay) {
-        // En modo solo, solo muestra la puntuación del jugador actual
         this.allScores = [{
-            username: this.username || 'Guest',  // Usa 'Guest' si no hay un nombre de usuario
+            username: this.username || 'Guest', 
             score: this.score
         }];
     } else if (this.roomId) {
-        // En modo multijugador, recupera las puntuaciones de todos los participantes
         this.roomService.getRoomById(this.roomId).subscribe(room => {
             if (room && room.participants) {
                 this.allScores = room.participants.map(p => ({
                     username: p.username,
                     score: p.score !== undefined ? p.score : 0
                 }));
-                this.allScores.sort((a, b) => b.score - a.score); // Ordena de mayor a menor
+                this.allScores.sort((a, b) => b.score - a.score); 
             }
         }, error => {
             console.error('Error fetching room details:', error);
             this.snackBar.open('Failed to fetch room details.', 'Close', { duration: 3000 });
         });
     } else {
-        // Si no es modo solo y falta roomId, muestra un error
         console.error("Room ID is missing and not in solo play mode.");
         this.snackBar.open("Error: Room ID is missing.", "Close", { duration: 3000 });
     }
@@ -374,16 +371,16 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   goToLobby(): void {
     if (this.roomId) {
       this.roomService.setGameStarted(this.roomId, false).then(() => {
-        this.allScores = [];  // Limpiar las puntuaciones
-        this.resetGame();  // Resetear el juego para limpieza
+        this.allScores = [];
+        this.resetGame();
         this.router.navigate(['/lobby', { id: this.roomId, username: this.username }]);
       }).catch(error => {
         console.error('Failed to set gameStarted to false:', error);
         this.snackBar.open('Failed to return to lobby. Please try again.', 'Close', { duration: 3000 });
       });
     } else if (this.soloPlay) {
-      this.allScores = [];  // Limpiar las puntuaciones
-      this.resetGame();  // Resetear el juego para limpieza
+      this.allScores = [];
+      this.resetGame();
       this.router.navigate(['/lobby', { username: this.username, soloPlay: 'true' }]);
     } else {
       this.router.navigate(['/dashboard']);
@@ -391,5 +388,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
   
 }
+
 
 
