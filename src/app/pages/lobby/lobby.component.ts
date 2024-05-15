@@ -1,9 +1,11 @@
 import { Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoomService } from '../../services/room.service';
+import { GameService } from '../../services/game.service'; // Añadir esta línea
 import { Participant, Room } from '../../models/room';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
+import { Question } from '../../models/question';
 
 interface Thematic {
   name: string;
@@ -41,6 +43,7 @@ export class LobbyComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute, 
     private router: Router, 
     private roomService: RoomService, 
+    private gameService: GameService, // Añadir esta línea
     private snackBar: MatSnackBar,
     private ref: ChangeDetectorRef
   ) {}
@@ -117,13 +120,23 @@ export class LobbyComponent implements OnInit, OnDestroy {
       return;
     }
   
-    this.roomService.startGame(this.roomId).then(() => {
-      // La navegación a la sala del juego se maneja ahora en subscribeToGameStart()
-    }).catch(err => {
-      console.error('Failed to start game:', err);
-      this.snackBar.open('Failed to start game. Please try again.', 'Close', { duration: 3000 });
-    });
+    // Load questions and then start the game
+    this.gameService.loadQuestionsFromFirestoreByThematic(this.selectedTheme.name)
+      .then((questions: Question[]) => {
+        this.roomService.startGame(this.roomId!, questions).then(() => {
+          // Navigation handled by subscribeToGameStarted()
+        }).catch((err: any) => {
+          console.error('Failed to start game:', err);
+          this.snackBar.open('Failed to start game. Please try again.', 'Close', { duration: 3000 });
+        });
+      })
+      .catch((err: any) => {
+        console.error('Failed to load questions:', err);
+        this.snackBar.open('Failed to load questions. Please try again.', 'Close', { duration: 3000 });
+      });
   }
+  
+  
 
   emptySlots(maxPlayers: number | null | undefined, currentCount: number): string[] {
     const count = Math.max((maxPlayers || 0) - currentCount, 0);
@@ -144,7 +157,6 @@ export class LobbyComponent implements OnInit, OnDestroy {
       this.executeRemoval(participant, participant.userId === this.currentUserId);
     }
   }
-
 
   executeRemoval(participant: Participant, isCurrentUser: boolean) {
     this.roomService.removeParticipant(this.roomId, participant)
@@ -192,27 +204,36 @@ export class LobbyComponent implements OnInit, OnDestroy {
 
   startSelectedGame() {
     if (!this.selectedTheme) {
-        this.snackBar.open('Please select a thematic game to start.', 'Close', {duration: 3000});
-        return;
+      this.snackBar.open('Please select a thematic game to start.', 'Close', {duration: 3000});
+      return;
     }
-
+  
     if (this.soloPlay) {
-        this.router.navigate(['/game-thematic', this.selectedTheme.name], {
-            queryParams: {username: this.username, soloPlay: true}
-        });
+      this.router.navigate(['/game-thematic', this.selectedTheme.name], {
+        queryParams: {username: this.username, soloPlay: true}
+      });
     } else if (this.room?.isHost) {
-        this.roomService.startGame(this.roomId!).then(() => {
+      this.gameService.loadQuestionsFromFirestoreByThematic(this.selectedTheme.name)
+        .then((questions: Question[]) => {
+          this.roomService.startGame(this.roomId!, questions).then(() => {
             this.router.navigate(['/game-room', this.roomId, this.selectedTheme?.name], {
-                queryParams: {username: this.username, isHost: this.room?.isHost}
+              queryParams: {username: this.username, isHost: this.room?.isHost}
             });
-        }).catch(err => {
+          }).catch(err => {
             console.error('Failed to start game:', err);
             this.snackBar.open('Failed to start game. Please try again.', 'Close', { duration: 3000 });
+          });
+        })
+        .catch((err: any) => {
+          console.error('Failed to load questions:', err);
+          this.snackBar.open('Failed to load questions. Please try again.', 'Close', { duration: 3000 });
         });
     } else {
-        this.snackBar.open('Only the room host can start the game.', 'Close', {duration: 3000});
+      this.snackBar.open('Only the room host can start the game.', 'Close', {duration: 3000});
     }
   }
+  
+  
 
   fetchRoom(): void {
     if (!this.roomId) return;
@@ -279,9 +300,6 @@ export class LobbyComponent implements OnInit, OnDestroy {
       }
     });
   }
-  
-
-
   
   // Método para recargar los datos de la sala y luego navegar al lobby
   fetchRoomDataAndNavigate() {

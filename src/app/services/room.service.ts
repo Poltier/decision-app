@@ -7,6 +7,7 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import { FirebaseService } from './firebase.service';
+import { Question } from '../models/question';
 
 @Injectable({
   providedIn: 'root'
@@ -40,7 +41,6 @@ export class RoomService {
     const roomRef = this.firestore.collection('rooms').doc(roomId);
     const roomDoc = await roomRef.get().toPromise();
 
-    // Check if the roomDoc is defined and exists
     if (!roomDoc || !roomDoc.exists) {
       console.error("Room not found or already closed:", roomId);
       this.cleanUpSessionStorage();
@@ -64,9 +64,18 @@ export class RoomService {
     throw new Error("Participant not found");
   }
 
-  async startGame(roomId: string): Promise<void> {
-    await this.firestore.collection('rooms').doc(roomId).update({ gameStarted: true });
+  async startGame(roomId: string, questions: Question[]): Promise<void> {
+    await this.firestore.collection('rooms').doc(roomId).update({ 
+      gameStarted: true, 
+      questions: questions // Guardar las preguntas en el documento de la sala
+    });
   }
+
+  async setQuestionsForRoom(roomId: string, questions: Question[]): Promise<void> {
+    const roomRef = this.firestore.collection('rooms').doc(roomId);
+    await roomRef.update({ questions });
+  }
+  
 
   async restartGame(roomId: string, userId: string): Promise<void> {
     const roomRef = this.firestore.collection('rooms').doc(roomId);
@@ -152,11 +161,3 @@ export class RoomService {
     });
   }
 }
-
-
-
-
-
-
-
-

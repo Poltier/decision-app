@@ -1,3 +1,5 @@
+import { Question } from './question';
+
 export interface Participant {
   username: string;
   userId: string;
@@ -13,9 +15,10 @@ export class Room {
   settings: any;
   createdAt: Date;
   hostId?: string;
-  isHost: boolean; 
+  isHost: boolean;
   gameStarted: boolean;
   selectedThemeName?: string;
+  questions?: Question[];
 
   constructor(
     name: string,
@@ -27,7 +30,8 @@ export class Room {
     hostId: string = '',
     gameStarted: boolean = false,
     id?: string,
-    isHost: boolean = false
+    isHost: boolean = false,
+    questions?: Question[]
   ) {
     this.name = name;
     this.status = status;
@@ -39,5 +43,6 @@ export class Room {
     this.id = id;
     this.isHost = isHost;
     this.gameStarted = gameStarted;
+    this.questions = questions;
   }
 }

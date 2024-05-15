@@ -40,7 +40,7 @@ export class GameService {
     this.resetScores();
   }
 
-  loadQuestionsFromFirestoreByThematic(thematic: string): Promise<void> {
+  loadQuestionsFromFirestoreByThematic(thematic: string): Promise<Question[]> {
     if (!thematic) throw new Error('Thematic is undefined');
   
     return new Promise((resolve, reject) => {
@@ -51,7 +51,7 @@ export class GameService {
         .pipe(
           tap(questions => {
             this.questions$.next(questions);
-            resolve(); // Resolve the promise when questions are successfully loaded
+            resolve(questions); // Resolve the promise with questions
           }),
           catchError(error => {
             reject(`Error loading thematic questions: ${error}`);
@@ -62,6 +62,10 @@ export class GameService {
   }
   
   
+  setQuestions(questions: Question[]): void {
+    this.questions$.next(questions);
+  }
+
   getRandomUnansweredQuestion(): Observable<Question | undefined> {
     return this.questions$.pipe(
       map(questions => {
@@ -70,7 +74,7 @@ export class GameService {
           return questionId && !this.answeredQuestions$.getValue().includes(questionId);
         });
         return unansweredQuestions.length === 0 ? undefined :
-          unansweredQuestions[Math.floor(Math.random() * unansweredQuestions.length)];
+          unansweredQuestions[Math.floor(Math.random() * (unansweredQuestions.length))];
       })
     );
   }
