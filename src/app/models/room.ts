@@ -14,20 +14,20 @@ export class Room {
   createdAt: Date;
   hostId?: string;
   isHost: boolean; 
-  gameStarted: boolean; // Ensure this is always initialized
+  gameStarted: boolean;
   selectedThemeName?: string;
 
   constructor(
     name: string,
-    status: 'waiting' | 'active' | 'finished' = 'waiting', // default value if not provided
-    participants: Participant[] = [], // default empty array
-    maxPlayers: number = 8, // default number of players
+    status: 'waiting' | 'active' | 'finished' = 'waiting',
+    participants: Participant[] = [],
+    maxPlayers: number = 8,
     settings: any = {},
-    createdAt: Date = new Date(), // default to current date/time
+    createdAt: Date = new Date(), 
     hostId: string = '',
-    gameStarted: boolean = false, // default value
+    gameStarted: boolean = false,
     id?: string,
-    isHost: boolean = false  // default to false
+    isHost: boolean = false
   ) {
     this.name = name;
     this.status = status;

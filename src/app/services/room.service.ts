@@ -89,6 +89,10 @@ export class RoomService {
     });
   }
 
+  async setGameStarted(roomId: string, gameStarted: boolean): Promise<void> {
+    await this.firestore.collection('rooms').doc(roomId).update({ gameStarted });
+  }  
+
   getRoomById(id: string): Observable<Room | null> {
     return this.firestore.collection<Room>('rooms').doc(id).valueChanges().pipe(
       map(room => room ? {...room, isHost: room.hostId === this.getCurrentUserIdOrGuest()} : null)

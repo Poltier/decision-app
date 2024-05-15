@@ -54,7 +54,7 @@ export class LobbyComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeRoom();
-    this.subscribeToGameStart();
+    this.subscribeToGameStarted(); 
   }
 
   ngOnDestroy(): void {
@@ -69,11 +69,13 @@ export class LobbyComponent implements OnInit, OnDestroy {
     });
   }
 
-  subscribeToGameStart(): void {
+  subscribeToGameStarted(): void {
     if (this.roomId) {
       this.subscription.add(
         this.roomService.watchGameStarted(this.roomId).subscribe(gameStarted => {
-          if (gameStarted) {
+          if (!gameStarted) {
+            this.router.navigate(['/lobby', { id: this.roomId, username: this.username }]);
+          } else {
             this.router.navigate(['/game-room', this.roomId, this.selectedTheme?.name], {
               queryParams: { username: this.username, isHost: this.room?.isHost }
             });

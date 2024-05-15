@@ -45,6 +45,7 @@ export class GameThematicComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeGame();
+    this.subscribeToGameStarted();
   }
 
   initializeGame() {
@@ -60,6 +61,23 @@ export class GameThematicComponent implements OnInit, OnDestroy {
       this.fetchParticipants();
       this.subscribeToScore();
     });
+  }
+
+  subscribeToGameStarted(): void {
+    if (this.roomId) {
+      this.unsubscribe$.add(
+        this.roomService.watchGameStarted(this.roomId).subscribe(gameStarted => {
+          if (!gameStarted) {
+            this.router.navigate(['/lobby', { id: this.roomId, username: this.username }]);
+          } else {
+            this.startGame();
+          }
+        }, error => {
+          console.error('Error in receiving game start signal:', error);
+          this.snackBar.open('Error in game start signal. Please try again.', 'Close', { duration: 3000 });
+        })
+      );
+    }
   }
 
   subscribeToGameStart() {
@@ -160,21 +178,24 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     this.allowAnswer = true;
     this.progressValue = 100;
     this.allScores = [];
-    
+  
     // Detiene cualquier temporizador existente
     if (this.countdownInterval) {
-        clearInterval(this.countdownInterval);
-        this.countdownInterval = null; // Asegúrate de limpiar la referencia
+      clearInterval(this.countdownInterval);
+      this.countdownInterval = null; // Asegúrate de limpiar la referencia
     }
-    
+  
     this.countdown = 10;  // Reinicia el contador a su valor inicial
-    
+  
     // Reinicia cualquier lógica de juego adicional
     this.gameService.resetGame();  
-
-    // Inicia el temporizador nuevamente
-    this.startCountdown();
+  
+    // Inicia el temporizador nuevamente solo si el juego no ha terminado
+    if (!this.gameFinished) {
+      this.startCountdown();
+    }
   }
+  
 
   restartGame(): void {
     // Permitir reiniciar si el usuario es el host o está en modo soloPlay.
@@ -351,20 +372,24 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
 
   goToLobby(): void {
-    this.allScores = [];  // Limpiar las puntuaciones
-    this.resetGame();  // Resetear el juego para limpieza
-
-    // Navegar al lobby con o sin roomId
-    if (this.roomId || this.soloPlay) {
-        // Usa el roomId si está disponible, de lo contrario, no incluyas el roomId en los parámetros
-        const queryParams = this.roomId ? { id: this.roomId, username: this.username } : { username: this.username, soloPlay: 'true' };
-        this.router.navigate(['/lobby'], { queryParams });
+    if (this.roomId) {
+      this.roomService.setGameStarted(this.roomId, false).then(() => {
+        this.allScores = [];  // Limpiar las puntuaciones
+        this.resetGame();  // Resetear el juego para limpieza
+        this.router.navigate(['/lobby', { id: this.roomId, username: this.username }]);
+      }).catch(error => {
+        console.error('Failed to set gameStarted to false:', error);
+        this.snackBar.open('Failed to return to lobby. Please try again.', 'Close', { duration: 3000 });
+      });
+    } else if (this.soloPlay) {
+      this.allScores = [];  // Limpiar las puntuaciones
+      this.resetGame();  // Resetear el juego para limpieza
+      this.router.navigate(['/lobby', { username: this.username, soloPlay: 'true' }]);
     } else {
-        // Si no hay roomId y no es soloPlay, navega al dashboard por defecto
-        this.router.navigate(['/dashboard']);
+      this.router.navigate(['/dashboard']);
     }
   }
-
+  
 }
 
 
