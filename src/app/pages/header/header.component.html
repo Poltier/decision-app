@@ -19,7 +19,7 @@
         <mat-icon>add_circle_outline</mat-icon>
         <span>Create a Question</span>
       </button>
-      <button mat-menu-item routerLink="/admin">
+      <button mat-menu-item *ngIf="isAdmin" routerLink="/admin">
         <mat-icon>admin_panel_settings</mat-icon>
         <span>Administration</span>
       </button>
@@ -30,5 +30,6 @@
     </mat-menu>
   </div>
 </mat-toolbar>
+
 
 

@@ -5,6 +5,7 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { AuthGuard } from './auth/auth.guard';
+import { AdminGuard } from './auth/admin.guard';
 import { WelcomeComponent } from './pages/welcome/welcome.component';
 import { GameThematicComponent } from './components/game-thematic/game-thematic.component';
 import { SubmitQuestionComponent } from './pages/submit-question/submit-question.component';
@@ -16,7 +17,7 @@ const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent },
   { path: 'lobby', component: LobbyComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
-  { path: 'admin', component: AdminComponent, canActivate: [AuthGuard] },
+  { path: 'admin', component: AdminComponent, canActivate: [AdminGuard] },
   { path: 'submit-question', component: SubmitQuestionComponent },
   { path: 'game-thematic/:theme', component: GameThematicComponent }, // For solo play
   { path: 'game-room/:roomId/:theme', component: GameThematicComponent }, // For multiplayer
@@ -28,3 +29,4 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
+

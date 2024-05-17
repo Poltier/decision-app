@@ -31,13 +31,13 @@ npm install
 
 3. Configure Firebase:
 
-> Login to Firebase:
+- Login to Firebase:
 
 ~~~
 firebase login
 ~~~
 
-> Initialize Firebase in your project:
+- Initialize Firebase in your project:
 
 ~~~
 firebase init

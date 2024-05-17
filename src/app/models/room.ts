@@ -11,7 +11,6 @@ export class Room {
   name: string;
   participants: Participant[];
   maxPlayers: number;
-  settings: any;
   createdAt: Date;
   hostId?: string;
   isHost: boolean;
@@ -26,7 +25,6 @@ export class Room {
     name: string,
     participants: Participant[] = [],
     maxPlayers: number = 8,
-    settings: any = {},
     createdAt: Date = new Date(),
     hostId: string = '',
     gameStarted: boolean = false,
@@ -40,7 +38,6 @@ export class Room {
     this.name = name;
     this.participants = participants;
     this.maxPlayers = maxPlayers;
-    this.settings = settings;
     this.createdAt = createdAt;
     this.hostId = hostId;
     this.id = id;
