@@ -6,31 +6,70 @@ It is a web application designed for decision-making enhancement through interac
 
 ## Prerequisites
 
-Before begin, ensure you have met the following requirements:
+Before beginning, ensure you have met the following requirements:
 
 - Node.js (LTS version)
 - npm (Node Package Manager)
 - Angular CLI (Command Line Interface)
+- Firebase CLI
 
 ## Installation
 
 To install MyApp, follow these steps:
 
+1. Clone the repository:
+
+~~~
+git clone https://github.com/Poltier/decision-app.git
+cd decision-app
+~~~
+
+2. Install the dependencies:
 ~~~
 npm install
+~~~
+
+3. Configure Firebase:
+
+> Login to Firebase:
+
+~~~
+firebase login
+~~~
+
+> Initialize Firebase in your project:
+
+~~~
+firebase init
 ~~~
 
 ## Development server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
 ## Build
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+
+## Deployment
+
+1. Build the application:
+
+~~~
+ng build --prod
+~~~
+
+2. Deploy to Firebase:
+
+~~~
+irebase deploy
+~~~
+
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+
+## Code scaffolding
+
+Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
 ## Running unit tests
 
