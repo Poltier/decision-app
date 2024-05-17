@@ -63,12 +63,120 @@
         "thematic": "Science"
     },
     {
+        "questionText": "What is the boiling point of water?",
+        "options": [
+            {"text": "100°C", "isCorrect": true},
+            {"text": "0°C", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/40784/drops-of-water-water-nature-liquid-40784.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Science"
+    },
+    {
+        "questionText": "What is the smallest unit of matter?",
+        "options": [
+            {"text": "Atom", "isCorrect": true},
+            {"text": "Molecule", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/13014236/pexels-photo-13014236.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Science"
+    },
+    {
+        "questionText": "What organ pumps blood through the body?",
+        "options": [
+            {"text": "Heart", "isCorrect": true},
+            {"text": "Lungs", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/4047146/pexels-photo-4047146.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Science"
+    },
+    {
         "questionText": "Which river is the longest in the world?",
         "options": [
             {"text": "Nile", "isCorrect": true},
             {"text": "Amazon", "isCorrect": false}
         ],
         "imageUrl": "https://images.pexels.com/photos/18132957/pexels-photo-18132957/free-photo-of-paisaje-naturaleza-rocas-bosque.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Geography"
+    },
+    {
+        "questionText": "What is the capital of France?",
+        "options": [
+            {"text": "Paris", "isCorrect": true},
+            {"text": "London", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/338515/pexels-photo-338515.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Geography"
+    },
+    {
+        "questionText": "What is the highest mountain in the world?",
+        "options": [
+            {"text": "Mount Everest", "isCorrect": true},
+            {"text": "K2", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/414171/pexels-photo-414171.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Geography"
+    },
+    {
+        "questionText": "Which ocean is the largest?",
+        "options": [
+            {"text": "Pacific Ocean", "isCorrect": true},
+            {"text": "Atlantic Ocean", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/3434529/pexels-photo-3434529.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Geography"
+    },
+    {
+        "questionText": "What country has the largest population?",
+        "options": [
+            {"text": "China", "isCorrect": true},
+            {"text": "India", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/1822608/pexels-photo-1822608.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Geography"
+    },
+    {
+        "questionText": "Which country has the most natural lakes?",
+        "options": [
+            {"text": "Canada", "isCorrect": true},
+            {"text": "Brazil", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/518485/pexels-photo-518485.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Geography"
+    },
+    {
+        "questionText": "What is the smallest country in the world?",
+        "options": [
+            {"text": "Vatican City", "isCorrect": true},
+            {"text": "Monaco", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/417192/pexels-photo-417192.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Geography"
+    },
+    {
+        "questionText": "What country is the Sahara Desert located in?",
+        "options": [
+            {"text": "Africa", "isCorrect": true},
+            {"text": "Asia", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/20065715/pexels-photo-20065715/free-photo-of-paisaje-arena-oceano-desierto.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Geography"
+    },
+    {
+        "questionText": "What is the largest island in the world?",
+        "options": [
+            {"text": "Greenland", "isCorrect": true},
+            {"text": "Australia", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/1139040/pexels-photo-1139040.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Geography"
+    },
+    {
+        "questionText": "What is the longest river in the United States?",
+        "options": [
+            {"text": "Missouri River", "isCorrect": true},
+            {"text": "Mississippi River", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/1529360/pexels-photo-1529360.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
         "thematic": "Geography"
     },
     {
@@ -90,6 +198,78 @@
         "thematic": "History"
     },
     {
+        "questionText": "What was the ancient Egyptian writing system called?",
+        "options": [
+            {"text": "Hieroglyphics", "isCorrect": true},
+            {"text": "Cuneiform", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/4356144/pexels-photo-4356144.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "History"
+    },
+    {
+        "questionText": "Who discovered America?",
+        "options": [
+            {"text": "Christopher Columbus", "isCorrect": true},
+            {"text": "Vasco da Gama", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/1340504/pexels-photo-1340504.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "History"
+    },
+    {
+        "questionText": "Who was the first man to walk on the moon?",
+        "options": [
+            {"text": "Neil Armstrong", "isCorrect": true},
+            {"text": "Buzz Aldrin", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/975012/pexels-photo-975012.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "History"
+    },
+    {
+        "questionText": "What was the name of the ship that brought the Pilgrims to America?",
+        "options": [
+            {"text": "Mayflower", "isCorrect": true},
+            {"text": "Santa Maria", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/18254124/pexels-photo-18254124/free-photo-of-mar-agua-puerto-oporto.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "History"
+    },
+    {
+        "questionText": "What ancient civilization built the pyramids?",
+        "options": [
+            {"text": "Egyptians", "isCorrect": true},
+            {"text": "Romans", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/4314300/pexels-photo-4314300.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "History"
+    },
+    {
+        "questionText": "Who was the first female prime minister of the United Kingdom?",
+        "options": [
+            {"text": "Margaret Thatcher", "isCorrect": true},
+            {"text": "Theresa May", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/20112276/pexels-photo-20112276/free-photo-of-ciudad-punto-de-referencia-viaje-viajar.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "History"
+    },
+    {
+        "questionText": "Which war was fought between the North and South regions in the United States?",
+        "options": [
+            {"text": "Civil War", "isCorrect": true},
+            {"text": "Revolutionary War", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/18159272/pexels-photo-18159272/free-photo-of-rifles-de-campana.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "History"
+    },
+    {
+        "questionText": "Who was known as the Maid of Orléans?",
+        "options": [
+            {"text": "Joan of Arc", "isCorrect": true},
+            {"text": "Marie Antoinette", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/1055068/pexels-photo-1055068.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "History"
+    },
+    {
         "questionText": "What is the highest score possible in a single throw of bowling?",
         "options": [
             {"text": "10", "isCorrect": true},
@@ -105,6 +285,78 @@
             {"text": "China", "isCorrect": false}
         ],
         "imageUrl": "https://images.pexels.com/photos/34514/spot-runs-start-la.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Sports"
+    },
+    {
+        "questionText": "Who has won the most FIFA World Cups?",
+        "options": [
+            {"text": "Brazil", "isCorrect": true},
+            {"text": "Germany", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/114296/pexels-photo-114296.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Sports"
+    },
+    {
+        "questionText": "Which sport is known as the 'king of sports'?",
+        "options": [
+            {"text": "Soccer", "isCorrect": true},
+            {"text": "Basketball", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/46798/pexels-photo-46798.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Sports"
+    },
+    {
+        "questionText": "Who is considered the greatest basketball player of all time?",
+        "options": [
+            {"text": "Michael Jordan", "isCorrect": true},
+            {"text": "LeBron James", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/1752757/pexels-photo-1752757.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Sports"
+    },
+    {
+        "questionText": "Which country has won the most Olympic gold medals?",
+        "options": [
+            {"text": "USA", "isCorrect": true},
+            {"text": "China", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/133325/pexels-photo-133325.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Sports"
+    },
+    {
+        "questionText": "Which sport uses a shuttlecock?",
+        "options": [
+            {"text": "Badminton", "isCorrect": true},
+            {"text": "Tennis", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/7438726/pexels-photo-7438726.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Sports"
+    },
+    {
+        "questionText": "What is the maximum score in a game of ten-pin bowling?",
+        "options": [
+            {"text": "300", "isCorrect": true},
+            {"text": "200", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/344034/pexels-photo-344034.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Sports"
+    },
+    {
+        "questionText": "Who holds the record for the most home runs in a single MLB season?",
+        "options": [
+            {"text": "Barry Bonds", "isCorrect": true},
+            {"text": "Babe Ruth", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/139762/pexels-photo-139762.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Sports"
+    },
+    {
+        "questionText": "What is the national sport of Canada?",
+        "options": [
+            {"text": "Lacrosse", "isCorrect": true},
+            {"text": "Ice Hockey", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/2916828/pexels-photo-2916828.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
         "thematic": "Sports"
     },
     {
@@ -124,7 +376,77 @@
         ],
         "imageUrl": "https://images.pexels.com/photos/46274/pexels-photo-46274.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
         "thematic": "Literature"
+    },
+    {
+        "questionText": "Who wrote 'Pride and Prejudice'?",
+        "options": [
+            {"text": "Jane Austen", "isCorrect": true},
+            {"text": "Charlotte Brontë", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/2099266/pexels-photo-2099266.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Literature"
+    },
+    {
+        "questionText": "Who wrote '1984'?",
+        "options": [
+            {"text": "George Orwell", "isCorrect": true},
+            {"text": "Aldous Huxley", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/694740/pexels-photo-694740.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Literature"
+    },
+    {
+        "questionText": "Who wrote 'The Great Gatsby'?",
+        "options": [
+            {"text": "F. Scott Fitzgerald", "isCorrect": true},
+            {"text": "Ernest Hemingway", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/954198/pexels-photo-954198.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Literature"
+    },
+    {
+        "questionText": "Who wrote 'Moby-Dick'?",
+        "options": [
+            {"text": "Herman Melville", "isCorrect": true},
+            {"text": "Mark Twain", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/3060324/pexels-photo-3060324.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Literature"
+    },
+    {
+        "questionText": "Who wrote 'War and Peace'?",
+        "options": [
+            {"text": "Leo Tolstoy", "isCorrect": true},
+            {"text": "Fyodor Dostoevsky", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/1421177/pexels-photo-1421177.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Literature"
+    },
+    {
+        "questionText": "Who wrote 'Jane Eyre'?",
+        "options": [
+            {"text": "Charlotte Brontë", "isCorrect": true},
+            {"text": "Emily Brontë", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/5834/nature-grass-leaf-green.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Literature"
+    },
+    {
+        "questionText": "Who wrote 'The Catcher in the Rye'?",
+        "options": [
+            {"text": "J.D. Salinger", "isCorrect": true},
+            {"text": "John Steinbeck", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/1550648/pexels-photo-1550648.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Literature"
+    },
+    {
+        "questionText": "Who wrote 'The Hobbit'?",
+        "options": [
+            {"text": "J.R.R. Tolkien", "isCorrect": true},
+            {"text": "C.S. Lewis", "isCorrect": false}
+        ],
+        "imageUrl": "https://images.pexels.com/photos/373465/pexels-photo-373465.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "thematic": "Literature"
     }
 ]
-  
-  

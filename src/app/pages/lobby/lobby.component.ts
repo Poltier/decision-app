@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoomService } from '../../services/room.service';
-import { GameService } from '../../services/game.service'; // Añadir esta línea
+import { GameService } from '../../services/game.service';
 import { Participant, Room } from '../../models/room';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
@@ -43,7 +43,7 @@ export class LobbyComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute, 
     private router: Router, 
     private roomService: RoomService, 
-    private gameService: GameService, // Añadir esta línea
+    private gameService: GameService,
     private snackBar: MatSnackBar,
     private ref: ChangeDetectorRef
   ) {}
@@ -90,27 +90,27 @@ export class LobbyComponent implements OnInit, OnDestroy {
 
   handleRoomCreation(params: any) {
     if (params['createNew'] && !this.roomId) {
-        this.creatingRoom = true;
-        this.createRoom(params['username']);
+      this.creatingRoom = true;
+      this.createRoom(params['username']);
     } else if (params['id']) {
-        this.roomId = params['id'];
-        this.joiningRoom = true;
-        this.fetchRoom();
-        if (params['username']) {
-            const newParticipant = { userId: this.roomService.getCurrentUserIdOrGuest(), username: params['username'] };
-            this.roomService.addParticipant(this.roomId, newParticipant)
-                .then(() => {
-                    console.log("Participant added successfully.");
-                    this.participants.push(newParticipant);
-                    this.ref.detectChanges();
-                })
-                .catch((error: any) => {
-                    console.error("Failed to add participant:", error);
-                    this.snackBar.open('Failed to add participant. Please try again.', 'Close', { duration: 3000 });
-                });
-        }
-    } else {
-        this.soloPlay = true;
+      this.roomId = params['id'];
+      this.joiningRoom = true;
+      this.fetchRoom();
+      if (params['username']) {
+        const newParticipant = { userId: this.roomService.getCurrentUserIdOrGuest(), username: params['username'] };
+        this.roomService.addParticipant(this.roomId, newParticipant)
+          .then(() => {
+            console.log("Participant added successfully.");
+            this.participants.push(newParticipant);
+            this.ref.detectChanges();
+          })
+          .catch((error: any) => {
+            console.error("Failed to add participant:", error);
+            this.snackBar.open('Failed to add participant. Please try again.', 'Close', { duration: 3000 });
+          });
+      }
+    } else if (params['soloPlay']) {
+      this.soloPlay = true;
     }
   }
 
@@ -120,15 +120,18 @@ export class LobbyComponent implements OnInit, OnDestroy {
       return;
     }
   
-    // Load questions and then start the game
     this.gameService.loadQuestionsFromFirestoreByThematic(this.selectedTheme.name)
       .then((questions: Question[]) => {
-        this.roomService.startGame(this.roomId!, questions).then(() => {
-          // Navigation handled by subscribeToGameStarted()
-        }).catch((err: any) => {
-          console.error('Failed to start game:', err);
-          this.snackBar.open('Failed to start game. Please try again.', 'Close', { duration: 3000 });
-        });
+        if (questions.length > 0) {
+          this.roomService.startGame(this.roomId!, questions).then(() => {
+            // Navigation handled by subscribeToGameStarted()
+          }).catch((err: any) => {
+            console.error('Failed to start game:', err);
+            this.snackBar.open('Failed to start game. Please try again.', 'Close', { duration: 3000 });
+          });
+        } else {
+          this.snackBar.open('Not enough questions available for the selected theme.', 'Close', { duration: 3000 });
+        }
       })
       .catch((err: any) => {
         console.error('Failed to load questions:', err);
@@ -136,8 +139,6 @@ export class LobbyComponent implements OnInit, OnDestroy {
       });
   }
   
-  
-
   emptySlots(maxPlayers: number | null | undefined, currentCount: number): string[] {
     const count = Math.max((maxPlayers || 0) - currentCount, 0);
     return Array(count).fill('Empty');
@@ -204,40 +205,42 @@ export class LobbyComponent implements OnInit, OnDestroy {
 
   startSelectedGame() {
     if (!this.selectedTheme) {
-      this.snackBar.open('Please select a thematic game to start.', 'Close', {duration: 3000});
+      this.snackBar.open('Please select a thematic game to start.', 'Close', { duration: 3000 });
       return;
     }
   
     if (this.soloPlay) {
       this.router.navigate(['/game-thematic', this.selectedTheme.name], {
-        queryParams: {username: this.username, soloPlay: true}
+        queryParams: { username: this.username, soloPlay: true }
       });
     } else if (this.room?.isHost) {
       this.gameService.loadQuestionsFromFirestoreByThematic(this.selectedTheme.name)
         .then((questions: Question[]) => {
-          this.roomService.startGame(this.roomId!, questions).then(() => {
-            this.router.navigate(['/game-room', this.roomId, this.selectedTheme?.name], {
-              queryParams: {username: this.username, isHost: this.room?.isHost}
+          if (questions.length > 0) {
+            this.roomService.startGame(this.roomId!, questions).then(() => {
+              this.router.navigate(['/game-room', this.roomId, this.selectedTheme?.name], {
+                queryParams: { username: this.username, isHost: this.room?.isHost }
+              });
+            }).catch(err => {
+              console.error('Failed to start game:', err);
+              this.snackBar.open('Failed to start game. Please try again.', 'Close', { duration: 3000 });
             });
-          }).catch(err => {
-            console.error('Failed to start game:', err);
-            this.snackBar.open('Failed to start game. Please try again.', 'Close', { duration: 3000 });
-          });
+          } else {
+            this.snackBar.open('Not enough questions available for the selected theme.', 'Close', { duration: 3000 });
+          }
         })
         .catch((err: any) => {
           console.error('Failed to load questions:', err);
           this.snackBar.open('Failed to load questions. Please try again.', 'Close', { duration: 3000 });
         });
     } else {
-      this.snackBar.open('Only the room host can start the game.', 'Close', {duration: 3000});
+      this.snackBar.open('Only the room host can start the game.', 'Close', { duration: 3000 });
     }
   }
   
-  
-
   fetchRoom(): void {
     if (!this.roomId) return;
-    let wasParticipant = false; // Variable para rastrear si el usuario estaba en la sala.
+    let wasParticipant = false;
   
     this.subscription = this.roomService.getRoomById(this.roomId).subscribe(room => {
       if (!room) {
@@ -256,24 +259,21 @@ export class LobbyComponent implements OnInit, OnDestroy {
       
       const isParticipant = this.participants.some(p => p.userId === this.currentUserId);
   
-      // Comprobar si el usuario ha sido eliminado después de estar en la sala.
       if (wasParticipant && !isParticipant) {
         this.snackBar.open("You have been removed from the room.", "Close", {duration: 3000});
-        // Retrasar la redirección para que el usuario pueda leer el mensaje
         setTimeout(() => {
           this.router.navigate(['/dashboard']);
-        }, 3200) // Retraso de 3200 milisegundos (3.2 segundos)
+        }, 3200)
       }
   
-      wasParticipant = isParticipant; // Actualiza el estado de la participación para la próxima comprobación.
-      this.ref.detectChanges(); // Actualizar la interfaz de usuario con los datos más recientes
+      wasParticipant = isParticipant;
+      this.ref.detectChanges();
     }, error => {
       console.error("Failed to fetch room:", error);
       this.snackBar.open("Failed to fetch room details. Please try again.", "Close", { duration: 3000 });
     });
   }  
 
-  // Método para añadir participante con manejo de errores y confirmación de adición
   addParticipant(participant: Participant) {
     if (!this.roomId) return;
   
@@ -288,7 +288,7 @@ export class LobbyComponent implements OnInit, OnDestroy {
         this.roomService.addParticipant(this.roomId, participant)
           .then(() => {
             this.snackBar.open('Participant added successfully!', 'Close', { duration: 3000 });
-            this.fetchRoom(); // Actualiza la lista de participantes
+            this.fetchRoom()
           })
           .catch(err => {
             console.error("Failed to add participant", err);
@@ -296,19 +296,17 @@ export class LobbyComponent implements OnInit, OnDestroy {
           });
       } else {
         console.log("Participant already exists, not adding again.");
-        this.fetchRoom(); // Solo actualiza la lista para asegurarse de que está sincronizada
+        this.fetchRoom();
       }
     });
   }
   
-  // Método para recargar los datos de la sala y luego navegar al lobby
   fetchRoomDataAndNavigate() {
     this.roomService.getRoomById(this.roomId).subscribe(room => {
       if (room) {
         this.room = room;
         this.participants = room.participants;
         this.ref.detectChanges();
-        // Redirección al lobby
         this.router.navigate(['/lobby', {id: this.roomId, username: this.username}]);
       }
     }, error => {
@@ -335,13 +333,9 @@ export class LobbyComponent implements OnInit, OnDestroy {
     this.roomService.leaveRoom(this.roomId, this.currentUserId)
       .then((closedByHost) => {
           this.snackBar.open(closedByHost ? "Host has left, room closed." : "You have left the room.", "Close", {duration: 3000});
-          // Limpiar datos locales
-          this.participants = [];  // Asegura que la lista local de participantes se limpie
-          this.room = null;  // Opcional, dependiendo de si deseas resetear los datos de la sala
+          this.participants = [];
+          this.room = null; 
           this.ref.detectChanges();
-          /*this.router.navigate(['/dashboard']).then(() => {
-            //window.location.reload();  // Considera recargar la página si es necesario para restablecer completamente el estado de la app
-          });*/
       })
       .catch(error => {
           console.error("Error when trying to leave or close the room:", error);
@@ -352,5 +346,4 @@ export class LobbyComponent implements OnInit, OnDestroy {
   ExitToDashboard(): void {
     this.router.navigate(['/dashboard']);
   }
-
 }

@@ -3,6 +3,7 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Question } from '../models/question';
+import { RoomService } from './room.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,9 +15,9 @@ export class GameService {
   private answeredQuestions$ = new BehaviorSubject<string[]>([]);
   private maxQuestions = 10; // Limit of questions
   private gameFinished = new BehaviorSubject<boolean>(false);
-  currentQuestionIndex = new BehaviorSubject<number>(0);
+  private currentQuestionIndex = new BehaviorSubject<number>(0); // Initialize currentQuestionIndex
 
-  constructor(private firestore: AngularFirestore) {
+  constructor(private firestore: AngularFirestore, private roomService: RoomService) {
     this.loadAllApprovedQuestions();
   }
 
@@ -60,35 +61,70 @@ export class GameService {
         ).subscribe();
     });
   }
-  
-  
+
   setQuestions(questions: Question[]): void {
     this.questions$.next(questions);
   }
 
-  getRandomUnansweredQuestion(): Observable<Question | undefined> {
-    return this.questions$.pipe(
-      map(questions => {
-        const unansweredQuestions = questions.filter(question => {
-          const questionId = question.id;  // Ensure id is defined
-          return questionId && !this.answeredQuestions$.getValue().includes(questionId);
-        });
-        return unansweredQuestions.length === 0 ? undefined :
-          unansweredQuestions[Math.floor(Math.random() * (unansweredQuestions.length))];
-      })
-    );
+  getCurrentQuestionIndex(): Observable<number> {
+    return this.currentQuestionIndex.asObservable();
   }
 
-  answerQuestion(questionId: string, isCorrect: boolean, timedOut: boolean = false): void {
-    this.answeredQuestions$.next([...this.answeredQuestions$.getValue(), questionId]);
-    if (isCorrect) {
-      this.score.next(this.score.getValue() + 1);
-    }
-    if (this.answeredQuestions$.getValue().length >= this.maxQuestions || timedOut) {
-      this.gameFinished.next(true);
+  getQuestionByIndex(roomIdOrIndex: string | number, index?: number): Observable<Question | undefined> {
+    if (typeof roomIdOrIndex === 'string' && index !== undefined) {
+      console.log("getQuestionByIndex - roomId:", roomIdOrIndex, "index:", index);
+      return this.roomService.getRoomByIdentifier(roomIdOrIndex).pipe(
+        map(room => {
+          console.log("getQuestionByIndex - room:", room);
+          return room?.questions?.find(q => q.index === index);
+        })
+      );
+    } else {
+      const questionIndex = typeof roomIdOrIndex === 'number' ? roomIdOrIndex : index;
+      if (questionIndex === undefined) {
+        return new BehaviorSubject<Question | undefined>(undefined).asObservable();
+      }
+      return this.questions$.pipe(
+        map(questions => questions[questionIndex])
+      );
     }
   }
-  
+
+  answerQuestion(roomId: string, questionId: string, userId: string, isCorrect: boolean, timedOut: boolean = false): Promise<void> {
+    return this.roomService.answerQuestion(roomId, userId, isCorrect).then(() => {
+      this.answeredQuestions$.next([...this.answeredQuestions$.getValue(), questionId]);
+      if (isCorrect) {
+        this.score.next(this.score.getValue() + 1);
+      }
+      return this.checkAllAnswered(roomId, timedOut);
+    });
+  }
+
+  private checkAllAnswered(roomId: string, timedOut: boolean): Promise<void> {
+    return this.roomService.getRoomById(roomId).toPromise().then(room => {
+      if (!room) {
+        throw new Error("Room not found");
+      }
+      const allAnswered = Object.values(room.answersReceived).every(answered => answered);
+      if (allAnswered || timedOut) {
+        this.resetAnswers(roomId).then(() => {
+          if (this.answeredQuestions$.getValue().length >= this.maxQuestions) {
+            this.gameFinished.next(true);
+          } else {
+            const nextIndex = this.currentQuestionIndex.getValue() + 1;
+            this.roomService.updateTimerAndQuestionIndex(roomId, this.roomService.defaultTimer, nextIndex).then(() => {
+              this.currentQuestionIndex.next(nextIndex);
+            });
+          }
+        });
+      }
+    });
+  }
+
+  private resetAnswers(roomId: string): Promise<void> {
+    return this.roomService.resetAnswers(roomId);
+  }
+
   getScore(): Observable<number> {
     return this.score.asObservable();
   }
@@ -98,10 +134,17 @@ export class GameService {
     this.answeredQuestions$.next([]);
     this.gameFinished.next(false);
     this.resetScores();
+    this.currentQuestionIndex.next(0);
   }
 
   resetScores(): void {
     this.scores.next({});
   }
 }
+
+
+
+
+
+
 

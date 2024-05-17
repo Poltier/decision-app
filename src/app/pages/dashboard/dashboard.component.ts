@@ -12,16 +12,14 @@ import { Subscription } from 'rxjs';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent  {
+export class DashboardComponent {
   form: FormGroup;
   sub: Subscription = new Subscription();
-  username:string = "";
-  roomCode:string = "";
 
   constructor(
     private fb: FormBuilder,
-    private router: Router, 
-    private firebaseService: FirebaseService, 
+    private router: Router,
+    private firebaseService: FirebaseService,
     private roomService: RoomService,
     private snackBar: MatSnackBar
   ) {
@@ -37,9 +35,9 @@ export class DashboardComponent  {
 
   navigateToLobby(mode: string) {
     if (this.validateForm(mode)) {
-      this.username = this.username.trim();
-      this.roomCode = this.roomCode.trim();
-      this.processRoomEntry(mode);
+      const username = this.form.value.username.trim();
+      const roomCode = this.form.value.roomCode.trim();
+      this.processRoomEntry(mode, username, roomCode);
     }
   }
 
@@ -57,35 +55,35 @@ export class DashboardComponent  {
     return true;
   }
 
-  private processRoomEntry(mode: string) {
+  private processRoomEntry(mode: string, username: string, roomCode: string) {
     if (mode != 'join') {
-      this.router.navigate(['/lobby', mode === 'create' ? { username: this.username, createNew: true } : { username: this.username, soloPlay: true }]);
-    }else{
-      this.joinRoom()
+      this.router.navigate(['/lobby', mode === 'create' ? { username, createNew: true } : { username, soloPlay: true }]);
+    } else {
+      this.joinRoom(username, roomCode);
     }
   }
 
-  private joinRoom() {
-    this.roomService.getRoomByIdentifier(this.roomCode).subscribe({
-        next: (room: Room | null) => {
-            // Verificar primero si la sala existe
-            if (!room || !room.participants) {
-                this.openSnackBar("Room not found. Please check the room code.", 3000);
-                return; // Asegura que el método termine aquí si no hay sala
-            }
-
-            // Ahora es seguro acceder a room.participants ya que sabemos que room no es null
-            if (room.gameStarted || room.participants.length >= room.maxPlayers ||
-                room.participants.some(p => p.username.toLowerCase() === this.username.toLowerCase())) {
-                this.handleRoomEntryErrors(room, this.username);
-            } else {
-                this.router.navigate(['/lobby', { id: this.roomCode, username: this.username, isHost: false }]);
-            }
-        },
-        error: error => {
-            console.error("Failed to get room details:", error);
-            this.openSnackBar("Failed to check room details. Please try again.", 3000);
+  private joinRoom(username: string, roomCode: string) {
+    this.roomService.getRoomByIdentifier(roomCode).subscribe({
+      next: (room: Room | null) => {
+        // Verificar primero si la sala existe
+        if (!room || !room.participants) {
+          this.openSnackBar("Room not found. Please check the room code.", 3000);
+          return; // Asegura que el método termine aquí si no hay sala
         }
+
+        // Ahora es seguro acceder a room.participants ya que sabemos que room no es null
+        if (room.gameStarted || room.participants.length >= room.maxPlayers ||
+          room.participants.some(p => p.username.toLowerCase() === username.toLowerCase())) {
+          this.handleRoomEntryErrors(room, username);
+        } else {
+          this.router.navigate(['/lobby', { id: roomCode, username, isHost: false }]);
+        }
+      },
+      error: error => {
+        console.error("Failed to get room details:", error);
+        this.openSnackBar("Failed to check room details. Please try again.", 3000);
+      }
     });
   }
 
@@ -102,11 +100,11 @@ export class DashboardComponent  {
     } else if (room.participants.some((p: Participant) => p.username.toLowerCase() === username.toLowerCase())) {
       this.openSnackBar("This username is already taken in this room. Please choose another one.", 3000);
     }
-  }  
+  }
 
   private openSnackBar(message: string, duration: number) {
     this.snackBar.open(message, "Close", { duration });
   }
-
 }
+
 

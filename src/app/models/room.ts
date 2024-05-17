@@ -9,7 +9,6 @@ export interface Participant {
 export class Room {
   id?: string;
   name: string;
-  status: 'waiting' | 'active' | 'finished';
   participants: Participant[];
   maxPlayers: number;
   settings: any;
@@ -19,10 +18,12 @@ export class Room {
   gameStarted: boolean;
   selectedThemeName?: string;
   questions?: Question[];
+  answersReceived: { [key: string]: boolean };
+  currentQuestionIndex?: number;
+  timer?: number;
 
   constructor(
     name: string,
-    status: 'waiting' | 'active' | 'finished' = 'waiting',
     participants: Participant[] = [],
     maxPlayers: number = 8,
     settings: any = {},
@@ -31,10 +32,12 @@ export class Room {
     gameStarted: boolean = false,
     id?: string,
     isHost: boolean = false,
-    questions?: Question[]
+    questions?: Question[],
+    answersReceived: { [key: string]: boolean } = {},
+    currentQuestionIndex: number = 0,
+    timer: number = 10
   ) {
     this.name = name;
-    this.status = status;
     this.participants = participants;
     this.maxPlayers = maxPlayers;
     this.settings = settings;
@@ -44,5 +47,9 @@ export class Room {
     this.isHost = isHost;
     this.gameStarted = gameStarted;
     this.questions = questions;
+    this.answersReceived = answersReceived;
+    this.currentQuestionIndex = currentQuestionIndex;
+    this.timer = timer;  
   }
 }
+

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { GameService } from '../../services/game.service';
 import { Question, QuestionOption } from '../../models/question';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -7,6 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { RoomService } from '../../services/room.service';
 import { Room, Participant } from '../../models/room';
 import { FirebaseService } from '../../services/firebase.service';
+import { distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-game-thematic',
@@ -21,24 +22,25 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   allowAnswer: boolean = true;
   private countdownInterval?: any;
   private unsubscribe$ = new Subscription();
-  private answersReceived = 0;
   progressValue = 100;
-  allScores: {username: string, score: number}[] = [];
+  allScores: { username: string, score: number }[] = [];
   soloPlay: boolean = false;
   isHost: boolean = false;
   username: string = '';
   participants: Participant[] = [];
   roomId?: string;
   room?: Room;
+  currentQuestionIndex: number = 0;
+  timer: number = 10;
   displayedColumns: string[] = ['username', 'score'];
 
   constructor(
-    private gameService: GameService, 
-    private router: Router, 
+    private gameService: GameService,
+    private router: Router,
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
     private roomService: RoomService,
-    private authService: FirebaseService 
+    private authService: FirebaseService
   ) {
     this.subscribeToParams();
   }
@@ -46,19 +48,55 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initializeGame();
     this.subscribeToGameStarted();
+    this.subscribeToGameState();
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.unsubscribe();
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+    }
+  }
+
+  subscribeToParams() {
+    this.route.queryParams.subscribe(params => {
+      this.roomId = params['roomId'];
+      this.username = params['username'] || 'Guest';
+      this.soloPlay = params['soloPlay'] === 'true';
+      this.isHost = params['isHost'] === 'true';
+
+      if (this.soloPlay) {
+        this.startGame();
+      } else if (this.roomId) {
+        this.waitForGameStart();
+      }
+    });
+  }
+
+  waitForGameStart() {
+    const roomSubscription = this.roomService.watchGameStarted(this.roomId!).subscribe(gameStarted => {
+        if (gameStarted) {
+            this.startGame();
+        }
+    }, error => {
+        console.error('Error waiting for game to start:', error);
+        this.snackBar.open('Error waiting for game to start. Please try again.', 'Close', { duration: 3000 });
+    });
+    this.unsubscribe$.add(roomSubscription);
   }
 
   initializeGame() {
     this.route.params.subscribe(params => {
       this.roomId = params['roomId'];
       if (!this.roomId && !this.soloPlay) {
-        this.snackBar.open('Room ID is missing. Please join a room first.', 'Close', {duration: 5000});
+        this.snackBar.open('Room ID is missing. Please join a room first.', 'Close', { duration: 5000 });
         this.router.navigate(['/dashboard']);
         return;
       }
       this.subscribeToGameStart();
-      this.loadQuestionsBasedOnRoute();
-      this.fetchParticipants();
+      if (!this.soloPlay) {
+        this.fetchParticipants();
+      }
       this.subscribeToScore();
     });
   }
@@ -82,7 +120,7 @@ export class GameThematicComponent implements OnInit, OnDestroy {
 
   subscribeToGameStart() {
     if (this.soloPlay) {
-      return; // No hacer nada en modo soloPlay
+      return;
     }
     this.unsubscribe$.add(
       this.roomService.watchGameStarted(this.roomId!).subscribe(gameStarted => {
@@ -97,7 +135,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
       })
     );
   }
-  
 
   fetchParticipants() {
     if (this.roomId) {
@@ -109,38 +146,11 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     }
   }
 
-  subscribeToParams() {
-    this.route.queryParams.subscribe(params => {
-      this.roomId = params['roomId'];
-      this.username = params['username'] || 'Guest'; // Set username or default to 'Guest'
-      this.soloPlay = params['soloPlay'] === 'true'; // Determine if it is a solo play
-      this.isHost = params['isHost'] === 'true'; // Determine if the user is the host
-  
-      if (this.soloPlay) {
-        this.startGame();
-      } else if (this.roomId) {
-        this.waitForGameStart();
-      }
-    });
-  }
-  
-
-  waitForGameStart() {
-    const roomSubscription = this.roomService.watchGameStarted(this.roomId!).subscribe(gameStarted => {
-        if (gameStarted) {
-            this.startGame();
-        }
-    }, error => {
-        console.error('Error waiting for game to start:', error);
-        this.snackBar.open('Error waiting for game to start. Please try again.', 'Close', { duration: 3000 });
-    });
-    this.unsubscribe$.add(roomSubscription);
-  }
- 
   startGame() {
     this.resetGame();
     this.loadQuestionsBasedOnRoute();
-  }  
+    this.subscribeToGameState();
+  }
 
   subscribeToScore() {
     this.gameService.getScore().subscribe(score => {
@@ -165,7 +175,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
       this.snackBar.open("Theme is missing from the route parameters.", "Close", { duration: 5000 });
     }
   }
-  
 
   startNewGame(): void {
     this.resetGame();
@@ -178,57 +187,45 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     this.allowAnswer = true;
     this.progressValue = 100;
     this.allScores = [];
-  
-    // Detiene cualquier temporizador existente
+    this.currentQuestionIndex = 0;
+    this.timer = 10;
+
     if (this.countdownInterval) {
       clearInterval(this.countdownInterval);
-      this.countdownInterval = null; // Asegúrate de limpiar la referencia
+      this.countdownInterval = null;
     }
-  
-    this.countdown = 10;  // Reinicia el contador a su valor inicial
-  
-    // Reinicia cualquier lógica de juego adicional
-    this.gameService.resetGame();  
-  
-    // Inicia el temporizador nuevamente solo si el juego no ha terminado
+
+    this.countdown = 10;
+
+    this.gameService.resetGame();
+
     if (!this.gameFinished) {
       this.startCountdown();
     }
   }
-  
 
   restartGame(): void {
-    // Permitir reiniciar si el usuario es el host o está en modo soloPlay.
     if (!this.isHost && !this.soloPlay) {
-        this.snackBar.open("Only the host or solo players can restart the game.", "Close", { duration: 3000 });
-        return;
+      this.snackBar.open("Only the host or solo players can restart the game.", "Close", { duration: 3000 });
+      return;
     }
-  
-    // Para modo soloPlay, no es necesario un roomId, por lo que podemos omitir esa comprobación.
-    if (this.soloPlay) {
-        this.resetGame();
-        this.snackBar.open("Game restarted successfully.", "Close", { duration: 3000 });
-    } else if (this.roomId) {
-        // Reiniciar el juego en modo multijugador requiere un roomId.
-        this.roomService.restartGame(this.roomId, this.authService.getCurrentUserId())
-            .then(() => {
-                this.snackBar.open("Game restarted successfully. Waiting for game to start.", "Close", { duration: 3000 });
-                this.resetGame();
-            })
-            .catch(error => {
-                console.error("Failed to restart game", error);
-                this.snackBar.open("Failed to restart game: " + error.message, "Close", { duration: 3000 });
-            });
-    } else {
-        console.error("Room ID is missing");
-        this.snackBar.open("Error: Room ID is missing.", "Close", { duration: 3000 });
-    }
-  }
 
-  ngOnDestroy(): void {
-    this.unsubscribe$.unsubscribe();  // Properly clean up all subscriptions
-    if (this.countdownInterval) {
-      clearInterval(this.countdownInterval);  // Clean up any existing intervals
+    if (this.soloPlay) {
+      this.resetGame();
+      this.snackBar.open("Game restarted successfully.", "Close", { duration: 3000 });
+    } else if (this.roomId) {
+      this.roomService.restartGame(this.roomId, this.authService.getCurrentUserId())
+        .then(() => {
+          this.snackBar.open("Game restarted successfully. Waiting for game to start.", "Close", { duration: 3000 });
+          this.resetGame();
+        })
+        .catch(error => {
+          console.error("Failed to restart game", error);
+          this.snackBar.open("Failed to restart game: " + error.message, "Close", { duration: 3000 });
+        });
+    } else {
+      console.error("Room ID is missing");
+      this.snackBar.open("Error: Room ID is missing.", "Close", { duration: 3000 });
     }
   }
 
@@ -236,36 +233,110 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     if (!this.currentQuestion || !this.allowAnswer) return;
   
     this.allowAnswer = false;
-    this.stopCountdown();
-    this.countdown = 0;
-    
     option.selected = true;
-    if (option.isCorrect) {
-      this.score++;
-    }
-    this.markCorrectAnswer(true);
+    const isCorrect = option.isCorrect;
+    const userId = this.roomService.getCurrentUserIdOrGuest();
   
+    // Detener el temporizador
+    this.stopCountdown();
+  
+    if (this.soloPlay) {
+      // Lógica para juego en solitario
+      if (isCorrect) {
+        this.score++;
+      }
+      this.markCorrectAnswer(true); // Mostrar la respuesta correcta antes de avanzar
+    } else {
+      this.roomService.answerQuestion(this.roomId!, userId, isCorrect).then(() => {
+        if (isCorrect) {
+          this.score++;
+        }
+        this.roomService.updateAnswersReceived(this.roomId!, userId, true).then(() => {
+          this.checkAllAnswered(); // Verificar si todos han respondido
+        });
+      }).catch(error => {
+        console.error("Error answering question:", error);
+        this.snackBar.open("Error answering question. Please try again.", "Close", { duration: 3000 });
+      });
+    }
   }
 
-  getNextQuestion(): void {
-    this.resetQuestionState();
-    this.gameService.getRandomUnansweredQuestion().subscribe(question => {
-      if (question) {
-        this.currentQuestion = question;
-        this.currentQuestion.options = this.shuffleOptions(this.currentQuestion.options);
-        this.resetAndStartCountdown();
+  checkAllAnswered(): void {
+    this.roomService.getAnswers(this.roomId!).subscribe(answers => {
+      const allAnswered = this.participants.every(p => answers[p.userId] !== undefined);
+      if (allAnswered) {
+        this.markCorrectAnswer(true); // Mostrar la respuesta correcta y avanzar
       } else {
-        this.waitForEndGame();
-        this.showResults();
+        this.startCountdown(); // Reiniciar el temporizador si no todos han respondido
       }
     });
   }
 
+  checkForNextQuestion(): void {
+    if (this.soloPlay) {
+      // Logica para juego en solitario
+      const nextIndex = this.currentQuestionIndex + 1;
+      this.currentQuestionIndex = nextIndex;
+      this.getNextQuestion();
+    } else {
+      this.roomService.getAnswers(this.roomId!).subscribe(answers => {
+        const allAnswered = this.participants.every(p => answers[p.userId] !== undefined);
+        if (allAnswered) {
+          const nextIndex = this.currentQuestionIndex + 1;
+          this.roomService.updateTimerAndQuestionIndex(this.roomId!, this.timer, nextIndex).then(() => {
+            this.currentQuestionIndex = nextIndex;
+            this.getNextQuestion();
+          }).catch(error => {
+            console.error("Error updating question index and timer:", error);
+            this.snackBar.open("Error updating question index and timer. Please try again.", "Close", { duration: 3000 });
+          });
+        }
+      });
+    }
+  }
+
+  getNextQuestion(): void {
+    this.resetQuestionState();
+    if (this.soloPlay) {
+      this.gameService.getQuestionByIndex(this.currentQuestionIndex).pipe(
+        distinctUntilChanged()
+      ).subscribe(question => {
+        if (question) {
+          this.currentQuestion = question;
+          this.currentQuestion.options = this.shuffleOptions(this.currentQuestion.options);
+          this.resetAndStartCountdown();
+        } else {
+          this.waitForEndGame();
+          this.showResults();
+        }
+      });
+    } else {
+      this.gameService.getQuestionByIndex(this.roomId!, this.currentQuestionIndex).pipe(
+        distinctUntilChanged()
+      ).subscribe(question => {
+        if (question) {
+          this.currentQuestion = question;
+          this.currentQuestion.options = this.shuffleOptions(this.currentQuestion.options);
+          this.resetAndStartCountdown();
+        } else {
+          this.waitForEndGame();
+          this.showResults();
+        }
+      });
+    }
+  }
+
   private resetAndStartCountdown(): void {
     this.stopCountdown();
-    this.countdown = 10;
+    this.countdown = this.timer;
     this.allowAnswer = true;
-    this.answersReceived = 0;
+  
+    if (!this.soloPlay) {
+      this.participants.forEach(participant => {
+        this.roomService.updateAnswersReceived(this.roomId!, participant.userId, false);
+      });
+    }
+  
     this.startCountdown();
   }
 
@@ -276,7 +347,7 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   private markGameAsFinished(): void {
     this.gameFinished = true;
     this.stopCountdown();
-    this.showResults();  // Call here to ensure that final scores are displayed
+    this.showResults();
   }
 
   private resetQuestionState(): void {
@@ -297,74 +368,97 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
 
   private startCountdown(): void {
-    this.stopCountdown();  // Asegúrate de detener cualquier temporizador existente
-    this.countdown = 10;  // Establece el contador
+    this.stopCountdown(); // Asegurarse de detener cualquier temporizador en ejecución
+    this.countdown = this.timer;
     this.progressValue = 100;
     this.countdownInterval = setInterval(() => {
-        if (this.countdown > 0) {
-            this.countdown--;
-            this.progressValue = (this.countdown / 10) * 100;
-        } else {
-            console.log("Time ran out, marking correct answer.");
-            this.stopCountdown();
-            this.allowAnswer = false;
-            this.markCorrectAnswer(true);
-        }
+      if (this.countdown > 0) {
+        this.countdown--;
+        this.progressValue = (this.countdown / this.timer) * 100;
+      } else {
+        console.log("Time ran out, marking correct answer.");
+        this.stopCountdown();
+        this.allowAnswer = false;
+        this.markCorrectAnswer(true);
+      }
     }, 1000);
-  } 
+  }
 
   private stopCountdown(): void {
     if (this.countdownInterval) {
       clearInterval(this.countdownInterval);
+      this.countdownInterval = null;
       this.progressValue = 0;
     }
   }
 
-  private markCorrectAnswer(autoAdvance: boolean = false): void {
+  markCorrectAnswer(autoAdvance: boolean = false): void {
     if (this.currentQuestion) {
-        this.currentQuestion.options.forEach(option => {
-            if (option.isCorrect) {
-                option.correct = true;
-            }
-        });
-  
-        this.allowAnswer = false;
-  
-        if (autoAdvance) {
-            this.gameService.answerQuestion(this.currentQuestion.id!, false, true);
-            setTimeout(() => {
-                if (!this.gameFinished) {
-                    this.getNextQuestion();
-                } else {
-                    this.markGameAsFinished();
-                }
-            }, 6000);
+      this.currentQuestion.options.forEach(option => {
+        if (option.isCorrect) {
+          option.correct = true;
         }
+      });
+  
+      this.allowAnswer = false;
+  
+      if (this.soloPlay) {
+        // Lógica para juego en solitario
+        if (autoAdvance) {
+          setTimeout(() => {
+            if (!this.gameFinished) {
+              this.checkForNextQuestion();
+            } else {
+              this.markGameAsFinished();
+            }
+          }, 3000);
+        }
+      } else {
+        this.roomService.getAnswers(this.roomId!).subscribe(answers => {
+          this.participants.forEach(p => {
+            if (answers[p.userId] === undefined) {
+              this.roomService.answerQuestion(this.roomId!, p.userId, false).then(() => {
+                this.roomService.updateAnswersReceived(this.roomId!, p.userId, true);
+              });
+            }
+          });
+  
+          if (autoAdvance) {
+            setTimeout(() => {
+              if (!this.gameFinished) {
+                this.checkForNextQuestion();
+              } else {
+                this.markGameAsFinished();
+              }
+            }, 3000);
+          }
+        });
+      }
     }
   }
 
   showResults(): void {
     if (this.soloPlay) {
-        this.allScores = [{
-            username: this.username || 'Guest', 
-            score: this.score
-        }];
+      this.allScores = [{
+        username: this.username || 'Guest',
+        score: this.score
+      }];
     } else if (this.roomId) {
-        this.roomService.getRoomById(this.roomId).subscribe(room => {
-            if (room && room.participants) {
-                this.allScores = room.participants.map(p => ({
-                    username: p.username,
-                    score: p.score !== undefined ? p.score : 0
-                }));
-                this.allScores.sort((a, b) => b.score - a.score); 
-            }
-        }, error => {
-            console.error('Error fetching room details:', error);
-            this.snackBar.open('Failed to fetch room details.', 'Close', { duration: 3000 });
-        });
+      this.roomService.getRoomById(this.roomId).subscribe(room => {
+        if (room && room.participants) {
+          this.allScores = room.participants.map(p => ({
+            username: p.username,
+            score: p.score !== undefined ? p.score : 0
+          }));
+          this.allScores.sort((a, b) => b.score - a.score);
+        }
+      }, error => {
+        console.error('Error fetching room details:', error);
+        this.snackBar.open('Failed to fetch room details.', 'Close', { duration: 3000 });
+      });
     } else {
-        console.error("Room ID is missing and not in solo play mode.");
-        this.snackBar.open("Error: Room ID is missing.", "Close", { duration: 3000 });
+      console.error("Room ID is missing and not in solo play mode.");
+      this.snackBar.open("Error: Room ID is missing.", "Close", { duration: 3000 });
     }
   }
 
@@ -386,8 +480,39 @@ export class GameThematicComponent implements OnInit, OnDestroy {
       this.router.navigate(['/dashboard']);
     }
   }
-  
+
+  subscribeToGameState() {
+    if (this.soloPlay) return;
+    
+    this.roomService.getGameState(this.roomId!).pipe(
+      distinctUntilChanged((prev, curr) => prev.timer === curr.timer && prev.currentQuestionIndex === curr.currentQuestionIndex)
+    ).subscribe(state => {
+      if (state) {
+        if (this.timer !== state.timer) {
+          this.timer = state.timer;
+          this.countdown = state.timer; // Actualizar el temporizador local
+          this.progressValue = (this.countdown / this.timer) * 100; // Actualizar la barra de progreso
+        }
+        if (this.currentQuestionIndex !== state.currentQuestionIndex) {
+          this.currentQuestionIndex = state.currentQuestionIndex;
+          this.getNextQuestion(); // Cargar la nueva pregunta
+        }
+      }
+    });
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

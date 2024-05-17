@@ -6,7 +6,7 @@
     <!-- Username Input -->
     <mat-form-field appearance="fill">
       <mat-label>Enter your username</mat-label>
-      <input matInput formControlName="username" required [(ngModel)]="username">
+      <input matInput formControlName="username" required>
       <mat-error *ngIf="form.get('username')?.hasError('required')">Username is required.</mat-error>
       <mat-error *ngIf="form.get('username')?.hasError('maxlength')">Username cannot be more than 20 characters.</mat-error>
     </mat-form-field>
@@ -17,7 +17,7 @@
     <!-- Room Code Input and Join Room Button -->
     <mat-form-field appearance="fill">
       <mat-label>Enter Room Code</mat-label>
-      <input matInput formControlName="roomCode" [(ngModel)]="roomCode">
+      <input matInput formControlName="roomCode">
       <mat-error *ngIf="form.get('roomCode')?.hasError('maxlength')">Room code cannot be more than 20 characters.</mat-error>
     </mat-form-field>
     <button mat-raised-button color="accent" type="submit">Join Room</button>
@@ -25,9 +25,10 @@
     <!-- Solo Play Button -->
     <button mat-raised-button color="secondary" type="button" (click)="navigateToLobby('solo')">Play Solo Game</button>
     
-    <p>Username: {{form.get('username')?.value || 'No username selected'}}</p>
+    <p>Username: {{ form.get('username')?.value || 'No username selected' }}</p>
   </form>
 </div>
+
 
 
 
