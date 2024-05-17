@@ -9,22 +9,18 @@ import { FirebaseService } from '../../services/firebase.service';
   styleUrls: ['./admin.component.css']
 })
 export class AdminComponent implements OnInit, AfterViewInit {
-  // Definición de los dataSource para las preguntas pendientes y aprobadas
   dataSourcePending = new MatTableDataSource<any>();
   dataSourceApproved = new MatTableDataSource<any>();
 
-  // Captura de los paginadores desde la plantilla
   @ViewChild('paginatorPending', { static: false }) paginatorPending!: MatPaginator;
   @ViewChild('paginatorApproved', { static: false }) paginatorApproved!: MatPaginator;
 
-  // Columnas a mostrar en las tablas de preguntas pendientes y aprobadas
   pendingDisplayedColumns: string[] = ['userId', 'question', 'correctOption', 'incorrectOption', 'image', 'thematic', 'createdAt', 'status', 'actions'];
-  approvedDisplayedColumns: string[] = ['userId', 'question', 'correctOption', 'incorrectOption', 'image', 'thematic', 'createdAt'];
+  approvedDisplayedColumns: string[] = ['userId', 'question', 'correctOption', 'incorrectOption', 'image', 'thematic', 'createdAt', 'actions'];
 
   constructor(private firebaseService: FirebaseService) {}
 
   ngOnInit(): void {
-    // Carga inicial de preguntas pendientes y aprobadas
     this.loadPendingQuestions();
     this.loadApprovedQuestions();
   }
@@ -32,7 +28,7 @@ export class AdminComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.dataSourcePending.paginator = this.paginatorPending;
     this.dataSourceApproved.paginator = this.paginatorApproved;
-  }  
+  }
 
   loadPendingQuestions(): void {
     this.firebaseService.getPendingQuestions().then(questions => {
@@ -53,20 +49,16 @@ export class AdminComponent implements OnInit, AfterViewInit {
   }
 
   approveQuestion(questionId: string): void {
-    // Lógica para aprobar una pregunta
     this.firebaseService.approveQuestion(questionId).then(() => {
-      // Recarga de las listas tras aprobar una pregunta
       this.loadPendingQuestions();
       this.loadApprovedQuestions();
     }).catch(error => {
       console.error('Error approving question:', error);
     });
   }
-  
+
   rejectQuestion(questionId: string): void {
-    // Lógica para rechazar una pregunta
     this.firebaseService.rejectQuestion(questionId).then(() => {
-      // Recarga de las listas tras rechazar una pregunta
       this.loadPendingQuestions();
       this.loadApprovedQuestions();
     }).catch(error => {
@@ -74,15 +66,22 @@ export class AdminComponent implements OnInit, AfterViewInit {
     });
   }
 
+  deleteApprovedQuestion(questionId: string): void {
+    this.firebaseService.deleteQuestion(questionId).then(() => {
+      this.loadApprovedQuestions();
+    }).catch(error => {
+      console.error('Error deleting approved question:', error);
+    });
+  }
+
   getCorrectOptionText(options: any[]): string {
     const correctOption = options.find(option => option.isCorrect);
     return correctOption ? correctOption.text : 'N/A';
   }
-  
+
   getIncorrectOptionText(options: any[]): string {
     const incorrectOption = options.find(option => !option.isCorrect);
     return incorrectOption ? incorrectOption.text : 'N/A';
   }
-  
 }
 

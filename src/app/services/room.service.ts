@@ -225,13 +225,15 @@ export class RoomService {
   }
 
   watchGameStarted(roomId: string): Observable<boolean> {
-    return this.firestore.collection('rooms').doc<Room>(roomId).valueChanges().pipe(
-      map(room => {
-        console.log("watchGameStarted - room:", room);
-        return room ? room.gameStarted : false;
+    return this.firestore.doc(`rooms/${roomId}`).snapshotChanges().pipe(
+      map(action => {
+        const data = action.payload.data() as Room;
+        console.log("watchGameStarted - gameStarted:", data?.gameStarted);
+        return data ? data.gameStarted : false;
       })
     );
   }
+
 
   setSelectedThemeForRoom(roomId: string, themeName: string): Promise<void> {
     return this.firestore.collection('rooms').doc(roomId).update({

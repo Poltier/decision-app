@@ -57,7 +57,6 @@ export class LobbyComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeRoom();
-    this.subscribeToGameStarted(); 
   }
 
   ngOnDestroy(): void {
@@ -69,24 +68,25 @@ export class LobbyComponent implements OnInit, OnDestroy {
       console.log("Lobby parameters:", params);
       this.username = params['username'] || 'Guest';
       this.handleRoomCreation(params);
+      this.watchGameStarted();
     });
   }
 
-  subscribeToGameStarted(): void {
-    if (this.roomId) {
-      this.subscription.add(
-        this.roomService.watchGameStarted(this.roomId).subscribe(gameStarted => {
-          if (!gameStarted) {
-            this.router.navigate(['/lobby', { id: this.roomId, username: this.username }]);
-          } else {
-            this.router.navigate(['/game-room', this.roomId, this.selectedTheme?.name], {
-              queryParams: { username: this.username, isHost: this.room?.isHost }
-            });
-          }
-        })
-      );
-    }
+  watchGameStarted(){
+
+    
+    this.subscription.add(
+      this.roomService.watchGameStarted(this.roomId).subscribe(gameStart =>{
+        if(gameStart)
+          {  this.router.navigate(['/game-room', this.roomId, this.selectedTheme?.name], {
+            queryParams: { username: this.username, isHost: this.room?.isHost }
+          });
+        }
+      })
+    );
+
   }
+
 
   handleRoomCreation(params: any) {
     if (params['createNew'] && !this.roomId) {
@@ -242,7 +242,7 @@ export class LobbyComponent implements OnInit, OnDestroy {
     if (!this.roomId) return;
     let wasParticipant = false;
   
-    this.subscription = this.roomService.getRoomById(this.roomId).subscribe(room => {
+    this.subscription.add(this.roomService.getRoomById(this.roomId).subscribe(room => {
       if (!room) {
         console.error("Room not found:", this.roomId);
         this.snackBar.open("Room not found. Please check the room code.", "Close", { duration: 3000 });
@@ -271,7 +271,8 @@ export class LobbyComponent implements OnInit, OnDestroy {
     }, error => {
       console.error("Failed to fetch room:", error);
       this.snackBar.open("Failed to fetch room details. Please try again.", "Close", { duration: 3000 });
-    });
+    })
+  );
   }  
 
   addParticipant(participant: Participant) {

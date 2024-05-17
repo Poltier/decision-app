@@ -62,7 +62,7 @@ ng build --prod
 2. Deploy to Firebase:
 
 ~~~
-irebase deploy
+firebase deploy
 ~~~
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
