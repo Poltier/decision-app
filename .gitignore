@@ -20,7 +20,6 @@ yarn-error.log
 .settings/
 *.sublime-workspace
 
-
 # Visual Studio Code
 .vscode
 .vscode/*
@@ -30,6 +29,13 @@ yarn-error.log
 !.vscode/extensions.json
 .history/*
 
+# Firebase
+.firebase/
+.firebase/*.log
+.firebase-debug.log
+firebase-debug.*.log
+.firebaserc
+
 # Miscellaneous
 /.angular/cache
 .sass-cache/
@@ -38,6 +44,8 @@ yarn-error.log
 /libpeerconnection.log
 testem.log
 /typings
+/test
+/temp
 
 # System files
 .DS_Store
@@ -45,3 +53,7 @@ Thumbs.db
 
 # Scripts
 /src/app/script/serviceAccountKey.json
+
+# Environment files
+.env
+.env.*
