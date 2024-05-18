@@ -17,7 +17,6 @@ export class Room {
   gameStarted: boolean;
   selectedThemeName?: string;
   questions?: Question[];
-  answersReceived: { [key: string]: boolean };
   currentQuestionIndex?: number;
   timer?: number;
 
@@ -31,7 +30,6 @@ export class Room {
     id?: string,
     isHost: boolean = false,
     questions?: Question[],
-    answersReceived: { [key: string]: boolean } = {},
     currentQuestionIndex: number = 0,
     timer: number = 10
   ) {
@@ -44,7 +42,6 @@ export class Room {
     this.isHost = isHost;
     this.gameStarted = gameStarted;
     this.questions = questions;
-    this.answersReceived = answersReceived;
     this.currentQuestionIndex = currentQuestionIndex;
     this.timer = timer;  
   }

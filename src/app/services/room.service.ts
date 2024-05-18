@@ -28,7 +28,6 @@ export class RoomService {
       participants: [{userId: this.getCurrentUserIdOrGuest(), username: roomData.username}],
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       gameStarted: false,
-      answersReceived: {},
       currentQuestionIndex: 0,
       timer: 10
     };
@@ -104,13 +103,7 @@ export class RoomService {
           }
         });
 
-        room.participants.forEach(participant => {
-          if (!room.answersReceived[participant.userId]) {
-            room.answersReceived[participant.userId] = true;
-          }
-        });
-
-        await roomRef.update({ answersReceived: room.answersReceived, questions: room.questions });
+        await roomRef.update({ questions: room.questions });
       }
     }
   }
@@ -133,7 +126,6 @@ export class RoomService {
       participants: [],
       currentRound: 0,
       scores: {},
-      answersReceived: {},
       currentQuestionIndex: 0,
       timer: 10
     });
@@ -152,8 +144,6 @@ export class RoomService {
     }
   
     const room = roomDoc.data() as Room;
-    room.answersReceived = room.answersReceived || {};
-    room.answersReceived[userId] = true;
   
     if (isCorrect) {
       const participant = room.participants.find(p => p.userId === userId);
@@ -162,7 +152,7 @@ export class RoomService {
       }
     }
   
-    await roomRef.update({ answersReceived: room.answersReceived, participants: room.participants });
+    await roomRef.update({ participants: room.participants });
   }
 
   getRoomById(id: string): Observable<Room | null> {
@@ -182,21 +172,6 @@ export class RoomService {
         return room ? {...room, isHost: room.hostId === this.getCurrentUserIdOrGuest()} : null
       })
     );
-  }
-
-  async updateAnswersReceived(roomId: string, userId: string, received: boolean): Promise<void> {
-    const roomRef = this.firestore.collection('rooms').doc(roomId);
-    const roomDoc = await roomRef.get().toPromise();
-  
-    if (!roomDoc || !roomDoc.exists) {
-      throw new Error("Room not found");
-    }
-  
-    const room = roomDoc.data() as Room;
-    room.answersReceived = room.answersReceived || {};
-    room.answersReceived[userId] = received;
-  
-    await roomRef.update({ answersReceived: room.answersReceived });
   }
 
   watchGameStarted(roomId: string): Observable<boolean> {
@@ -255,8 +230,7 @@ export class RoomService {
     if (room && room.questions && questionIndex < room.questions.length) {
       await roomRef.update({
         timer: timer,
-        currentQuestionIndex: questionIndex,
-        answersReceived: {}
+        currentQuestionIndex: questionIndex
       });
       this.startTimer(roomId);
     } else {

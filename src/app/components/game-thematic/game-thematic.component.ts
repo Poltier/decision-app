@@ -193,12 +193,12 @@ export class GameThematicComponent implements OnInit, OnDestroy {
 
   onOptionSelected(option: QuestionOption): void {
     if (!this.currentQuestion || !this.allowAnswer) return;
-  
+
     this.allowAnswer = false;
     option.selected = true;
     this.currentQuestionIsCorrect = option.isCorrect;
     const userId = this.roomService.getCurrentUserIdOrGuest();
-  
+
     if (this.soloPlay) {
       if (this.countdownInterval) {
         clearInterval(this.countdownInterval);
@@ -207,9 +207,7 @@ export class GameThematicComponent implements OnInit, OnDestroy {
       }
       this.markCorrectAnswer(true);
     } else {
-      this.roomService.answerQuestion(this.roomId!, userId, this.currentQuestionIsCorrect).then(() => {
-        this.roomService.updateAnswersReceived(this.roomId!, userId, true).then();
-      }).catch(error => {
+      this.roomService.answerQuestion(this.roomId!, userId, this.currentQuestionIsCorrect).catch(error => {
         console.error("Error answering question:", error);
         this.snackBar.open("Error answering question. Please try again.", "Close", { duration: 3000 });
       });
@@ -221,20 +219,18 @@ export class GameThematicComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex++;
       this.getNextQuestion();
     } else {
-
       this.roomService.getRoomByIdentifier(this.roomId!).subscribe({
         next: (room: Room | null) => {
-          if(room && room.answersReceived &&  this.participants.every(p => room.answersReceived[p.userId] !== undefined))
-            {
-              const nextIndex = this.currentQuestionIndex + 1;
-              this.roomService.updateTimerAndQuestionIndex(this.roomId!, this.timer, nextIndex).then(() => {
-                this.currentQuestionIndex = nextIndex;
-                this.getNextQuestion();
-              }).catch(error => {
-                console.error("Error updating question index and timer:", error);
-                this.snackBar.open("Error updating question index and timer. Please try again.", "Close", { duration: 3000 });
-              });
-            }
+          if (room) {
+            const nextIndex = this.currentQuestionIndex + 1;
+            this.roomService.updateTimerAndQuestionIndex(this.roomId!, this.timer, nextIndex).then(() => {
+              this.currentQuestionIndex = nextIndex;
+              this.getNextQuestion();
+            }).catch(error => {
+              console.error("Error updating question index and timer:", error);
+              this.snackBar.open("Error updating question index and timer. Please try again.", "Close", { duration: 3000 });
+            });
+          }
         }
       });
     }
@@ -288,13 +284,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
         this.markCorrectAnswer(true);
       }
     }, 1000);
-  
-    if (!this.soloPlay) {
-      this.participants.forEach(participant => {
-        this.roomService.updateAnswersReceived(this.roomId!, participant.userId, false);
-      });
-    }
-  
   }
 
   private markGameAsFinished(): void {
@@ -327,14 +316,13 @@ export class GameThematicComponent implements OnInit, OnDestroy {
         }
       });
 
-      if(this.currentQuestionIsCorrect)
-        {
-          this.score++;
-          this.currentQuestionIsCorrect = false;
-        }
+      if (this.currentQuestionIsCorrect) {
+        this.score++;
+        this.currentQuestionIsCorrect = false;
+      }
 
       this.allowAnswer = false;
-  
+
       if (this.soloPlay) {
         if (autoAdvance) {
           setTimeout(() => {
@@ -346,31 +334,13 @@ export class GameThematicComponent implements OnInit, OnDestroy {
           }, 3000);
         }
       } else {
-
-        this.roomService.getRoomByIdentifier(this.roomId!).subscribe({
-          next: (room: Room | null) => {
-            if(room &&  room.answersReceived)
-              {
-                this.participants.forEach(p => {
-                  if (room.answersReceived[p.userId] === undefined) {
-                    this.roomService.answerQuestion(this.roomId!, p.userId, false).then(() => {
-                      this.roomService.updateAnswersReceived(this.roomId!, p.userId, true);
-                    });
-                  }
-                });
-        
-                if (autoAdvance) {
-                  setTimeout(() => {
-                    if (!this.gameFinished) {
-                      this.checkForNextQuestion();
-                    } else {
-                      this.markGameAsFinished();
-                    }
-                  }, 3000);
-                }
-              }
+        setTimeout(() => {
+          if (!this.gameFinished) {
+            this.checkForNextQuestion();
+          } else {
+            this.markGameAsFinished();
           }
-        });
+        }, 3000);
       }
     }
   }
