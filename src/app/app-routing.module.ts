@@ -20,7 +20,7 @@ const routes: Routes = [
   { path: 'admin', component: AdminComponent, canActivate: [AdminGuard] },
   { path: 'submit-question', component: SubmitQuestionComponent },
   { path: 'game-thematic/:theme', component: GameThematicComponent }, // For solo play
-  { path: 'game-room/:roomId/:theme', component: GameThematicComponent }, // For multiplayer
+  { path: 'game-room/:theme', component: GameThematicComponent }, // For multiplayer
   { path: '**', redirectTo: '/home' }
 ];
 

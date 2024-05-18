@@ -33,6 +33,8 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   currentQuestionIndex: number = 0;
   timer: number = 10;
   displayedColumns: string[] = ['username', 'score'];
+  currentQuestionIsCorrect:boolean = false;
+  watchOn:boolean = false;
 
   constructor(
     private gameService: GameService,
@@ -55,6 +57,18 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     }
   }
 
+  watchGameStarted(){
+    if(!this.soloPlay && !this.isHost && !this.watchOn){
+      this.unsubscribe$.add(
+        this.roomService.watchGameStarted(this.roomId!).subscribe(gameStart =>{
+          if(!gameStart)
+             this.router.navigate(['/lobby', { id: this.roomId, username: this.username }]);
+        })
+      );
+      this.watchOn = true;
+    }
+  }
+
   subscribeToParams() {
     this.route.queryParams.subscribe(params => {
       this.roomId = params['roomId'];
@@ -67,7 +81,8 @@ export class GameThematicComponent implements OnInit, OnDestroy {
         this.router.navigate(['/dashboard']);
         return;
       }
-
+      
+      this.watchGameStarted();
       this.startGame();
        
       if (!this.soloPlay) {
@@ -77,7 +92,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
 
     });
   }
-
 
   fetchParticipants() {
     if (this.roomId) {
@@ -90,7 +104,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
 
   startGame() {
-    this.resetGame();
     this.loadQuestionsBasedOnRoute();
     this.subscribeToGameState();
   }
@@ -142,9 +155,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
 
     this.gameService.resetGame();
 
-    if (!this.gameFinished) {
-      this.startCountdown();
-    }
   }
 
   restartGame(): void {
@@ -177,26 +187,14 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   
     this.allowAnswer = false;
     option.selected = true;
-    const isCorrect = option.isCorrect;
+    this.currentQuestionIsCorrect = option.isCorrect;
     const userId = this.roomService.getCurrentUserIdOrGuest();
-  
-    // Detener el temporizador
-    this.stopCountdown();
-  
+    
     if (this.soloPlay) {
-      // Lógica para juego en solitario
-      if (isCorrect) {
-        this.score++;
-      }
-      this.markCorrectAnswer(true); // Mostrar la respuesta correcta antes de avanzar
+      this.markCorrectAnswer(true);
     } else {
-      this.roomService.answerQuestion(this.roomId!, userId, isCorrect).then(() => {
-        if (isCorrect) {
-          this.score++;
-        }
-        this.roomService.updateAnswersReceived(this.roomId!, userId, true).then(() => {
-          this.checkAllAnswered(); // Verificar si todos han respondido
-        });
+      this.roomService.answerQuestion(this.roomId!, userId, this.currentQuestionIsCorrect).then(() => {
+        this.roomService.updateAnswersReceived(this.roomId!, userId, true).then();
       }).catch(error => {
         console.error("Error answering question:", error);
         this.snackBar.open("Error answering question. Please try again.", "Close", { duration: 3000 });
@@ -204,21 +202,8 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     }
   }
 
-  checkAllAnswered(): void {
-    this.roomService.getRoomByIdentifier(this.roomId!).subscribe({
-      next: (room: Room | null) => {
-        if(room &&  room.answersReceived &&  this.participants.every(p => room.answersReceived[p.userId] !== undefined))
-          this.markCorrectAnswer(true); // Mostrar la respuesta correcta y avanzar
-        else
-          this.startCountdown(); // Reiniciar el temporizador si no todos han respondido
-
-      }
-    });
-  }
-
   checkForNextQuestion(): void {
     if (this.soloPlay) {
-      // Logica para juego en solitario
       this.currentQuestionIndex++;
       this.getNextQuestion();
     } else {
@@ -236,11 +221,8 @@ export class GameThematicComponent implements OnInit, OnDestroy {
                 this.snackBar.open("Error updating question index and timer. Please try again.", "Close", { duration: 3000 });
               });
             }
-  
         }
       });
-
-
     }
   }
 
@@ -255,8 +237,7 @@ export class GameThematicComponent implements OnInit, OnDestroy {
           this.currentQuestion.options = this.shuffleOptions(this.currentQuestion.options);
           this.resetAndStartCountdown();
         } else {
-          this.waitForEndGame();
-          this.showResults();
+          this.markGameAsFinished();
         }
       });
     } else {
@@ -268,15 +249,13 @@ export class GameThematicComponent implements OnInit, OnDestroy {
           this.currentQuestion.options = this.shuffleOptions(this.currentQuestion.options);
           this.resetAndStartCountdown();
         } else {
-          this.waitForEndGame();
-          this.showResults();
+          this.markGameAsFinished();
         }
       });
     }
   }
 
   private resetAndStartCountdown(): void {
-    this.countdown = this.timer;
     this.allowAnswer = true;
   
     if (!this.soloPlay) {
@@ -285,16 +264,10 @@ export class GameThematicComponent implements OnInit, OnDestroy {
       });
     }
   
-    this.startCountdown();
-  }
-
-  private waitForEndGame(): void {
-    this.markGameAsFinished();
   }
 
   private markGameAsFinished(): void {
     this.gameFinished = true;
-    this.stopCountdown();
     this.showResults();
   }
 
@@ -315,31 +288,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     return options;
   }
 
-  private startCountdown(): void {
-    this.stopCountdown(); // Asegurarse de detener cualquier temporizador en ejecución
-    this.countdown = this.timer;
-    this.progressValue = 100;
-    this.countdownInterval = setInterval(() => {
-      if (this.countdown > 0) {
-        this.countdown--;
-        this.progressValue = (this.countdown / this.timer) * 100;
-      } else {
-        console.log("Time ran out, marking correct answer.");
-        this.stopCountdown();
-        this.allowAnswer = false;
-        this.markCorrectAnswer(true);
-      }
-    }, 1000);
-  }
-
-  private stopCountdown(): void {
-    if (this.countdownInterval) {
-      clearInterval(this.countdownInterval);
-      this.countdownInterval = null;
-      this.progressValue = 0;
-    }
-  }
-
   markCorrectAnswer(autoAdvance: boolean = false): void {
     if (this.currentQuestion) {
       this.currentQuestion.options.forEach(option => {
@@ -347,11 +295,16 @@ export class GameThematicComponent implements OnInit, OnDestroy {
           option.correct = true;
         }
       });
-  
+
+      if(this.currentQuestionIsCorrect)
+        {
+          this.score++;
+          this.currentQuestionIsCorrect = false;
+        }
+
       this.allowAnswer = false;
   
       if (this.soloPlay) {
-        // Lógica para juego en solitario
         if (autoAdvance) {
           setTimeout(() => {
             if (!this.gameFinished) {
@@ -419,16 +372,12 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   goToLobby(): void {
     if (this.roomId) {
       this.roomService.setGameStarted(this.roomId, false).then(() => {
-        this.allScores = [];
-        this.resetGame();
         this.router.navigate(['/lobby', { id: this.roomId, username: this.username }]);
       }).catch(error => {
         console.error('Failed to set gameStarted to false:', error);
         this.snackBar.open('Failed to return to lobby. Please try again.', 'Close', { duration: 3000 });
       });
     } else if (this.soloPlay) {
-      this.allScores = [];
-      this.resetGame();
       this.router.navigate(['/lobby', { username: this.username, soloPlay: 'true' }]);
     } else {
       this.router.navigate(['/dashboard']);
@@ -442,14 +391,18 @@ export class GameThematicComponent implements OnInit, OnDestroy {
       distinctUntilChanged((prev, curr) => prev.timer === curr.timer && prev.currentQuestionIndex === curr.currentQuestionIndex)
     ).subscribe(state => {
       if (state) {
-        if (this.timer !== state.timer) {
-          this.timer = state.timer;
-          this.countdown = state.timer; // Actualizar el temporizador local
-          this.progressValue = (this.countdown / this.timer) * 100; // Actualizar la barra de progreso
-        }
+        if (this.countdown !== state.timer) {
+          this.countdown = state.timer;
+          this.progressValue = (this.countdown / this.timer) * 100;
+          if(this.countdown === 0){
+            console.log("Time ran out, marking correct answer.");
+            this.allowAnswer = false;
+            this.markCorrectAnswer(true);
+          }
+        } 
         if (this.currentQuestionIndex !== state.currentQuestionIndex) {
           this.currentQuestionIndex = state.currentQuestionIndex;
-          this.getNextQuestion(); // Cargar la nueva pregunta
+          this.getNextQuestion();
         }
       }
     });

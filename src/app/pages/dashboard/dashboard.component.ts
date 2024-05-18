@@ -66,13 +66,11 @@ export class DashboardComponent {
   private joinRoom(username: string, roomCode: string) {
     this.roomService.getRoomByIdentifier(roomCode).subscribe({
       next: (room: Room | null) => {
-        // Verificar primero si la sala existe
         if (!room || !room.participants) {
           this.openSnackBar("Room not found. Please check the room code.", 3000);
-          return; // Asegura que el método termine aquí si no hay sala
+          return;
         }
 
-        // Ahora es seguro acceder a room.participants ya que sabemos que room no es null
         if (room.gameStarted || room.participants.length >= room.maxPlayers ||
           room.participants.some(p => p.username.toLowerCase() === username.toLowerCase())) {
           this.handleRoomEntryErrors(room, username);

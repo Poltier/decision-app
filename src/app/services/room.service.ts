@@ -38,11 +38,6 @@ export class RoomService {
     return docRef.id;
   }
 
-  async closeRoom(roomId: string): Promise<void> {
-    await this.firestore.collection('rooms').doc(roomId).delete();
-    this.cleanUpSessionStorage();
-  }
-
   async leaveRoom(roomId: string, userId: string): Promise<boolean> {
     const roomRef = this.firestore.collection('rooms').doc(roomId);
     const roomDoc = await roomRef.get().toPromise();
@@ -68,6 +63,11 @@ export class RoomService {
     }
 
     throw new Error("Participant not found");
+  }
+
+  async closeRoom(roomId: string): Promise<void> {
+    await this.firestore.collection('rooms').doc(roomId).delete();
+    this.cleanUpSessionStorage();
   }
 
   async startGame(roomId: string, questions: Question[]): Promise<void> {
@@ -106,23 +106,13 @@ export class RoomService {
 
         room.participants.forEach(participant => {
           if (!room.answersReceived[participant.userId]) {
-            room.answersReceived[participant.userId] = true; // Marcar la respuesta como recibida
+            room.answersReceived[participant.userId] = true;
           }
         });
 
         await roomRef.update({ answersReceived: room.answersReceived, questions: room.questions });
-        setTimeout(() => {
-          const nextIndex = (room.currentQuestionIndex ?? 0) + 1;
-          this.updateTimerAndQuestionIndex(roomId, this.defaultTimer, nextIndex);
-        }, 6000);
       }
     }
-  }
-
-  async setQuestionsForRoom(roomId: string, questions: Question[]): Promise<void> {
-    const questionsWithIndex = questions.map((q, index) => ({ ...q, index }));
-    const roomRef = this.firestore.collection('rooms').doc(roomId);
-    await roomRef.update({ questions: questionsWithIndex });
   }
 
   async restartGame(roomId: string, userId: string): Promise<void> {
@@ -175,21 +165,6 @@ export class RoomService {
     await roomRef.update({ answersReceived: room.answersReceived, participants: room.participants });
   }
 
-  getAnswers(roomId: string): Observable<{ [key: string]: boolean }> {
-    const roomRef = this.firestore.collection<Room>('rooms').doc(roomId);
-    return roomRef.valueChanges().pipe(
-      map((room: Room | undefined) => {
-        console.log("getAnswers - room:", room);
-        return room ? room.answersReceived : {};
-      })
-    );
-  }
-
-  async resetAnswers(roomId: string): Promise<void> {
-    const roomRef = this.firestore.collection('rooms').doc(roomId);
-    await roomRef.update({ answersReceived: {} });
-  }
-
   getRoomById(id: string): Observable<Room | null> {
     return this.firestore.collection<Room>('rooms').doc(id).valueChanges().pipe(
       map(room => {
@@ -234,7 +209,6 @@ export class RoomService {
     );
   }
 
-
   setSelectedThemeForRoom(roomId: string, themeName: string): Promise<void> {
     return this.firestore.collection('rooms').doc(roomId).update({
       selectedThemeName: themeName
@@ -273,14 +247,6 @@ export class RoomService {
     });
   }
 
-  async initializeGame(roomId: string): Promise<void> {
-    const roomRef = this.firestore.collection('rooms').doc(roomId);
-    await roomRef.update({
-      currentQuestionIndex: 0,
-      timer: 10
-    });
-  }
-
   async updateTimerAndQuestionIndex(roomId: string, timer: number, questionIndex: number): Promise<void> {
     const roomRef = this.firestore.collection('rooms').doc(roomId);
     const roomDoc = await roomRef.get().toPromise();
@@ -295,7 +261,6 @@ export class RoomService {
       this.startTimer(roomId);
     } else {
       await roomRef.update({
-        gameStarted: false,
         timer: this.defaultTimer
       });
     }

@@ -29,6 +29,7 @@ export class LobbyComponent implements OnInit, OnDestroy {
   selectedTheme: Thematic | null = null;
   currentUserId: string = this.roomService.getCurrentUserIdOrGuest();
   subscription: Subscription = new Subscription();
+  watchOn:boolean = false;
 
   thematics: Thematic[] = [
     { name: 'Science', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/decisiondevelopmentapp.appspot.com/o/game-thematic%2Fscience-thematic.webp?alt=media&token=3d5179f4-b296-489d-b818-3b54641b2675' },
@@ -68,23 +69,23 @@ export class LobbyComponent implements OnInit, OnDestroy {
       console.log("Lobby parameters:", params);
       this.username = params['username'] || 'Guest';
       this.handleRoomCreation(params);
-      this.watchGameStarted();
     });
   }
 
   watchGameStarted(){
 
-    
-    this.subscription.add(
-      this.roomService.watchGameStarted(this.roomId).subscribe(gameStart =>{
-        if(gameStart)
-          {  this.router.navigate(['/game-room', this.roomId, this.selectedTheme?.name], {
-            queryParams: { username: this.username, isHost: this.room?.isHost }
-          });
-        }
-      })
-    );
-
+    if(this.room && !this.room.isHost && !this.watchOn){
+      this.subscription.add(
+        this.roomService.watchGameStarted(this.roomId).subscribe(gameStart =>{
+          if(gameStart)
+            {  this.router.navigate(['/game-room', this.selectedTheme?.name], {
+              queryParams: { roomId:this.roomId,username: this.username, isHost: this.room?.isHost }
+            });
+          }
+        })
+      );
+      this.watchOn = true;
+    }
   }
 
 
@@ -96,47 +97,26 @@ export class LobbyComponent implements OnInit, OnDestroy {
       this.roomId = params['id'];
       this.joiningRoom = true;
       this.fetchRoom();
-      if (params['username']) {
-        const newParticipant = { userId: this.roomService.getCurrentUserIdOrGuest(), username: params['username'] };
+      const newParticipant = { userId: this.roomService.getCurrentUserIdOrGuest(), username: params['username'] };
+
+      this.roomService.getRoomByIdentifier(this.roomId).subscribe(room =>{
+
+      if (params['username'] && room && !room.participants.find(x => x.username == newParticipant.username)){
         this.roomService.addParticipant(this.roomId, newParticipant)
-          .then(() => {
-            console.log("Participant added successfully.");
-            this.participants.push(newParticipant);
-            this.ref.detectChanges();
-          })
-          .catch((error: any) => {
-            console.error("Failed to add participant:", error);
-            this.snackBar.open('Failed to add participant. Please try again.', 'Close', { duration: 3000 });
-          });
+        .then(() => {
+          console.log("Participant added successfully.");
+        })
+        .catch((error: any) => {
+          console.error("Failed to add participant:", error);
+          this.snackBar.open('Failed to add participant. Please try again.', 'Close', { duration: 3000 });
+        });
       }
+
+      });
+
     } else if (params['soloPlay']) {
       this.soloPlay = true;
     }
-  }
-
-  startGame(): void {
-    if (!this.roomId || !this.selectedTheme?.name) {
-      this.snackBar.open('Cannot start game. Room ID or Theme is not set.', 'Close', { duration: 3000 });
-      return;
-    }
-  
-    this.gameService.loadQuestionsFromFirestoreByThematic(this.selectedTheme.name)
-      .then((questions: Question[]) => {
-        if (questions.length > 0) {
-          this.roomService.startGame(this.roomId!, questions).then(() => {
-            // Navigation handled by subscribeToGameStarted()
-          }).catch((err: any) => {
-            console.error('Failed to start game:', err);
-            this.snackBar.open('Failed to start game. Please try again.', 'Close', { duration: 3000 });
-          });
-        } else {
-          this.snackBar.open('Not enough questions available for the selected theme.', 'Close', { duration: 3000 });
-        }
-      })
-      .catch((err: any) => {
-        console.error('Failed to load questions:', err);
-        this.snackBar.open('Failed to load questions. Please try again.', 'Close', { duration: 3000 });
-      });
   }
   
   emptySlots(maxPlayers: number | null | undefined, currentCount: number): string[] {
@@ -218,8 +198,8 @@ export class LobbyComponent implements OnInit, OnDestroy {
         .then((questions: Question[]) => {
           if (questions.length > 0) {
             this.roomService.startGame(this.roomId!, questions).then(() => {
-              this.router.navigate(['/game-room', this.roomId, this.selectedTheme?.name], {
-                queryParams: { username: this.username, isHost: this.room?.isHost }
+              this.router.navigate(['/game-room', this.selectedTheme?.name], {
+                queryParams: { roomId: this.roomId,username: this.username, isHost: this.room?.isHost }
               });
             }).catch(err => {
               console.error('Failed to start game:', err);
@@ -249,8 +229,9 @@ export class LobbyComponent implements OnInit, OnDestroy {
         this.router.navigate(['/dashboard']);
         return;
       }
-      
+
       this.room = room;
+      this.watchGameStarted();
       this.participants = room.participants || [];
 
       this.selectedTheme = this.thematics.find(t => t.name === room.selectedThemeName) ?? null;
@@ -275,32 +256,7 @@ export class LobbyComponent implements OnInit, OnDestroy {
   );
   }  
 
-  addParticipant(participant: Participant) {
-    if (!this.roomId) return;
-  
-    this.roomService.getRoomById(this.roomId).subscribe(room => {
-      if (!room) {  // Verifica que 'room' no sea null antes de continuar
-        console.error("Room not found");
-        return;
-      }
-  
-      const isAlreadyParticipant = room.participants.some(p => p.userId === participant.userId);
-      if (!isAlreadyParticipant) {
-        this.roomService.addParticipant(this.roomId, participant)
-          .then(() => {
-            this.snackBar.open('Participant added successfully!', 'Close', { duration: 3000 });
-            this.fetchRoom()
-          })
-          .catch(err => {
-            console.error("Failed to add participant", err);
-            this.snackBar.open('Failed to add participant. Please try again.', 'Close', { duration: 3000 });
-          });
-      } else {
-        console.log("Participant already exists, not adding again.");
-        this.fetchRoom();
-      }
-    });
-  }
+
   
   fetchRoomDataAndNavigate() {
     this.roomService.getRoomById(this.roomId).subscribe(room => {
@@ -328,7 +284,11 @@ export class LobbyComponent implements OnInit, OnDestroy {
       });
   }
 
-  onExitRoom(): void {
+  onExitLobby(): void {
+    if (this.soloPlay) {
+      this.router.navigate(['/dashboard']);
+    }
+
     if (!this.roomId) return;
   
     this.roomService.leaveRoom(this.roomId, this.currentUserId)
@@ -342,9 +302,5 @@ export class LobbyComponent implements OnInit, OnDestroy {
           console.error("Error when trying to leave or close the room:", error);
           this.snackBar.open("Failed to leave or close the room. Please try again.", "Close", {duration: 3000});
       });
-  }
-
-  ExitToDashboard(): void {
-    this.router.navigate(['/dashboard']);
   }
 }

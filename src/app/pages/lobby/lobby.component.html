@@ -1,7 +1,7 @@
 <div class="lobby-container">
   <h1>Welcome to the Lobby</h1>
   <div *ngIf="creatingRoom || joiningRoom">
-    <button (click)="onExitRoom()">Exit</button>
+    <button (click)="onExitLobby()">Exit</button>
     <div *ngIf="joiningRoom" class="join-room-container">
       <p class="join-room-text">Join to the room with the code:</p>
       <div class="room-code-container" (click)="copyRoomCodeToClipboard()">
@@ -38,7 +38,7 @@
 
   <div *ngIf="soloPlay">
     <div>
-      <button (click)="ExitToDashboard()">Exit</button>
+      <button (click)="onExitLobby()">Exit</button>
       <p class="join-room-text">Playing solo game</p>
     </div>
     <div class="game-selection-solo">
