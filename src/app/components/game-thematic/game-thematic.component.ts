@@ -189,8 +189,13 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     option.selected = true;
     this.currentQuestionIsCorrect = option.isCorrect;
     const userId = this.roomService.getCurrentUserIdOrGuest();
-    
+  
     if (this.soloPlay) {
+      if (this.countdownInterval) {
+        clearInterval(this.countdownInterval);
+        this.countdown = 0;
+        this.progressValue = 0;
+      }
       this.markCorrectAnswer(true);
     } else {
       this.roomService.answerQuestion(this.roomId!, userId, this.currentQuestionIsCorrect).then(() => {
@@ -257,6 +262,23 @@ export class GameThematicComponent implements OnInit, OnDestroy {
 
   private resetAndStartCountdown(): void {
     this.allowAnswer = true;
+    this.countdown = this.timer;
+    this.progressValue = 100;
+
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+    }
+
+    this.countdownInterval = setInterval(() => {
+      if (this.countdown > 0) {
+        this.countdown--;
+        this.progressValue = (this.countdown / this.timer) * 100;
+      } else {
+        clearInterval(this.countdownInterval);
+        this.allowAnswer = false;
+        this.markCorrectAnswer(true);
+      }
+    }, 1000);
   
     if (!this.soloPlay) {
       this.participants.forEach(participant => {
@@ -385,7 +407,9 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
 
   subscribeToGameState() {
-    if (this.soloPlay) return;
+    if (this.soloPlay) {
+      return;
+    }
     
     this.roomService.getGameState(this.roomId!).pipe(
       distinctUntilChanged((prev, curr) => prev.timer === curr.timer && prev.currentQuestionIndex === curr.currentQuestionIndex)
