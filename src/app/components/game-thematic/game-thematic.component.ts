@@ -155,6 +155,15 @@ export class GameThematicComponent implements OnInit, OnDestroy {
 
     this.gameService.resetGame();
 
+    if (this.roomId && !this.soloPlay) {
+    this.roomService.resetRoomScores(this.roomId).then(() => {
+      console.log('Room scores reset successfully.');
+    }).catch(error => {
+      console.error('Failed to reset room scores:', error);
+      this.snackBar.open('Failed to reset room scores. Please try again.', 'Close', { duration: 3000 });
+    });
+    }
+
   }
 
   restartGame(): void {

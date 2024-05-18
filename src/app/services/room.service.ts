@@ -275,6 +275,23 @@ export class RoomService {
       }))
     );
   }
+
+  async resetRoomScores(roomId: string): Promise<void> {
+    const roomRef = this.firestore.collection('rooms').doc(roomId);
+    const roomDoc = await roomRef.get().toPromise();
+
+    if (!roomDoc || !roomDoc.exists) {
+      throw new Error("Room not found");
+    }
+
+    const room = roomDoc.data() as Room;
+    const updatedParticipants = room.participants.map(participant => ({
+      ...participant,
+      score: 0
+    }));
+
+    await roomRef.update({ participants: updatedParticipants });
+  }
 }
 
 
