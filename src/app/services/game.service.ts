@@ -38,8 +38,9 @@ export class GameService {
       query.valueChanges({ idField: 'id' })
         .pipe(
           tap(questions => {
-            this.questions$.next(questions);
-            resolve(questions); // Resolve the promise with questions
+            const shuffledQuestions = this.shuffleArray(questions).slice(0, 10);
+            this.questions$.next(shuffledQuestions);
+            resolve(shuffledQuestions);
           }),
           catchError(error => {
             reject(`Error loading thematic questions: ${error}`);
@@ -47,6 +48,14 @@ export class GameService {
           })
         ).subscribe();
     });
+  }
+
+  private shuffleArray(array: any[]): any[] {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
   }
 
   getQuestionByIndex(roomIdOrIndex: string | number, index?: number): Observable<Question | undefined> {

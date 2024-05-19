@@ -47,7 +47,7 @@
       <tr mat-row *matRowDef="let row; columns: ['username', 'score'];"></tr>
     </table>
     <mat-card-actions>
-      <button *ngIf="isHost || soloPlay" mat-button (click)="restartGame()">Restart Game</button>
+      <!-- <button *ngIf="isHost || soloPlay" mat-button (click)="restartGame()">Restart Game</button> -->
       <button *ngIf="isHost || soloPlay" mat-button (click)="goToLobby()">Return to Lobby</button>
     </mat-card-actions>
   </mat-card>

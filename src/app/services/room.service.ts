@@ -108,28 +108,32 @@ export class RoomService {
     }
   }
 
-  async restartGame(roomId: string, userId: string): Promise<void> {
-    const roomRef = this.firestore.collection('rooms').doc(roomId);
-    const doc = await roomRef.get().toPromise();
-
-    if (!doc || !doc.exists) {
-      throw new Error("Room not found");
-    }
-
-    const room = doc.data() as Room;
-    if (room.hostId !== userId) {
-      throw new Error("Only the host can restart the game");
-    }
-
-    await roomRef.update({
-      gameStarted: false,
-      participants: [],
-      currentRound: 0,
-      scores: {},
-      currentQuestionIndex: 0,
-      timer: 10
-    });
-  }
+  // async restartGame(roomId: string, userId: string): Promise<void> {
+  //   const roomRef = this.firestore.collection('rooms').doc(roomId);
+  //   const doc = await roomRef.get().toPromise();
+    
+  //   if (!doc || !doc.exists) {
+  //     throw new Error("Room not found");
+  //   }
+    
+  //   const room = doc.data() as Room;
+  //   if (room.hostId !== userId) {
+  //     throw new Error("Only the host can restart the game");
+  //   }
+    
+  //   const updatedParticipants = room.participants.map(p => ({ ...p, score: 0 }));
+    
+  //   await roomRef.update({
+  //     gameStarted: false,
+  //     participants: updatedParticipants,
+  //     currentQuestionIndex: 0,
+  //     timer: this.defaultTimer,
+  //   });
+  
+  //   const questions = room.questions || [];
+  //   await this.startGame(roomId, questions);
+  // }
+  
 
   async setGameStarted(roomId: string, gameStarted: boolean): Promise<void> {
     await this.firestore.collection('rooms').doc(roomId).update({ gameStarted });
@@ -250,21 +254,25 @@ export class RoomService {
     );
   }
 
-  async resetRoomScores(roomId: string): Promise<void> {
+  async resetRoom(roomId: string): Promise<void> {
     const roomRef = this.firestore.collection('rooms').doc(roomId);
     const roomDoc = await roomRef.get().toPromise();
-
+  
     if (!roomDoc || !roomDoc.exists) {
       throw new Error("Room not found");
     }
-
+  
     const room = roomDoc.data() as Room;
     const updatedParticipants = room.participants.map(participant => ({
       ...participant,
       score: 0
     }));
-
-    await roomRef.update({ participants: updatedParticipants });
+  
+    await roomRef.update({ 
+      participants: updatedParticipants,
+      currentQuestionIndex: 0,
+      questions: []
+    });
   }
 }
 

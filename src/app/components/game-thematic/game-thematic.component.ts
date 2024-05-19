@@ -119,7 +119,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     if (theme) {
       this.gameService.loadQuestionsFromFirestoreByThematic(theme)
         .then(() => {
-          this.resetGame();
           this.getNextQuestion();
         })
         .catch(error => {
@@ -133,7 +132,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
 
   startNewGame(): void {
-    this.resetGame();
     this.getNextQuestion();
   }
 
@@ -145,51 +143,51 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     this.allScores = [];
     this.currentQuestionIndex = 0;
     this.timer = 10;
-
+  
     if (this.countdownInterval) {
       clearInterval(this.countdownInterval);
       this.countdownInterval = null;
     }
-
+  
     this.countdown = 10;
-
+  
     this.gameService.resetGame();
-
+  
     if (this.roomId && !this.soloPlay) {
-    this.roomService.resetRoomScores(this.roomId).then(() => {
-      console.log('Room scores reset successfully.');
-    }).catch(error => {
-      console.error('Failed to reset room scores:', error);
-      this.snackBar.open('Failed to reset room scores. Please try again.', 'Close', { duration: 3000 });
-    });
-    }
-
-  }
-
-  restartGame(): void {
-    if (!this.isHost && !this.soloPlay) {
-      this.snackBar.open("Only the host or solo players can restart the game.", "Close", { duration: 3000 });
-      return;
-    }
-
-    if (this.soloPlay) {
-      this.resetGame();
-      this.snackBar.open("Game restarted successfully.", "Close", { duration: 3000 });
-    } else if (this.roomId) {
-      this.roomService.restartGame(this.roomId, this.authService.getCurrentUserId())
-        .then(() => {
-          this.snackBar.open("Game restarted successfully. Waiting for game to start.", "Close", { duration: 3000 });
-          this.resetGame();
-        })
-        .catch(error => {
-          console.error("Failed to restart game", error);
-          this.snackBar.open("Failed to restart game: " + error.message, "Close", { duration: 3000 });
-        });
-    } else {
-      console.error("Room ID is missing");
-      this.snackBar.open("Error: Room ID is missing.", "Close", { duration: 3000 });
+      this.roomService.resetRoom(this.roomId).then(() => {
+        console.log('Room reset successfully.');
+      }).catch(error => {
+        console.error('Failed to reset room:', error);
+        this.snackBar.open('Failed to reset room. Please try again.', 'Close', { duration: 3000 });
+      });
     }
   }
+
+  // restartGame(): void {
+  //   if (!this.isHost && !this.soloPlay) {
+  //     this.snackBar.open("Only the host or solo players can restart the game.", "Close", { duration: 3000 });
+  //     return;
+  //   }
+  
+  //   if (this.soloPlay) {
+  //     this.startGame();
+  //     this.snackBar.open("Game restarted successfully.", "Close", { duration: 3000 });
+  //   } else if (this.roomId) {
+  //     this.roomService.restartGame(this.roomId, this.authService.getCurrentUserId())
+  //       .then(() => {
+  //         this.snackBar.open("Game restarted successfully.", "Close", { duration: 3000 });
+  //         this.router.navigate(['/game-room', { roomId: this.roomId, username: this.username }]); // Navegar a la sala de juego
+  //       })
+  //       .catch(error => {
+  //         console.error("Failed to restart game", error);
+  //         this.snackBar.open("Failed to restart game: " + error.message, "Close", { duration: 3000 });
+  //       });
+  //   } else {
+  //     console.error("Room ID is missing");
+  //     this.snackBar.open("Error: Room ID is missing.", "Close", { duration: 3000 });
+  //   }
+  // }
+  
 
   onOptionSelected(option: QuestionOption): void {
     if (!this.currentQuestion || !this.allowAnswer) return;
@@ -374,6 +372,7 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     if (this.roomId) {
       this.roomService.setGameStarted(this.roomId, false).then(() => {
         this.router.navigate(['/lobby', { id: this.roomId, username: this.username }]);
+        this.resetGame();
       }).catch(error => {
         console.error('Failed to set gameStarted to false:', error);
         this.snackBar.open('Failed to return to lobby. Please try again.', 'Close', { duration: 3000 });

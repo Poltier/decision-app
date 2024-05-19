@@ -73,7 +73,6 @@ export class LobbyComponent implements OnInit, OnDestroy {
   }
 
   watchGameStarted(){
-
     if(this.room && !this.room.isHost && !this.watchOn){
       this.subscription.add(
         this.roomService.watchGameStarted(this.roomId).subscribe(gameStart =>{
@@ -255,22 +254,6 @@ export class LobbyComponent implements OnInit, OnDestroy {
     })
   );
   }  
-
-
-  
-  fetchRoomDataAndNavigate() {
-    this.roomService.getRoomById(this.roomId).subscribe(room => {
-      if (room) {
-        this.room = room;
-        this.participants = room.participants;
-        this.ref.detectChanges();
-        this.router.navigate(['/lobby', {id: this.roomId, username: this.username}]);
-      }
-    }, error => {
-      console.error("Failed to fetch room data:", error);
-      this.snackBar.open("Failed to fetch room data. Please try again.", 'Close', { duration: 3000 });
-    });
-  }
 
   copyRoomCodeToClipboard(): void {
     if (!this.roomId) return;
