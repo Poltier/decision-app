@@ -7,7 +7,7 @@
   align-items: center;
   justify-content: center;
 }
-  
+
 .lobby-columns {
   display: flex;
   justify-content: space-between;
@@ -26,7 +26,7 @@
   padding: 0;
   width: 100%;
 }
-  
+
 .participant-list {
   width: 30%;
   background-color: #f4f4f4;
@@ -72,28 +72,26 @@
   justify-content: center;
   border: none;
   background-color: transparent;
-  color: #ff6347; /* Rojo para la X */
+  color: #ff6347;
   cursor: pointer;
-  font-size: 16px; /* Tamaño de la fuente para la X */
-  transition: background-color 0.3s, color 0.3s; /* Transición suave para los colores */
+  font-size: 16px;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .remove-participant-btn:hover {
-  background-color: #ff6347; /* Fondo rojo */
-  color: white; /* X blanca */
+  background-color: #ff6347;
+  color: white;
 }
 
-/* Asegurar que el foco y la activación no cambien el estilo */
 .remove-participant-btn:focus, .remove-participant-btn:active {
   outline: none;
 }
-
 
 .empty-slot {
   color: #cccccc;
   font-style: italic;
 }
-  
+
 .game-selection {
   width: 68%;
   background-color: #f4f4f4;
@@ -108,14 +106,14 @@
   border-radius: 8px;
   text-align: center;
 }
-  
+
 .games-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   margin-bottom: 20px;
 }
-  
+
 .game-card {
   background-color: #e0e0e0;
   padding: 10px;
@@ -125,7 +123,7 @@
   transition: transform 0.3s;
   border: 2px solid transparent;
 }
-  
+
 .game-card:hover {
   transform: scale(1.05);
 }
@@ -134,13 +132,13 @@
   border-color: #5c6bc0;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
-  
+
 .game-card img {
   max-width: 100%;
   height: auto;
   border-radius: 8px;
 }
-  
+
 button {
   background-color: #5c6bc0;
   color: white;
@@ -150,7 +148,7 @@ button {
   cursor: pointer;
   font-weight: bold;
 }
-  
+
 button:hover {
   background-color: #3949ab;
 }
@@ -169,12 +167,12 @@ button:hover {
 .join-room-container {
   background-color: #f6ffa1;
 }
-  
+
 .join-room-text {
   margin: 0 10px 0 0;
   font-size: 18px;
 }
-  
+
 .room-code-container {
   background-color: white;
   border-radius: 5px;
@@ -182,7 +180,7 @@ button:hover {
   display: flex;
   align-items: center;
 }
-  
+
 .room-code {
   font-weight: bold;
   padding: 10px;
@@ -190,5 +188,54 @@ button:hover {
 
 .is-me .participant-name {
   font-weight: bold;
-  color: #4CAF50; 
+  color: #4CAF50;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .lobby-columns {
+    flex-direction: column;
+  }
+
+  .participant-list, .game-selection {
+    width: 90%;
+    margin: 0;
+    margin-bottom: 20px;
+  }
+
+  .games-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .game-card {
+    padding: 8px;
+  }
+
+  .game-card img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .join-room-container {
+    flex-direction: column;
+    text-align: center;
+    padding: 15px;
+  }
+
+  .join-room-text {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+  }
+
+  .room-code-container {
+    padding: 10px;
+    width: 80%;
+    justify-content: center;
+  }
+
+  .room-code {
+    font-size: 16px;
+    padding: 10px;
+  }
 }

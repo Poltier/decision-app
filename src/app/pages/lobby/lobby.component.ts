@@ -169,8 +169,12 @@ export class LobbyComponent implements OnInit, OnDestroy {
   }
 
   createRoom(username: string) {
+    const roomName = `${username} Room`;
+    
     this.roomService.createRoom({
-      name: "New Room", maxPlayers: 8, username: username
+      RoomName: roomName, 
+      maxPlayers: 8, 
+      username: username
     }).then(roomId => {
       this.roomId = roomId;
       sessionStorage.setItem('roomId', roomId);

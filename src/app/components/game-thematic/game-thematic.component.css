@@ -29,7 +29,6 @@
 }
 
 .mat-image-container {
-  background-image: linear-gradient(to right, #FAFAFA, #EAEAEA);
   width: 100%;
   padding: 1em 0;
   max-height: 480px;
@@ -38,6 +37,7 @@
 .mat-image {
   max-width: 700px;
   min-height: 480px;
+  border-radius: 15px !important;
 }
 
 .options-container {
