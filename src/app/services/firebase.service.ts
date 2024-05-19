@@ -52,7 +52,7 @@ export class FirebaseService {
   }
 
   async signOut() {
-    return this.handleAuthOperation(() => signOut(this.auth), '/login');
+    return this.handleAuthOperation(() => signOut(this.auth), '/home');
   }
 
   private async handleAuthOperation(operation: () => Promise<any>, navigatePath?: string) {
