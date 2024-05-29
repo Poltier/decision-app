@@ -27,15 +27,11 @@
     width: 50%;
     padding: 20px;
     border-radius: 8px;
+    text-align: center;
 }
 
 .header {
     width: 50%;
-}
-
-h1 {
-    color: #333;
-    text-align: center;
 }
 
 mat-form-field {

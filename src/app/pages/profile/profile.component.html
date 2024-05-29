@@ -6,75 +6,84 @@
     <mat-tab-group class="full-height">
       <mat-tab label="Information Updation">
         <div class="tab-content">
-          <div class="profile-container">
-            <h1>Information Updation</h1>
-            <form [formGroup]="profileForm" class="profile-form">
-              <mat-form-field appearance="fill">
-                <mat-label>New Email</mat-label>
-                <input matInput formControlName="newEmail" type="email">
-                <mat-error *ngIf="profileForm.get('newEmail')?.errors?.['email']">Please enter a valid email</mat-error>
-                <mat-error *ngIf="profileForm.get('newEmail')?.errors?.['required']">Email is required</mat-error>
-              </mat-form-field>
-              <button mat-raised-button color="primary" class="click-button" (click)="updateEmail()" [disabled]="profileForm.get('newEmail')?.invalid">Update Email</button>
-              <button mat-raised-button color="accent" class="click-button" (click)="updatePassword()">Change Password</button>
-            </form>
+          <div class="tab-content-inner">
+            <div class="profile-container">
+              <form [formGroup]="profileForm" class="profile-form">
+                <mat-form-field appearance="fill">
+                  <mat-label>New Email</mat-label>
+                  <input matInput formControlName="newEmail" type="email">
+                  <mat-error *ngIf="profileForm.get('newEmail')?.errors?.['email']">Please enter a valid email</mat-error>
+                  <mat-error *ngIf="profileForm.get('newEmail')?.errors?.['required']">Email is required</mat-error>
+                </mat-form-field>
+                <button mat-raised-button color="primary" class="click-button" (click)="updateEmail()" [disabled]="profileForm.get('newEmail')?.invalid">Update Email</button>
+                <button mat-raised-button color="accent" class="click-button" (click)="updatePassword()">Change Password</button>
+              </form>
+            </div>
           </div>
         </div>
       </mat-tab>
       <mat-tab label="Modify your Questions">
         <div class="tab-content">
-          <div class="profile-container">
-            <h2>Modify your Questions</h2>
-            <div *ngIf="userQuestions.length > 0; else noQuestions" class="table-container">
-              <mat-table [dataSource]="userQuestions">
-                <ng-container matColumnDef="question">
-                  <mat-header-cell *matHeaderCellDef> Question </mat-header-cell>
-                  <mat-cell *matCellDef="let question" class="question-cell"> {{ question.questionText }} </mat-cell>
-                </ng-container>
-                <ng-container matColumnDef="correctOption">
-                  <mat-header-cell *matHeaderCellDef> Correct Option </mat-header-cell>
-                  <mat-cell *matCellDef="let question"> {{ getCorrectOptionText(question.options) }} </mat-cell>
-                </ng-container>
-                <ng-container matColumnDef="incorrectOption">
-                  <mat-header-cell *matHeaderCellDef> Incorrect Option </mat-header-cell>
-                  <mat-cell *matCellDef="let question"> {{ getIncorrectOptionText(question.options) }} </mat-cell>
-                </ng-container>
-                <ng-container matColumnDef="image">
-                  <mat-header-cell *matHeaderCellDef> Image </mat-header-cell>
-                  <mat-cell *matCellDef="let question"> <a href="{{ question.imageUrl }}" target="_blank">View Image</a> </mat-cell>
-                </ng-container>
-                <ng-container matColumnDef="thematic">
-                  <mat-header-cell *matHeaderCellDef> Thematic </mat-header-cell>
-                  <mat-cell *matCellDef="let question"> {{ question.thematic }} </mat-cell>
-                </ng-container>
-                <ng-container matColumnDef="createdAt">
-                  <mat-header-cell *matHeaderCellDef> Creation Date </mat-header-cell>
-                  <mat-cell *matCellDef="let question"> {{ question.createdAt }} </mat-cell>
-                </ng-container>
-                <ng-container matColumnDef="status">
-                  <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
-                  <mat-cell *matCellDef="let question"> {{ question.approved ? 'Approved' : 'Pending' }} </mat-cell>
-                </ng-container>
-                <ng-container matColumnDef="actions">
-                  <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
-                  <mat-cell *matCellDef="let question">
-                    <button *ngIf="!question.approved" mat-button (click)="editQuestion(question)">Edit</button>
-                  </mat-cell>
-                </ng-container>
-                <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-                <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-              </mat-table>
-              <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+          <div class="tab-content-inner">
+            <div class="profile-container">
+              <div *ngIf="dataSource.data.length > 0; else noQuestions" class="table-container">
+                <mat-table [dataSource]="dataSource">
+                  <ng-container matColumnDef="question">
+                    <mat-header-cell *matHeaderCellDef> Question </mat-header-cell>
+                    <mat-cell *matCellDef="let question"> {{ question.questionText }} </mat-cell>
+                  </ng-container>
+                  <ng-container matColumnDef="correctOption">
+                    <mat-header-cell *matHeaderCellDef> Correct Option </mat-header-cell>
+                    <mat-cell *matCellDef="let question"> {{ getCorrectOptionText(question.options) }} </mat-cell>
+                  </ng-container>
+                  <ng-container matColumnDef="incorrectOption">
+                    <mat-header-cell *matHeaderCellDef> Incorrect Option </mat-header-cell>
+                    <mat-cell *matCellDef="let question"> {{ getIncorrectOptionText(question.options) }} </mat-cell>
+                  </ng-container>
+                  <ng-container matColumnDef="image">
+                    <mat-header-cell *matHeaderCellDef> Image </mat-header-cell>
+                    <mat-cell *matCellDef="let question"> <a href="{{ question.imageUrl }}" target="_blank">View Image</a> </mat-cell>
+                  </ng-container>
+                  <ng-container matColumnDef="thematic">
+                    <mat-header-cell *matHeaderCellDef> Thematic </mat-header-cell>
+                    <mat-cell *matCellDef="let question"> {{ question.thematic }} </mat-cell>
+                  </ng-container>
+                  <ng-container matColumnDef="createdAt">
+                    <mat-header-cell *matHeaderCellDef> Creation Date </mat-header-cell>
+                    <mat-cell *matCellDef="let question"> {{ question.createdAt }} </mat-cell>
+                  </ng-container>
+                  <ng-container matColumnDef="status">
+                    <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
+                    <mat-cell *matCellDef="let question"> {{ question.approved ? 'Approved' : 'Pending' }} </mat-cell>
+                  </ng-container>
+                  <ng-container matColumnDef="actions">
+                    <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
+                    <mat-cell *matCellDef="let question">
+                      <div class="action-buttons">
+                        <button *ngIf="!question.approved" mat-button color="primary" (click)="editQuestion(question)">Edit</button>
+                        <button mat-button color="warn" (click)="deleteQuestion(question.id)">Delete</button>
+                      </div>
+                    </mat-cell>
+                  </ng-container>
+                  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+                </mat-table>
+                <mat-paginator #paginator [pageSizeOptions]="[5]" [pageSize]="5" showFirstLastButtons></mat-paginator>
+              </div>
+              <ng-template #noQuestions>
+                <p>You have not submitted any questions.</p>
+              </ng-template>
             </div>
-            <ng-template #noQuestions>
-              <p>You have not submitted any questions.</p>
-            </ng-template>
           </div>
         </div>
       </mat-tab>
     </mat-tab-group>
   </div>
 </div>
+
+
+
+
 
 
 

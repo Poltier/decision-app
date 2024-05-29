@@ -1,56 +1,60 @@
-<div *ngIf="!gameFinished">
-  <div *ngIf="currentQuestion" class="game-thematic-container">
-    <mat-card class="question-card">
-      <mat-card-title class="mat-title">{{ currentQuestion.questionText }}</mat-card-title>
-      <div  class="mat-image-container">
-        <img class="mat-image" mat-card-image [src]="currentQuestion.imageUrl" alt="Question image">
-      </div>
-      <mat-card-content>
-        <mat-progress-bar mode="determinate" [value]="progressValue"></mat-progress-bar>
-
-        <div class="options-container">
-          <div *ngFor="let option of currentQuestion.options; let i = index" 
-               [ngClass]="{'left-option': i === 0, 'right-option': i === 1, 'selected': option.selected, 'correct': option.correct }" 
-               (click)="onOptionSelected(option)"
-               class="option-card">
-            <mat-card>
-              <mat-card-content class="card-content">
-                <p>{{ option.text }}</p>
-              </mat-card-content>
-            </mat-card>
-          </div>
+<div class="body">
+  <div *ngIf="!gameFinished">
+    <div *ngIf="currentQuestion" class="game-thematic-container">
+      <mat-card class="question-card">
+        <mat-card-title class="mat-title">{{ currentQuestion.questionText }}</mat-card-title>
+        <div  class="mat-image-container">
+          <img class="mat-image" mat-card-image [src]="currentQuestion.imageUrl" alt="Question image">
         </div>
-      </mat-card-content>
-      <mat-card-actions class="score-container">
-        <p>Score: {{ score }}</p>
+        <mat-card-content>
+          <mat-progress-bar mode="determinate" [value]="progressValue"></mat-progress-bar>
+  
+          <div class="options-container">
+            <div *ngFor="let option of currentQuestion.options; let i = index" 
+                 [ngClass]="{'left-option': i === 0, 'right-option': i === 1, 'selected': option.selected, 'correct': option.correct }" 
+                 (click)="onOptionSelected(option)"
+                 class="option-card">
+              <mat-card>
+                <mat-card-content class="card-content">
+                  <p>{{ option.text }}</p>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </div>
+        </mat-card-content>
+        <mat-card-actions class="score-container">
+          <p>Score: {{ score }}</p>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+    <div *ngIf="!currentQuestion" class="loading-container">
+      <p>Loading question...</p>
+    </div>
+  </div>
+  
+  <div *ngIf="gameFinished" class="final-score-container">
+    <mat-card class="final-score-card">
+      <mat-card-title>Final Scores</mat-card-title>
+      <table mat-table [dataSource]="allScores">
+        <ng-container matColumnDef="username">
+          <th mat-header-cell *matHeaderCellDef>Username</th>
+          <td mat-cell *matCellDef="let element">{{element.username}}</td>
+        </ng-container>
+        <ng-container matColumnDef="score">
+          <th mat-header-cell *matHeaderCellDef>Score</th>
+          <td mat-cell *matCellDef="let element">{{element.score}}</td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="['username', 'score']"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['username', 'score'];"></tr>
+      </table>
+      <mat-card-actions>
+        <!-- <button *ngIf="isHost || soloPlay" mat-button (click)="restartGame()">Restart Game</button> -->
+        <button *ngIf="isHost || soloPlay" mat-button (click)="goToLobby()">Return to Lobby</button>
       </mat-card-actions>
     </mat-card>
   </div>
-  <div *ngIf="!currentQuestion" class="loading-container">
-    <p>Loading question...</p>
-  </div>
 </div>
 
-<div *ngIf="gameFinished" class="final-score-container">
-  <mat-card class="final-score-card">
-    <mat-card-title>Final Scores</mat-card-title>
-    <table mat-table [dataSource]="allScores">
-      <ng-container matColumnDef="username">
-        <th mat-header-cell *matHeaderCellDef>Username</th>
-        <td mat-cell *matCellDef="let element">{{element.username}}</td>
-      </ng-container>
-      <ng-container matColumnDef="score">
-        <th mat-header-cell *matHeaderCellDef>Score</th>
-        <td mat-cell *matCellDef="let element">{{element.score}}</td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="['username', 'score']"></tr>
-      <tr mat-row *matRowDef="let row; columns: ['username', 'score'];"></tr>
-    </table>
-    <mat-card-actions>
-      <!-- <button *ngIf="isHost || soloPlay" mat-button (click)="restartGame()">Restart Game</button> -->
-      <button *ngIf="isHost || soloPlay" mat-button (click)="goToLobby()">Return to Lobby</button>
-    </mat-card-actions>
-  </mat-card>
-</div>
+
 
 

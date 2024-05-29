@@ -1,22 +1,26 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FirebaseService } from '../../services/firebase.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { ReauthenticateDialogComponent } from '../../components/reauthenticate-dialog/reauthenticate-dialog.component';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
 import { Router, NavigationExtras } from '@angular/router';
+import { ReauthenticateDialogComponent } from '../../components/reauthenticate-dialog/reauthenticate-dialog.component';
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, AfterViewInit {
   profileForm: FormGroup;
-  userQuestions: any[] = [];
+  dataSource = new MatTableDataSource<any>();
   userId: any;
   displayedColumns: string[] = ['question', 'correctOption', 'incorrectOption', 'image', 'thematic', 'createdAt', 'status', 'actions'];
   thematics = ['Science', 'Geography', 'History', 'Sports', 'Literature'];
+
+  @ViewChild('paginator', { static: false }) paginator!: MatPaginator;
 
   constructor(
     private fb: FormBuilder,
@@ -36,19 +40,24 @@ export class ProfileComponent implements OnInit {
     this.loadUserQuestions();
   }
 
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+  }
+
   loadUserQuestions(): void {
     if (this.firebaseService.isAuthenticated()) {
       const userId = this.firebaseService.getCurrentUserId();
       if (userId) {
         this.firebaseService.getUserQuestions(userId)
           .then(questions => {
-            this.userQuestions = questions.map(question => {
+            this.dataSource.data = questions.map(question => {
               const createdAtDate = question.createdAt.toDate();
               return {
                 ...question,
                 createdAt: this.firebaseService.formatDate(createdAtDate)
               };
             });
+            setTimeout(() => this.dataSource.paginator = this.paginator);
           }).catch(error => {
             console.error("Failed to get user's questions:", error);
           });
@@ -110,9 +119,21 @@ export class ProfileComponent implements OnInit {
     this.router.navigate(['/submit-question'], navigationExtras);
   }
 
+  deleteQuestion(questionId: string): void {
+    if (confirm('Are you sure you want to delete this question?')) {
+      this.firebaseService.deleteQuestion(questionId).then(() => {
+        this.snackBar.open('Question deleted successfully!', 'Close', { duration: 3000 });
+        this.loadUserQuestions();
+      }).catch(error => {
+        console.error('Error deleting question:', error);
+        this.snackBar.open('Failed to delete question. Try again.', 'Close', { duration: 3000 });
+      });
+    }
+  }
+
   updateEmail(): void {
     const dialogRef = this.dialog.open(ReauthenticateDialogComponent, {
-      width: '250px'
+      width: '400px'
     });
 
     dialogRef.afterClosed().subscribe(async result => {
@@ -149,5 +170,7 @@ export class ProfileComponent implements OnInit {
     }
   }
 }
+
+
 
 
