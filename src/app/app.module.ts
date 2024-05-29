@@ -37,6 +37,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatTabsModule } from '@angular/material/tabs';
 
 @NgModule({
   declarations: [
@@ -75,6 +76,7 @@ import { MatRadioModule } from '@angular/material/radio';
     MatMenuModule,
     MatDialogModule,
     MatRadioModule,
+    MatTabsModule
 
   ],
   providers: [],

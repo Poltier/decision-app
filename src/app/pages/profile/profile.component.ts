@@ -4,8 +4,7 @@ import { FirebaseService } from '../../services/firebase.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ReauthenticateDialogComponent } from '../../components/reauthenticate-dialog/reauthenticate-dialog.component';
-import { Router } from '@angular/router';
-
+import { Router, NavigationExtras } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
@@ -14,15 +13,10 @@ import { Router } from '@angular/router';
 })
 export class ProfileComponent implements OnInit {
   profileForm: FormGroup;
-  questionForm: FormGroup;
-  avatars: string[] = [];
-  selectedAvatar: string = ''; 
   userQuestions: any[] = [];
   userId: any;
-  isEditing = false;
-  editingQuestionId: string | null = null;
   displayedColumns: string[] = ['question', 'correctOption', 'incorrectOption', 'image', 'thematic', 'createdAt', 'status', 'actions'];
-  thematics = ['Science', 'Geography', 'History', 'Sports', 'Literature']; 
+  thematics = ['Science', 'Geography', 'History', 'Sports', 'Literature'];
 
   constructor(
     private fb: FormBuilder,
@@ -33,27 +27,11 @@ export class ProfileComponent implements OnInit {
   ) {
     this.profileForm = this.fb.group({
       newEmail: ['', [Validators.required, Validators.email]],
-      newPassword: ['', [Validators.minLength(8), Validators.maxLength(20)]],
-      avatar: ['']
-    });
-    this.questionForm = this.fb.group({
-      questionText: ['', [Validators.required, Validators.maxLength(120)]],
-      imageUrl: ['', [Validators.required]],
-      option1: ['', [Validators.required, Validators.maxLength(40)]],
-      option2: ['', [Validators.required, Validators.maxLength(40)]],
-      correctOption: ['', [Validators.required]],
-      thematic: ['', [Validators.required]]
+      newPassword: ['', [Validators.minLength(8), Validators.maxLength(20)]]
     });
   }
 
   ngOnInit(): void {
-    //logica avatares
-    this.firebaseService.getAvatars().then((avatars) => {
-      this.avatars = avatars;
-      this.selectedAvatar = avatars[Math.floor(Math.random() * avatars.length)];
-    }).catch(error => {
-      console.error("Failed to get avatars:", error);
-    });
     this.userId = this.firebaseService.getCurrentUserId();
     this.loadUserQuestions();
   }
@@ -80,28 +58,17 @@ export class ProfileComponent implements OnInit {
 
   updateProfile(): void {
     if (this.profileForm.valid) {
-      const { newEmail, newPassword, avatar } = this.profileForm.value;
+      const { newEmail, newPassword } = this.profileForm.value;
       let updateOperations = [];
       const user = this.firebaseService.getAuthCurrentUser();
-  
-      // Verifica si el usuario está autenticado
+
       if (user) {
-        // Si se proporciona un nuevo correo electrónico y es diferente al actual, actualiza el correo electrónico
         if (newEmail && newEmail !== user.email) {
           updateOperations.push(this.firebaseService.updateUserEmail(newEmail));
         }
-  
-        // Si se proporciona una nueva contraseña, actualiza la contraseña
         if (newPassword) {
           updateOperations.push(this.firebaseService.updateUserPassword(newPassword));
         }
-  
-        // Si se selecciona un nuevo avatar, actualiza el avatar
-        if (avatar && avatar !== user.photoURL) {
-          updateOperations.push(this.firebaseService.updateUserProfile(avatar));
-        }
-  
-        // Ejecuta todas las operaciones de actualización
         Promise.all(updateOperations)
           .then(() => {
             this.snackBar.open('Profile updated successfully!', 'Close', { duration: 3000 });
@@ -116,67 +83,31 @@ export class ProfileComponent implements OnInit {
     } else {
       this.snackBar.open('Please fill in all required fields correctly.', 'Close', { duration: 3000 });
     }
-  }  
-
-  selectAvatar(avatarUrl: string): void {
-    this.selectedAvatar = avatarUrl;
-    this.profileForm.patchValue({ avatar: avatarUrl });
   }
 
   getCorrectOptionText(options: any[]): string {
     const correctOption = options.find(option => option.isCorrect);
     return correctOption ? correctOption.text : 'N/A';
   }
-  
+
   getIncorrectOptionText(options: any[]): string {
     const incorrectOption = options.find(option => !option.isCorrect);
     return incorrectOption ? incorrectOption.text : 'N/A';
-  }  
+  }
 
   editQuestion(question: any): void {
-    this.isEditing = true;
-    this.editingQuestionId = question.id;
-    // Carga los datos de la pregunta en el formulario de pregunta
-    this.questionForm.setValue({
-      questionText: question.questionText,
-      option1: question.options[0].text,
-      option2: question.options[1].text,
-      correctOption: question.options[0].isCorrect ? 'option1' : 'option2',
-      imageUrl: question.imageUrl || '',
-      thematic: question.thematic
-    });
-  }
-
-  cancelEdit(): void {
-    this.isEditing = false;
-    this.editingQuestionId = null;
-    this.questionForm.reset();
-  }
-
-  saveEditedQuestion(): void {
-    if (this.questionForm.valid && this.editingQuestionId) {
-      // Actualiza la pregunta en Firebase usando el ID de la pregunta
-      const questionData = {
-        questionText: this.questionForm.value.questionText,
-        options: [
-          { text: this.questionForm.value.option1, isCorrect: this.questionForm.value.correctOption === 'option1' },
-          { text: this.questionForm.value.option2, isCorrect: this.questionForm.value.correctOption === 'option2' },
-        ],
-        imageUrl: this.questionForm.value.imageUrl,
-        thematic: this.questionForm.value.thematic
-      };
-      
-      this.firebaseService.updateQuestion(this.editingQuestionId, questionData).then(() => {
-        this.snackBar.open('Question updated successfully!', 'Close', { duration: 3000 });
-        this.isEditing = false;
-        this.editingQuestionId = null;
-        // Recarga las preguntas del usuario para reflejar los cambios
-        this.loadUserQuestions();
-      }).catch(error => {
-        console.error('Error updating question', error);
-        this.snackBar.open('Error updating question. Try again later.', 'Close', { duration: 3000 });
-      });
-    }
+    const navigationExtras: NavigationExtras = {
+      queryParams: {
+        id: question.id,
+        questionText: question.questionText,
+        option1: question.options[0].text,
+        option2: question.options[1].text,
+        correctOption: question.options[0].isCorrect ? 'option1' : 'option2',
+        imageUrl: question.imageUrl,
+        thematic: question.thematic
+      }
+    };
+    this.router.navigate(['/submit-question'], navigationExtras);
   }
 
   updateEmail(): void {
@@ -195,24 +126,28 @@ export class ProfileComponent implements OnInit {
         }
       }
     });
-  } 
+  }
 
-  
   updatePassword(): void {
     const email = this.profileForm.value.newEmail || this.firebaseService.getAuthCurrentUser()?.email;
     if (email) {
-    this.firebaseService.sendPasswordResetEmail(email)
-      .then(() => {
-        this.snackBar.open('Password reset email sent successfully. You will be logged out.', 'Close', { duration: 3000 });
-        this.firebaseService.signOut().then(() => {
-          this.router.navigate(['/home']);
-        });
-      })
-      .catch(error => {
-        console.error('Error sending password reset email:', error);
-        this.snackBar.open('Failed to send password reset email. ' + error, 'Close', { duration: 3000 });
-      });
+      const confirmationMessage = 'Are you sure you want to reset your password? A new password will be sent to your email and you will be logged out.';
+
+      if (confirm(confirmationMessage)) {
+        this.firebaseService.sendPasswordResetEmail(email)
+          .then(() => {
+            this.snackBar.open('Password reset email sent successfully. You will be logged out.', 'Close', { duration: 3000 });
+            this.firebaseService.signOut().then(() => {
+              this.router.navigate(['/home']);
+            });
+          })
+          .catch(error => {
+            console.error('Error sending password reset email:', error);
+            this.snackBar.open('Failed to send password reset email. ' + error, 'Close', { duration: 3000 });
+          });
+      }
+    }
   }
-  }
-  
 }
+
+

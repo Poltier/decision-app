@@ -1,73 +1,85 @@
-<div class="submit-question-container">
-  <form [formGroup]="questionForm" (ngSubmit)="submitQuestion()" class="submit-question-form">
-    
-    <mat-form-field appearance="fill">
-      <mat-label>Question</mat-label>
-      <input matInput type="text" id="questionText" formControlName="questionText">
-      <mat-error *ngIf="questionForm.controls['questionText'].hasError('required')">
-        Question is required.
-      </mat-error>
-      <mat-error *ngIf="questionForm.controls['questionText'].hasError('maxlength')">
-        Question can not be more than 120 characters.
-      </mat-error>
-    </mat-form-field>
-    
-    <mat-form-field appearance="fill">
-      <mat-label>Image URL</mat-label>
-      <input matInput type="text" id="imageUrl" formControlName="imageUrl">
-      <mat-error *ngIf="questionForm.controls['imageUrl'].hasError('required')">
-        Image URL is required.
-      </mat-error>
-    </mat-form-field>
-    
-    <mat-form-field appearance="fill">
-      <mat-label>Option 1</mat-label>
-      <input matInput type="text" id="option1" formControlName="option1">
-      <mat-error *ngIf="questionForm.controls['option1'].hasError('required')">
-        Option 1 is required.
-      </mat-error>
-      <mat-error *ngIf="questionForm.controls['option1'].hasError('maxlength')">
-        Option 1 can not be more than 40 characters.
-      </mat-error>
-    </mat-form-field>
-    
-    <mat-form-field appearance="fill">
-      <mat-label>Option 2</mat-label>
-      <input matInput type="text" id="option2" formControlName="option2">
-      <mat-error *ngIf="questionForm.controls['option2'].hasError('required')">
-        Option 2 is required.
-      </mat-error>
-      <mat-error *ngIf="questionForm.controls['option2'].hasError('maxlength')">
-        Option 2 can not be more than 40 characters.
-      </mat-error>
-    </mat-form-field>
-    
-    <mat-form-field appearance="fill">
-      <mat-label>Correct Option</mat-label>
-      <mat-select id="correctOption" formControlName="correctOption">
-        <mat-option value="option1">Option 1</mat-option>
-        <mat-option value="option2">Option 2</mat-option>
-      </mat-select>
-      <mat-error *ngIf="questionForm.controls['correctOption'].hasError('required')">
-      You must select the correct option.
-      </mat-error>
-    </mat-form-field>
+<div class="body">
+  <div class="center-container">
+    <div class="header">
+      <app-header></app-header>
+    </div>
+    <div class="submit-question-container">
+      <h1>Question Information</h1>
 
-    <mat-form-field appearance="fill">
-        <mat-label>Thematic</mat-label>
-        <mat-select formControlName="thematic">
+      <form [formGroup]="questionForm" (ngSubmit)="submitQuestion()" class="submit-question-form">
+  
+        <mat-form-field appearance="fill">
+          <mat-label>Question</mat-label>
+          <input matInput type="text" id="questionText" formControlName="questionText">
+          <mat-error *ngIf="questionForm.controls['questionText'].hasError('required')">
+            Question is required.
+          </mat-error>
+          <mat-error *ngIf="questionForm.controls['questionText'].hasError('maxlength')">
+            Question can not be more than 120 characters.
+          </mat-error>
+        </mat-form-field>
+    
+        <mat-form-field appearance="fill">
+          <mat-label>Image URL</mat-label>
+          <input matInput type="text" id="imageUrl" formControlName="imageUrl">
+          <mat-error *ngIf="questionForm.controls['imageUrl'].hasError('required')">
+            Image URL is required.
+          </mat-error>
+        </mat-form-field>
+    
+        <mat-form-field appearance="fill">
+          <mat-label>Option 1</mat-label>
+          <input matInput type="text" id="option1" formControlName="option1">
+          <mat-error *ngIf="questionForm.controls['option1'].hasError('required')">
+            Option 1 is required.
+          </mat-error>
+          <mat-error *ngIf="questionForm.controls['option1'].hasError('maxlength')">
+            Option 1 can not be more than 40 characters.
+          </mat-error>
+        </mat-form-field>
+    
+        <mat-form-field appearance="fill">
+          <mat-label>Option 2</mat-label>
+          <input matInput type="text" id="option2" formControlName="option2">
+          <mat-error *ngIf="questionForm.controls['option2'].hasError('required')">
+            Option 2 is required.
+          </mat-error>
+          <mat-error *ngIf="questionForm.controls['option2'].hasError('maxlength')">
+            Option 2 can not be more than 40 characters.
+          </mat-error>
+        </mat-form-field>
+    
+        <mat-form-field appearance="fill">
+          <mat-label>Correct Option</mat-label>
+          <mat-select id="correctOption" formControlName="correctOption">
+          <mat-option value="option1">Option 1</mat-option>
+          <mat-option value="option2">Option 2</mat-option>
+          </mat-select>
+          <mat-error *ngIf="questionForm.controls['correctOption'].hasError('required')">
+            You must select the correct option.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Thematic</mat-label>
+          <mat-select formControlName="thematic">
           <mat-option *ngFor="let thematic of thematics" [value]="thematic">
             {{ thematic }}
           </mat-option>
-        </mat-select>
-        <mat-error *ngIf="questionForm.controls['thematic'].hasError('required')">
-          Thematic is required.
-        </mat-error>
-    </mat-form-field>
+          </mat-select>
+          <mat-error *ngIf="questionForm.controls['thematic'].hasError('required')">
+            Thematic is required.
+          </mat-error>
+        </mat-form-field>
 
-    <button mat-raised-button color="primary" type="submit" [disabled]="questionForm.invalid">
-        Submit Question
-    </button>
-  </form>
+        <button mat-raised-button color="primary" type="submit" [disabled]="questionForm.invalid">
+          Submit Question
+        </button>
+      </form>
+    </div>
+  </div>
 </div>
+
+
+
   

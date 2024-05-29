@@ -1,45 +1,57 @@
+.body {
+  width: 100%;
+  height: 100%;
+  background-image: url('../../../assets/textura.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+.center-container {
+  border: 4px rgba(29, 29, 27, .15) solid;
+  border-radius: 12px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1082px;
+  height: 700px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s ease;
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+.full-height {
+  height: 100%;
+  width: 95%;
+}
+
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
 .profile-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
-  padding: 20px;
-  box-sizing: border-box;
+  width: 95%;
 }
 
-/* Avatar */
-
-.avatar-selection {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 20px;
+.header {
+  width: 50%;
 }
-
-.avatar-image,
-.avatar-selection img {
-  width: 80px;
-  height: 80px;
-  cursor: pointer;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  object-fit: cover;
-  transition: border-color 0.3s ease;
-}
-
-.avatar-image:hover,
-.avatar-selection img.selected {
-  border-color: #007bff;
-}
-
-/* Profile */
 
 .profile-form {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  max-width: 400px;
+  width: 50%;
+  padding-bottom: 20px;
 }
 
 .profile-field {
@@ -47,12 +59,22 @@
   margin-bottom: 15px;
 }
 
-/* Modify questions table */
-
 .table-container {
   display: block;
   width: 100%;
   overflow-x: auto;
+}
+
+.click-button {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s, color 0.3s;
+  display: block;
 }
 
 mat-table {
@@ -68,6 +90,13 @@ mat-header-cell {
   background-color: #f4f4f4 !important;
   color: #333;
   font-weight: bold;
+}
+
+.question-cell {
+  white-space: pre-line;
+  word-wrap: break-word;
+  max-width: 200px;
+  overflow-wrap: break-word;
 }
 
 mat-row,
@@ -98,8 +127,6 @@ mat-header-cell {
   text-decoration: underline;
 }
 
-/* Edition Questions form */
-
 .edition-question-container {
   max-width:400px;
   margin: 50px auto;
@@ -114,14 +141,53 @@ mat-header-cell {
   flex-direction: column;
 }
 
-
-/* No questions */
-
 ng-template {
   text-align: center;
   margin-top: 20px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1360px) {
+  .center-container {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+  
+@media (max-width: 1200px) {
+  .center-container {
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+}
 
+@media (max-width: 1024px) {
+  .center-container {
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+}
+
+@media (max-width: 910px) {
+  .center-container {
+    transform: translate(-50%, -50%) scale(0.7);
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+      width: 95%;
+  }
+
+  .center-container {
+    transform: translate(-50%, -50%) scale(1);
+    width: 95%;
+    height: auto;
+    border: none;
+    box-shadow: none;
+    padding: 10px;
+    border-radius: 0;
+  }
+
+  .profile-form {
+    width: 90%;
+    margin: 20px auto;
+    padding: 10px;
+  }
 }

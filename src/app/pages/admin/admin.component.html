@@ -1,6 +1,11 @@
-<div class="admin-container">
-  <h2>Pending Questions</h2>
-  <div *ngIf="dataSourcePending.data.length > 0; else noPendingQuestions" class="table-container">
+<div class="body">
+  <div class="center-container">
+    <div class="header">
+      <app-header></app-header>
+    </div>
+    <div class="admin-container">
+      <h2>Pending Questions</h2>
+      <div *ngIf="dataSourcePending.data.length > 0; else noPendingQuestions" class="table-container">
     <mat-table [dataSource]="dataSourcePending">
       <!-- Columnas de la tabla de preguntas pendientes -->
       <ng-container matColumnDef="userId">
@@ -48,10 +53,10 @@
       <mat-row *matRowDef="let row; columns: pendingDisplayedColumns;"></mat-row>
     </mat-table>
     <mat-paginator #paginatorPending [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
-  </div>
+      </div>
 
-  <h2>Approved Questions</h2>
-  <div *ngIf="dataSourceApproved.data.length > 0; else noApprovedQuestions" class="table-container">
+    <h2>Approved Questions</h2>
+    <div *ngIf="dataSourceApproved.data.length > 0; else noApprovedQuestions" class="table-container">
     <mat-table [dataSource]="dataSourceApproved">
       <!-- Columnas de la tabla de preguntas aprobadas -->
       <ng-container matColumnDef="userId">
@@ -94,14 +99,18 @@
       <mat-row *matRowDef="let row; columns: approvedDisplayedColumns;"></mat-row>
     </mat-table>
     <mat-paginator #paginatorApproved [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
-  </div>
+    </div>
 
-  <ng-template #noPendingQuestions>
+    <ng-template #noPendingQuestions>
     <p>No pending questions.</p>
-  </ng-template>
+    </ng-template>
 
-  <ng-template #noApprovedQuestions>
+    <ng-template #noApprovedQuestions>
     <p>No approved questions.</p>
-  </ng-template>
+    </ng-template>
+    </div>
+  </div>
 </div>
+
+
 

@@ -1,62 +1,66 @@
-<div class="welcome-container">
-  <div class="left-column">
-    <div class="left-column-container">
-      <h1>THREADS OF FATE</h1>
-      <img class="welcome-img" src="../../../assets/threads welcome.webp" alt="Threads of Fate">
-      <h2>HOW TO PLAY</h2>
-      <div class="carousel-slide" *ngFor="let slide of slides; let i = index" [hidden]="i !== currentSlideIndex">
-        <img [src]="slide.image" alt="Slide image">
-        <h2>{{ slide.title }}</h2>
-        <p>{{ slide.description }}</p>
+<div class="body">
+  <div class="center-container">
+    <div class="welcome-container">
+      <div class="left-column">
+        <div class="left-column-container">
+          <h1>THREADS OF FATE</h1>
+          <img class="welcome-img" src="../../../assets/threads welcome.webp" alt="Threads of Fate">
+          <h2>HOW TO PLAY</h2>
+          <div class="carousel-slide" *ngFor="let slide of slides; let i = index" [hidden]="i !== currentSlideIndex">
+            <img [src]="slide.image" alt="Slide image">
+            <h2>{{ slide.title }}</h2>
+            <p>{{ slide.description }}</p>
+          </div>
+          <div class="carousel-indicators">
+            <span *ngFor="let slide of slides; let i = index" 
+                  (click)="currentSlideIndex = i"
+                  [class.active]="i === currentSlideIndex">
+            </span>
+          </div>
+        </div>
       </div>
-      <div class="carousel-indicators">
-        <span *ngFor="let slide of slides; let i = index" 
-              (click)="currentSlideIndex = i"
-              [class.active]="i === currentSlideIndex">
-        </span>
+      <div class="right-column">
+        <div class="right-column-container">
+          <img src="../../../assets/logo threads.png" alt="Logo" class="logo">
+          <h2>Choose your language</h2>
+          <mat-form-field appearance="fill">
+          <mat-label>Language</mat-label>
+          <mat-select (selectionChange)="selectLanguage($event.value)" value="en">
+            <mat-option value="en">English</mat-option>
+            <mat-option value="es">Spanish</mat-option>
+            <!-- Más opciones de idioma -->
+          </mat-select>
+          </mat-form-field>
+          <h2>Login</h2>
+          <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="login-form">
+          <mat-form-field appearance="fill">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email" type="email">
+            <mat-error *ngIf="loginForm.get('email')?.errors?.['required']">Email is required.</mat-error>
+            <mat-error *ngIf="loginForm.get('email')?.errors?.['email']">Email not in a valid format.</mat-error>
+          </mat-form-field>
+    
+          <mat-form-field appearance="fill">
+            <mat-label>Password</mat-label>
+            <input matInput formControlName="password" type="password">
+            <mat-error *ngIf="loginForm.get('password')?.errors?.['required']">Password is required.</mat-error>
+            <mat-error *ngIf="loginForm.get('password')?.errors?.['minlength']">Password must be at least 8 characters long.</mat-error>
+          </mat-form-field>
+    
+          <button mat-raised-button color="primary" type="submit" [disabled]="!loginForm.valid">Login</button>
+          </form>
+          <div class="footer">
+          <a href="#">Terms of Use</a> | <a href="#">Privacy Policy</a>
+          </div>
+          <div class="additional-links">
+          Don't have an account yet? 
+          <a href="/register">Register here</a>
+          or 
+          <a href="/dashboard" (click)="continueAsGuest()">Continue as a guest</a>
+          </div>
+        </div>  
       </div>
     </div>
   </div>
-  <div class="right-column">
-    <div class="right-column-container">
-      <img src="../../../assets/logo threads.png" alt="Logo" class="logo">
-      <h2>Choose your language</h2>
-      <mat-form-field appearance="fill">
-      <mat-label>Language</mat-label>
-      <mat-select (selectionChange)="selectLanguage($event.value)" value="en">
-        <mat-option value="en">English</mat-option>
-        <mat-option value="es">Spanish</mat-option>
-        <!-- Más opciones de idioma -->
-      </mat-select>
-      </mat-form-field>
-      <h2>Login</h2>
-      <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="login-form">
-      <mat-form-field appearance="fill">
-        <mat-label>Email</mat-label>
-        <input matInput formControlName="email" type="email">
-        <mat-error *ngIf="loginForm.get('email')?.errors?.['required']">Email is required.</mat-error>
-        <mat-error *ngIf="loginForm.get('email')?.errors?.['email']">Email not in a valid format.</mat-error>
-      </mat-form-field>
-
-      <mat-form-field appearance="fill">
-        <mat-label>Password</mat-label>
-        <input matInput formControlName="password" type="password">
-        <mat-error *ngIf="loginForm.get('password')?.errors?.['required']">Password is required.</mat-error>
-        <mat-error *ngIf="loginForm.get('password')?.errors?.['minlength']">Password must be at least 8 characters long.</mat-error>
-      </mat-form-field>
-
-      <button mat-raised-button color="primary" type="submit" [disabled]="!loginForm.valid">Login</button>
-      </form>
-      <div class="footer">
-      <a href="#">Terms of Use</a> | <a href="#">Privacy Policy</a>
-      </div>
-      <div class="additional-links">
-      Don't have an account yet? 
-      <a href="/register">Register here</a>
-      or 
-      <a href="/dashboard" (click)="continueAsGuest()">Continue as a guest</a>
-      </div>
-    </div>  
-  </div>
-
 </div>
+

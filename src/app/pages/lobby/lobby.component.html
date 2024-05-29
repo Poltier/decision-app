@@ -1,58 +1,68 @@
-<div class="lobby-container">
-  <h1>Welcome to the Lobby</h1>
-  <div *ngIf="creatingRoom || joiningRoom">
-    <button (click)="onExitLobby()">Exit</button>
-    <div *ngIf="joiningRoom" class="join-room-container">
-      <p class="join-room-text">Join to the room with the code:</p>
-      <div class="room-code-container" (click)="copyRoomCodeToClipboard()">
-        <span class="room-code">{{ roomId }}</span>
-      </div>
-    </div>
-
-    <p *ngIf="participants.length <= 1">Waiting for other players...</p>
-
-    <div class="lobby-columns">
-      <div class="participant-list">
-        <h2>Players: {{ participants.length }}/{{ room?.maxPlayers }}</h2>
-        <ul class="participant-ul">
-          <li *ngFor="let participant of participants" [class.is-me]="participant.userId === currentUserId">
-            <span class="participant-name">{{ participant.username }}</span>
-            <span *ngIf="participant.userId === room?.hostId" class="host-icon">👑</span>
-            <button *ngIf="room?.isHost && participant.userId !== currentUserId" class="remove-participant-btn" (click)="removeParticipant(participant)">✕</button>
-          </li>
-          <li *ngFor="let empty of emptySlots(room?.maxPlayers, participants.length)" class="empty-slot">Empty</li>
-        </ul>
-      </div>
-      <div class="game-selection">
-        <h2>Choose a thematic game:</h2>
-        <div class="games-grid">
-          <div class="game-card" *ngFor="let thematic of thematics" [class.selected]="selectedTheme?.name === thematic.name" (click)="room?.isHost && selectTheme(thematic)">
-            <img [src]="thematic.imageUrl" [alt]="thematic.name">
-            <p>{{ thematic.name }}</p>
+<div class="body">
+  <div class="center-container">
+    <div class="lobby-container">
+      <div *ngIf="creatingRoom || joiningRoom">
+        <div class="lobby-header">
+          <button (click)="onExitLobby()">Exit</button>
+          <h1>Welcome to the Lobby</h1>
+        </div>
+        <div *ngIf="joiningRoom" class="join-room-container">
+          <p class="join-room-text">Join to the room with the code:</p>
+          <div class="room-code-container" (click)="copyRoomCodeToClipboard()">
+            <span class="room-code">{{ roomId }}</span>
           </div>
         </div>
-        <button *ngIf="room?.isHost && participants.length >= 2" (click)="startSelectedGame()">Start Game</button>
-      </div>
-    </div>
-  </div>
-
-  <div *ngIf="soloPlay">
-    <div>
-      <button (click)="onExitLobby()">Exit</button>
-      <p class="join-room-text">Playing solo game</p>
-    </div>
-    <div class="game-selection-solo">
-      <h2>Choose a thematic game:</h2>
-      <div class="games-grid">
-        <div class="game-card" *ngFor="let thematic of thematics" [class.selected]="selectedTheme?.name === thematic.name" (click)="selectTheme(thematic)">
-          <img [src]="thematic.imageUrl" [alt]="thematic.name">
-          <p>{{ thematic.name }}</p>
+    
+        <p *ngIf="participants.length <= 1">Waiting for other players...</p>
+    
+        <div class="lobby-columns">
+          <div class="participant-list">
+            <h2>Players: {{ participants.length }}/{{ room?.maxPlayers }}</h2>
+            <ul class="participant-ul">
+              <li *ngFor="let participant of participants" [class.is-me]="participant.userId === currentUserId">
+                <span class="participant-name">{{ participant.username }}</span>
+                <span *ngIf="participant.userId === room?.hostId" class="host-icon">👑</span>
+                <button *ngIf="room?.isHost && participant.userId !== currentUserId" class="remove-participant-btn" (click)="removeParticipant(participant)">✕</button>
+              </li>
+              <li *ngFor="let empty of emptySlots(room?.maxPlayers, participants.length)" class="empty-slot">Empty</li>
+            </ul>
+          </div>
+          <div class="game-selection">
+            <h2>Choose a thematic game:</h2>
+            <div class="games-grid">
+              <div class="game-card" *ngFor="let thematic of thematics" [class.selected]="selectedTheme?.name === thematic.name" (click)="room?.isHost && selectTheme(thematic)">
+                <img [src]="thematic.imageUrl" [alt]="thematic.name">
+                <p>{{ thematic.name }}</p>
+              </div>
+            </div>
+            <button class="start-button" *ngIf="room?.isHost && participants.length >= 2" (click)="startSelectedGame()">Start Game</button>
+          </div>
         </div>
       </div>
-      <button *ngIf="soloPlay" (click)="startSelectedGame()">Start Game</button>
+    
+      <div *ngIf="soloPlay">
+        <div class="lobby-header">
+          <button (click)="onExitLobby()">Exit</button>
+          <h1>Welcome to the Game</h1>
+        </div>
+        <div class="game-selection-solo">
+          <h2>Choose a thematic game:</h2>
+          <div class="games-grid">
+            <div class="game-card" *ngFor="let thematic of thematics" [class.selected]="selectedTheme?.name === thematic.name" (click)="selectTheme(thematic)">
+              <img class="solo-img" [src]="thematic.imageUrl" [alt]="thematic.name">
+              <p>{{ thematic.name }}</p>
+            </div>
+          </div>
+          <button class="start-button" *ngIf="soloPlay" (click)="startSelectedGame()">Start Game</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
+
+
+
+
 
 
 

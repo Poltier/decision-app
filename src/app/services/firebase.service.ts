@@ -7,7 +7,6 @@ import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 
-
 @Injectable({
   providedIn: 'root'
 })
@@ -43,11 +42,7 @@ export class FirebaseService {
   }
 
   async signUp(email: string, password: string) {
-    const userCredential = await this.handleAuthOperation(() => createUserWithEmailAndPassword(this.auth, email, password));
-    if (userCredential.user) {
-      const avatarUrl = await this.pickRandomAvatar();
-      await updateProfile(userCredential.user, { photoURL: avatarUrl });
-    }
+    await this.handleAuthOperation(() => createUserWithEmailAndPassword(this.auth, email, password));
     this.router.navigate(['/dashboard']);
   }
 
@@ -70,27 +65,6 @@ export class FirebaseService {
 
   //Profile
 
-  private async pickRandomAvatar(): Promise<string> {
-    const avatars = await this.getAvatars();
-    return avatars[Math.floor(Math.random() * avatars.length)];
-  }
-
-  getAvatars(): Promise<string[]> {
-    const avatarsRef = ref(this.storage, 'avatars/');
-    return listAll(avatarsRef).then(listResult => {
-      const promises = listResult.items.map(itemRef => getDownloadURL(itemRef));
-      return Promise.all(promises);
-    });
-  }
-  
-  async updateUserProfile(photoURL: string): Promise<void> {
-    const user = this.auth.currentUser;
-    if (user) {
-      await updateProfile(user, { photoURL });
-    }
-  }
-
-
   async updateUserEmail(newEmail: string) {
     const user = this.auth.currentUser;
     if (user) {
@@ -108,7 +82,6 @@ export class FirebaseService {
   async sendPasswordResetEmail(email: string): Promise<void> {
     await sendPasswordResetEmail(this.auth, email);
   }
-
 
   async reauthenticateAndChangeEmail(currentEmail: string, currentPassword: string, newEmail: string): Promise<void> {
     const user = this.auth.currentUser;
@@ -189,5 +162,5 @@ export class FirebaseService {
     if (!user) throw new Error('User not authenticated');
     return user.uid;
   }
-  
 }
+

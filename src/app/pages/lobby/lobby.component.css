@@ -1,23 +1,63 @@
+.body {
+  width: 100%;
+  height: 100%;
+  background-image: url('../../../assets/textura.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+.center-container {
+  border: 4px rgba(29, 29, 27, .15) solid;
+  border-radius: 12px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1082px;
+  height: 700px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s ease;
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
 .lobby-container {
-  max-width: 1000px;
-  margin: auto;
-  padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 95%;
+}
+
+.lobby-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.lobby-header h1 {
+  margin: 0 auto;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .lobby-columns {
   display: flex;
   justify-content: space-between;
   width: 100%;
+  height: auto;
 }
 
 .participant-list, .game-selection {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
 .participant-ul {
@@ -97,21 +137,30 @@
   background-color: #f4f4f4;
   padding: 20px;
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .game-selection-solo {
-  width: 100%;
+  width: 95%;
   background-color: #f4f4f4;
   padding: 20px;
   border-radius: 8px;
   text-align: center;
 }
 
+.solo-img {
+  max-width: 80%  !important;
+}
+
 .games-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
-  margin-bottom: 20px;
+  width: 100%;
 }
 
 .game-card {
@@ -149,6 +198,10 @@ button {
   font-weight: bold;
 }
 
+.start-button {
+  margin-top: 20px;
+}
+
 button:hover {
   background-color: #3949ab;
 }
@@ -160,12 +213,7 @@ button:hover {
   padding: 10px;
   border-radius: 5px;
   background-color: #f6ffa1;
-  margin-top: 20px;
   margin-bottom: 20px;
-}
-
-.join-room-container {
-  background-color: #f6ffa1;
 }
 
 .join-room-text {
@@ -192,7 +240,41 @@ button:hover {
 }
 
 /* Mobile responsive adjustments */
+@media (max-width: 1360px) {
+  .center-container {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+  
+@media (max-width: 1200px) {
+  .center-container {
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+}
+
+@media (max-width: 1024px) {
+  .center-container {
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+}
+
+@media (max-width: 910px) {
+  .center-container {
+    transform: translate(-50%, -50%) scale(0.7);
+  }
+}
+
 @media (max-width: 768px) {
+  .center-container {
+    transform: translate(-50%, -50%) scale(1);
+    width: 100%;
+    height: auto;
+    border: none;
+    box-shadow: none;
+    padding: 10px;
+    border-radius: 0;
+  }
+
   .lobby-columns {
     flex-direction: column;
   }

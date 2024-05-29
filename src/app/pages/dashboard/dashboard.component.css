@@ -1,10 +1,36 @@
+.body {
+    width: 100%;
+    height: 100%;
+    background-image: url('../../../assets/textura.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+.center-container {
+    border: 4px rgba(29, 29, 27, .15) solid;
+    border-radius: 12px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1082px;
+    height: 700px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s ease;
+    transform: translate(-50%, -50%) scale(1.2);
+}
+
 .dashboard-container {
-    max-width: 600px;
-    margin: 50px auto;
+    width: 50%;
     padding: 20px;
     border-radius: 8px;
-    background-color: #f0f0f0;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    width: 50%;
 }
 
 h1 {
@@ -13,20 +39,20 @@ h1 {
 }
 
 mat-form-field {
-    width: 100%; /* Full width to align with your input style */
-    margin-top: 20px; /* Consistent spacing */
+    width: 100%;
+    margin-top: 20px;
 }
 
 button {
     width: 100%;
     padding: 10px;
-    margin-top: 10px; /* Consistent top margin */
+    margin-bottom: 20px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
     transition: background-color 0.3s, color 0.3s;
-    display: block; /* Ensure buttons are full-width */
+    display: block;
 }
 
 button:hover {
@@ -58,5 +84,55 @@ p {
     text-align: center;
     color: #666;
     font-style: italic;
-    margin-top: 20px; /* Ensure spacing is consistent above paragraph */
+    margin-top: 20px;
 }
+
+@media (max-width: 1360px) {
+    .center-container {
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+    
+  @media (max-width: 1200px) {
+    .center-container {
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+  }
+  
+  @media (max-width: 1024px) {
+    .center-container {
+      transform: translate(-50%, -50%) scale(0.8);
+    }
+  }
+  
+  @media (max-width: 910px) {
+    .center-container {
+      transform: translate(-50%, -50%) scale(0.7);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .header {
+        width: 95%;
+    }
+
+    .center-container {
+      transform: translate(-50%, -50%) scale(1);
+      width: 95%;
+      height: auto;
+      border: none;
+      box-shadow: none;
+      padding: 10px;
+      border-radius: 0;
+    }
+    .dashboard-container {
+      width: 90%;
+      margin: 20px auto;
+      padding: 10px;
+    }
+    h1 {
+      font-size: 24px;
+    }
+}
+  
+    

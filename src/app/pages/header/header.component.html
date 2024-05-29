@@ -1,11 +1,12 @@
-<mat-toolbar color="primary">
+<mat-toolbar class="header-toolbar">
+  <span class="spacer-left"></span>
   <a mat-button routerLink="/dashboard" class="navbar-brand">Threads of Fate</a>
   <span class="example-spacer"></span>
-  <div *ngIf="!showAuthSection">
+  <div class="auth-links" *ngIf="!showAuthSection">
     <a mat-button routerLink="/">Login</a>
     <a mat-button routerLink="/register">Register</a>
   </div>
-  <div *ngIf="showAuthSection">
+  <div class="profile-menu" *ngIf="showAuthSection">
     <button mat-icon-button [matMenuTriggerFor]="menu">
       <mat-icon>account_circle</mat-icon>
     </button>
@@ -29,6 +30,13 @@
     </mat-menu>
   </div>
 </mat-toolbar>
+
+
+
+
+
+
+
 
 
 

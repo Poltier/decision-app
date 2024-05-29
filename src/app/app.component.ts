@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router } from '@angular/router';
 import { FirebaseService } from './services/firebase.service';
 
 @Component({
@@ -8,22 +8,8 @@ import { FirebaseService } from './services/firebase.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  showHeader = true;
 
-  constructor(private firebaseService: FirebaseService, private router: Router) {
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        this.showHeader = !(
-          event.url === '/' || 
-          event.url === '/register' || 
-          event.url === '/home' || 
-          event.url.startsWith('/lobby') || 
-          event.url.startsWith('/game-thematic') || 
-          event.url.startsWith('/game-room')
-        );
-      }
-    });
-  }
+  constructor(private firebaseService: FirebaseService, private router: Router) {}
 
   ngOnInit() {
     this.firebaseService.getAuthStatusListener().subscribe(isAuthenticated => {
@@ -33,3 +19,4 @@ export class AppComponent implements OnInit {
     });
   }
 }
+

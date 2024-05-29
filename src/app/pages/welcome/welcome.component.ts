@@ -26,8 +26,8 @@ export class WelcomeComponent implements OnInit {
     },
     {
       image: 'https://firebasestorage.googleapis.com/v0/b/decisiondevelopmentapp.appspot.com/o/emojis%2Flink_emoji.png?alt=media&token=e6f592cb-d2eb-414f-bafc-523b2433df6d',
-      title: '3. SHARE THE LINK',
-      description: 'Easily share the game link.'
+      title: '3. SHARE THE CODE',
+      description: 'Easily share the game code.'
     },
     {
       image: 'https://firebasestorage.googleapis.com/v0/b/decisiondevelopmentapp.appspot.com/o/emojis%2Fconfetti_emoji.png?alt=media&token=c2b4e3fa-4af8-4402-aa75-1a7d30d27380',
