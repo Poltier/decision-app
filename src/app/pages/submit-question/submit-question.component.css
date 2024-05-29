@@ -32,6 +32,12 @@ h1 {
     width: 50%;
 }
 
+.edit-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
 .submit-question-container {
     width: 50%;
     padding: 20px;

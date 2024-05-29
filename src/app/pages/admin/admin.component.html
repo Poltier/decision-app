@@ -8,6 +8,10 @@
         <div class="tab-content">
           <div class="tab-content-inner">
             <div class="admin-container">
+              <mat-form-field appearance="fill">
+                <mat-label>Filter</mat-label>
+                <input matInput (keyup)="applyFilter($event)" placeholder="Filter questions">
+              </mat-form-field>
               <div *ngIf="dataSourcePending.data.length > 0; else noPendingQuestions" class="table-container">
                 <mat-table [dataSource]="dataSourcePending">
                   <!-- Columnas de la tabla de preguntas pendientes -->
@@ -55,7 +59,7 @@
                   <mat-header-row *matHeaderRowDef="pendingDisplayedColumns"></mat-header-row>
                   <mat-row *matRowDef="let row; columns: pendingDisplayedColumns;"></mat-row>
                 </mat-table>
-                <mat-paginator #paginatorPending [pageSizeOptions]="[5]" [pageSize]="5" showFirstLastButtons></mat-paginator>
+                <mat-paginator #paginatorPending [pageSizeOptions]="[4]" [pageSize]="4" showFirstLastButtons></mat-paginator>
               </div>
               <ng-template #noPendingQuestions>
                 <p>No pending questions.</p>
@@ -68,6 +72,10 @@
         <div class="tab-content">
           <div class="tab-content-inner">
             <div class="admin-container">
+              <mat-form-field appearance="fill">
+                <mat-label>Filter</mat-label>
+                <input matInput (keyup)="applyFilter($event)" placeholder="Filter questions">
+              </mat-form-field>
               <div *ngIf="dataSourceApproved.data.length > 0; else noApprovedQuestions" class="table-container">
                 <mat-table [dataSource]="dataSourceApproved">
                   <!-- Columnas de la tabla de preguntas aprobadas -->
@@ -110,7 +118,7 @@
                   <mat-header-row *matHeaderRowDef="approvedDisplayedColumns"></mat-header-row>
                   <mat-row *matRowDef="let row; columns: approvedDisplayedColumns;"></mat-row>
                 </mat-table>
-                <mat-paginator #paginatorApproved [pageSizeOptions]="[5]" [pageSize]="5" showFirstLastButtons></mat-paginator>
+                <mat-paginator #paginatorApproved [pageSizeOptions]="[4]" [pageSize]="4" showFirstLastButtons></mat-paginator>
               </div>
               <ng-template #noApprovedQuestions>
                 <p>No approved questions.</p>
@@ -122,6 +130,8 @@
     </mat-tab-group>
   </div>
 </div>
+
+
 
 
 

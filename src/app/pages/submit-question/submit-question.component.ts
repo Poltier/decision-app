@@ -59,13 +59,22 @@ export class SubmitQuestionComponent implements OnInit {
   }
 
   populateForm(question: any): void {
+    console.log('Populating form with question:', question);
+  
     this.editingQuestionId = question.id;
+  
+    const option1Text = question.option1 || '';
+    const option2Text = question.option2 || '';
+    
+    console.log('option1:', option1Text);
+    console.log('option2:', option2Text);
+  
     this.questionForm.setValue({
       questionText: question.questionText || '',
       imageUrl: question.imageUrl || this.defaultImageUrl,
-      option1: question.options && question.options[0] ? question.options[0].text : '',
-      option2: question.options && question.options[1] ? question.options[1].text : '',
-      correctOption: question.options && question.options[0] && question.options[0].isCorrect ? 'option1' : 'option2',
+      option1: option1Text,
+      option2: option2Text,
+      correctOption: question.correctOption || 'option1',
       thematic: question.thematic || ''
     });
   }
@@ -87,41 +96,63 @@ export class SubmitQuestionComponent implements OnInit {
         approved: false
       };
 
-      if (this.editingQuestionId) {
-        // Update existing question
-        this.firebaseService.updateQuestion(this.editingQuestionId, questionData).then(() => {
-          this.isLoading = false;
-          this.questionForm.reset();
-          this.snackBar.open('Question updated successfully!', 'Close', {
-            duration: 3000 
-          });
-          this.router.navigate(['/profile']);
-        }).catch((error) => {
-          this.isLoading = false;
-          this.snackBar.open('Failed to update question. Try again.', 'Close', {
-            duration: 3000
-          });
-          console.error('Error updating question', error);
+      this.firebaseService.submitQuestion(questionData).then(() => {
+        this.isLoading = false;
+        this.questionForm.reset();
+        this.snackBar.open('Question submitted successfully!', 'Close', {
+          duration: 3000 
         });
-      } else {
-        // Submit new question
-        this.firebaseService.submitQuestion(questionData).then(() => {
-          this.isLoading = false;
-          this.questionForm.reset();
-          this.snackBar.open('Question submitted successfully!', 'Close', {
-            duration: 3000 
-          });
-          console.log('Question submitted for approval');
-        }).catch((error) => {
-          this.isLoading = false;
-          this.snackBar.open('Failed to submit question. Try again.', 'Close', {
-            duration: 3000
-          });
-          console.error('Error submitting question', error);
+        console.log('Question submitted for approval');
+      }).catch((error) => {
+        this.isLoading = false;
+        this.snackBar.open('Failed to submit question. Try again.', 'Close', {
+          duration: 3000
         });
-      }
+        console.error('Error submitting question', error);
+      });
     }
   }
+
+  updateQuestion(): void {
+    if (this.questionForm.valid && this.userId && this.editingQuestionId) {
+      this.isLoading = true;
+      const formData = this.questionForm.value;
+
+      const questionData = {
+        questionText: formData.questionText,
+        imageUrl: formData.imageUrl || this.defaultImageUrl,
+        options: [
+          { text: formData.option1, isCorrect: formData.correctOption === 'option1' },
+          { text: formData.option2, isCorrect: formData.correctOption === 'option2' }
+        ],
+        thematic: formData.thematic,
+        submittedBy: this.userId,
+        approved: false
+      };
+
+      this.firebaseService.updateQuestion(this.editingQuestionId, questionData).then(() => {
+        this.isLoading = false;
+        this.questionForm.reset();
+        this.snackBar.open('Question updated successfully!', 'Close', {
+          duration: 3000 
+        });
+        this.router.navigate(['/profile']);
+      }).catch((error) => {
+        this.isLoading = false;
+        this.snackBar.open('Failed to update question. Try again.', 'Close', {
+          duration: 3000
+        });
+        console.error('Error updating question', error);
+      });
+    }
+  }
+
+  cancelEdit(): void {
+    this.editingQuestionId = null;
+    this.questionForm.reset();
+    this.router.navigate(['/profile']);
+  }
 }
+
 
 

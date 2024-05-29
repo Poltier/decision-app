@@ -52,8 +52,8 @@
         <mat-form-field appearance="fill">
           <mat-label>Correct Option</mat-label>
           <mat-select id="correctOption" formControlName="correctOption">
-          <mat-option value="option1">Option 1</mat-option>
-          <mat-option value="option2">Option 2</mat-option>
+            <mat-option value="option1">Option 1</mat-option>
+            <mat-option value="option2">Option 2</mat-option>
           </mat-select>
           <mat-error *ngIf="questionForm.controls['correctOption'].hasError('required')">
             You must select the correct option.
@@ -63,22 +63,34 @@
         <mat-form-field appearance="fill">
           <mat-label>Thematic</mat-label>
           <mat-select formControlName="thematic">
-          <mat-option *ngFor="let thematic of thematics" [value]="thematic">
-            {{ thematic }}
-          </mat-option>
+            <mat-option *ngFor="let thematic of thematics" [value]="thematic">
+              {{ thematic }}
+            </mat-option>
           </mat-select>
           <mat-error *ngIf="questionForm.controls['thematic'].hasError('required')">
             Thematic is required.
           </mat-error>
         </mat-form-field>
 
-        <button mat-raised-button color="primary" type="submit" [disabled]="questionForm.invalid">
-          Submit Question
-        </button>
+        <div *ngIf="editingQuestionId; else createMode" class="edit-buttons">
+          <button mat-raised-button color="primary" type="button" (click)="updateQuestion()" [disabled]="questionForm.invalid">
+            Edit Question
+          </button>
+          <button mat-raised-button color="warn" type="button" (click)="cancelEdit()">
+            Cancel
+          </button>
+        </div>
+        <ng-template #createMode>
+          <button mat-raised-button color="primary" type="submit" [disabled]="questionForm.invalid">
+            Submit Question
+          </button>
+        </ng-template>
       </form>
     </div>
   </div>
 </div>
+
+
 
 
 
