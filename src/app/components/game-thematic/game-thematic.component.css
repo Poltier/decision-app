@@ -26,6 +26,7 @@
   justify-content: center;
   align-items: center;
   box-shadow: none;
+  background-color: transparent;
 }
 
 .mat-title {
@@ -43,7 +44,7 @@
 
 .mat-image {
   max-width: 700px;
-  min-height: 480px;
+  height: 480px;
   border-radius: 15px !important;
 }
 
@@ -159,7 +160,7 @@ mat-progress-bar {
   
   .mat-image {
     max-width: 380px;
-    min-height: 250px;
+    height: 250px;
   }
 
   .mat-title {

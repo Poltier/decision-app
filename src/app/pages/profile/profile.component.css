@@ -199,7 +199,6 @@ ng-template {
   .center-container {
     transform: translate(-50%, -50%) scale(1);
     width: 95%;
-    height: auto;
     border: none;
     box-shadow: none;
     padding: 10px;
@@ -208,6 +207,7 @@ ng-template {
 
   .profile-form {
     width: 90%;
+    height: auto;
     margin: 20px auto;
     padding: 10px;
   }

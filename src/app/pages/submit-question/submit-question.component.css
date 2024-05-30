@@ -82,7 +82,6 @@ h1 {
     .center-container {
       transform: translate(-50%, -50%) scale(1);
       width: 95%;
-      height: auto;
       border: none;
       box-shadow: none;
       padding: 10px;

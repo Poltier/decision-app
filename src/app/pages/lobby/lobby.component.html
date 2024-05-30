@@ -12,13 +12,13 @@
             <span class="room-code">{{ roomId }}</span>
           </div>
         </div>
-    
+
         <p *ngIf="participants.length <= 1">Waiting for other players...</p>
-    
+
         <div class="lobby-columns">
           <div class="participant-list">
             <h2>Players: {{ participants.length }}/{{ room?.maxPlayers }}</h2>
-            <ul class="participant-ul">
+            <ul class="participant-grid">
               <li *ngFor="let participant of participants" [class.is-me]="participant.userId === currentUserId">
                 <span class="participant-name">{{ participant.username }}</span>
                 <span *ngIf="participant.userId === room?.hostId" class="host-icon">👑</span>
@@ -39,7 +39,7 @@
           </div>
         </div>
       </div>
-    
+
       <div *ngIf="soloPlay">
         <div class="lobby-header">
           <button (click)="onExitLobby()">Exit</button>
@@ -59,14 +59,5 @@
     </div>
   </div>
 </div>
-
-
-
-
-
-
-
-
-
 
 
