@@ -39,6 +39,7 @@ export class AdminComponent implements OnInit, AfterViewInit {
     this.firebaseService.getPendingQuestions().then(questions => {
       this.dataSourcePending.data = questions;
       setTimeout(() => this.dataSourcePending.paginator = this.paginatorPending);
+      console.log('Pending questions loaded', this.dataSourcePending.data);
     }).catch(error => {
       console.error('Error loading pending questions', error);
     });
@@ -48,6 +49,7 @@ export class AdminComponent implements OnInit, AfterViewInit {
     this.firebaseService.getApprovedQuestions().then(questions => {
       this.dataSourceApproved.data = questions;
       setTimeout(() => this.dataSourceApproved.paginator = this.paginatorApproved);
+      console.log('Approved questions loaded', this.dataSourceApproved.data);
     }).catch(error => {
       console.error('Error loading approved questions', error);
     });
@@ -67,8 +69,8 @@ export class AdminComponent implements OnInit, AfterViewInit {
         data.options.map((option: QuestionOption) => option.text).join(' ') + 
         data.imageUrl + 
         data.thematic + 
-        data.approved +
-        (data.approved ? 'approved' : 'pending')
+        (data.approved ? 'approved' : 'pending') +
+        (data.rejected ? 'rejected' : '')
       ).toLowerCase();
       return searchStr.indexOf(filter) !== -1;
     };
@@ -86,24 +88,28 @@ export class AdminComponent implements OnInit, AfterViewInit {
   }
 
   rejectQuestion(questionId: string): void {
-    this.firebaseService.rejectQuestion(questionId).then(() => {
-      this.snackBar.open('Question rejected successfully!', 'Close', { duration: 3000 });
-      this.loadPendingQuestions();
-      this.loadApprovedQuestions();
-    }).catch(error => {
-      console.error('Error rejecting question:', error);
-      this.snackBar.open('Failed to reject question. Try again.', 'Close', { duration: 3000 });
-    });
-  }
+    if (confirm('Are you sure you want to reject this question?')) {
+      this.firebaseService.rejectQuestion(questionId).then(() => {
+        this.snackBar.open('Question rejected successfully!', 'Close', { duration: 3000 });
+        this.loadPendingQuestions();
+        this.loadApprovedQuestions();
+      }).catch(error => {
+        console.error('Error rejecting question:', error);
+        this.snackBar.open('Failed to reject question. Try again.', 'Close', { duration: 3000 });
+      });
+    }
+  }  
 
   deleteApprovedQuestion(questionId: string): void {
-    this.firebaseService.deleteQuestion(questionId).then(() => {
-      this.snackBar.open('Question deleted successfully!', 'Close', { duration: 3000 });
-      this.loadApprovedQuestions();
-    }).catch(error => {
-      console.error('Error deleting approved question:', error);
-      this.snackBar.open('Failed to delete question. Try again.', 'Close', { duration: 3000 });
-    });
+    if (confirm('Are you sure you want to delete this approved question?')) {
+      this.firebaseService.deleteQuestion(questionId).then(() => {
+        this.snackBar.open('Question deleted successfully!', 'Close', { duration: 3000 });
+        this.loadApprovedQuestions();
+      }).catch(error => {
+        console.error('Error deleting approved question:', error);
+        this.snackBar.open('Failed to delete question. Try again.', 'Close', { duration: 3000 });
+      });
+    }
   }
 
   getCorrectOptionText(options: QuestionOption[]): string {
@@ -116,8 +122,3 @@ export class AdminComponent implements OnInit, AfterViewInit {
     return incorrectOption ? incorrectOption.text : 'N/A';
   }
 }
-
-
-
-
-

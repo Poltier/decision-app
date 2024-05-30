@@ -16,7 +16,9 @@ async function populateDatabase() {
       ...question,
       createdAt: admin.firestore.Timestamp.fromDate(new Date()),
       approved: false,
-      submittedBy: 'system',
+      rejected: false,
+      pending: true,
+      submittedBy: 'V6RbdTAJn1ZWJwfsq8xzwoH8Ygn2',
     };
 
     return db.collection('questions').add(fullQuestion);

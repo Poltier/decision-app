@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile, updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential, sendPasswordResetEmail } from 'firebase/auth';
-import { getStorage, ref, listAll, getDownloadURL } from 'firebase/storage';
+import { getStorage } from 'firebase/storage';
 import { addDoc, collection, getFirestore, deleteDoc, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
@@ -13,7 +13,6 @@ import { BehaviorSubject } from 'rxjs';
 export class FirebaseService {
   private app = initializeApp(environment.firebaseConfig);
   private auth = getAuth(this.app);
-  private storage = getStorage(this.app);
   private db = getFirestore(this.app);
   private authStatus = new BehaviorSubject<boolean>(false);
 
@@ -103,12 +102,14 @@ export class FirebaseService {
     await addDoc(questionsRef, {
       ...questionData,
       approved: false,
+      rejected: false,
+      pending: true,
       createdAt: new Date()
     });
   }
   
   async getPendingQuestions(): Promise<any[]> {
-    const q = query(collection(this.db, 'questions'), where('approved', '==', false));
+    const q = query(collection(this.db, 'questions'), where('pending', '==', true), where('rejected', '==', false), where('approved', '==', false));
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map(doc => ({
       id: doc.id,
@@ -117,18 +118,18 @@ export class FirebaseService {
     }));
   }
 
-  async approveQuestion(questionId: string): Promise<void> {
-    const questionRef = doc(this.db, 'questions', questionId);
-    await updateDoc(questionRef, { approved: true });
-  }
-
-  async rejectQuestion(questionId: string): Promise<void> {
-    const questionRef = doc(this.db, 'questions', questionId);
-    await deleteDoc(questionRef);
-  }
-
   async getApprovedQuestions(): Promise<any[]> {
-    const q = query(collection(this.db, 'questions'), where('approved', '==', true));
+    const q = query(collection(this.db, 'questions'), where('pending', '==', false), where('rejected', '==', false), where('approved', '==', true));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: this.formatDate(doc.data()['createdAt'].toDate())
+    }));
+  }
+
+  async getRejectedQuestions(): Promise<any[]> {
+    const q = query(collection(this.db, 'questions'), where('pending', '==', false), where('rejected', '==', true), where('approved', '==', false));
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map(doc => ({
       id: doc.id,
@@ -147,9 +148,19 @@ export class FirebaseService {
     }));
   }
 
+  async approveQuestion(questionId: string): Promise<void> {
+    const questionRef = doc(this.db, 'questions', questionId);
+    await updateDoc(questionRef, { approved: true, rejected: false, pending: false });
+  }
+
+  async rejectQuestion(questionId: string): Promise<void> {
+    const questionRef = doc(this.db, 'questions', questionId);
+    await updateDoc(questionRef, { approved: false, rejected: true, pending: false });
+  }
+
   async updateQuestion(questionId: string, questionData: any): Promise<void> {
     const questionRef = doc(this.db, 'questions', questionId);
-    await updateDoc(questionRef, questionData);
+    await updateDoc(questionRef, { ...questionData, approved: false, rejected: false, pending: true });
   }
 
   async deleteQuestion(questionId: string): Promise<void> {
@@ -163,4 +174,3 @@ export class FirebaseService {
     return user.uid;
   }
 }
-

@@ -45,7 +45,7 @@
                   </ng-container>
                   <ng-container matColumnDef="status">
                     <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
-                    <mat-cell *matCellDef="let question"> {{ question.approved ? 'Approved' : 'Pending' }} </mat-cell>
+                    <mat-cell *matCellDef="let question"> {{ question.pending ? 'Pending' : (question.approved ? 'Approved' : 'Rejected') }} </mat-cell>
                   </ng-container>
                   <ng-container matColumnDef="actions">
                     <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
@@ -130,9 +130,3 @@
     </mat-tab-group>
   </div>
 </div>
-
-
-
-
-
-

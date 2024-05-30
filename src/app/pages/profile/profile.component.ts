@@ -7,6 +7,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router, NavigationExtras } from '@angular/router';
 import { ReauthenticateDialogComponent } from '../../components/reauthenticate-dialog/reauthenticate-dialog.component';
+import { Question, QuestionOption } from '../../models/question';
 
 @Component({
   selector: 'app-profile',
@@ -38,6 +39,8 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.userId = this.firebaseService.getCurrentUserId();
     this.loadUserQuestions();
+
+    this.dataSource.filterPredicate = this.createFilter();
   }
 
   ngAfterViewInit(): void {
@@ -63,6 +66,27 @@ export class ProfileComponent implements OnInit, AfterViewInit {
           });
       }
     }
+  }
+
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  createFilter(): (data: Question, filter: string) => boolean {
+    return (data: Question, filter: string): boolean => {
+      const searchStr = (
+        data.id + 
+        data.questionText + 
+        data.options.map((option: QuestionOption) => option.text).join(' ') + 
+        data.imageUrl + 
+        data.thematic + 
+        data.approved +
+        (data.approved ? 'approved' : 'pending') +
+        (data.rejected ? 'rejected' : '')
+      ).toLowerCase();
+      return searchStr.indexOf(filter) !== -1;
+    };
   }
 
   updateProfile(): void {
@@ -170,6 +194,7 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     }
   }
 }
+
 
 
 
