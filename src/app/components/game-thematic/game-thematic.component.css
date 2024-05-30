@@ -7,21 +7,33 @@
   background-position: center;
 }
 
+.center-container {
+  border: 4px rgba(29, 29, 27, .15) solid;
+  border-radius: 12px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1082px;
+  height: 700px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s ease;
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
 .game-thematic-container, .final-score-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  min-height: calc(100vh);
-  box-sizing: border-box;
+  width: 100%;
 }
 
 .question-card {
-  width: 100%;
-  /* min-height: calc(100vh - 64px);  */
-  min-height: calc(100vh); 
-  margin: auto;
+  width: 95%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -30,21 +42,20 @@
 }
 
 .mat-title {
-  padding: 2rem 5rem;
+  padding: 10px;
   font-weight: 700;
-  font-size: clamp(1.5rem, 2.5vw, 2rem); 
+  font-size: 30px;
   letter-spacing: -0.063rem;
 }
 
 .mat-image-container {
   width: 100%;
-  padding: 1em 0;
-  max-height: 480px;
+  padding: 10px 0;
 }
 
 .mat-image {
-  max-width: 700px;
-  height: 480px;
+  width: 600px;
+  height: 350px;
   border-radius: 15px !important;
 }
 
@@ -56,9 +67,9 @@
 .score-container {
   justify-content: center;
   font-weight: 700;
-  font-size: clamp(1.5rem, 2.5vw, 2rem); 
+  font-size: 30px; 
   letter-spacing: -0.063rem;
-  padding: 10px;
+  padding-top: 20px;
 }
 
 .loading-container {
@@ -73,8 +84,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 100%;
-  max-width: 600px;
+  width: 50%;
   margin: 20px;
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -91,9 +101,8 @@
 
 .option-card {
   flex-basis: calc(50% - 10px);
-  margin: 5px;
   text-align: center;
-  padding: 20px;
+  padding: 10px;
   cursor: pointer;
 }
 
@@ -102,17 +111,17 @@
 }
 
 .card-content {
-  padding: 40px 40px;
   display: flex;
   text-align: center;
   justify-content: center;
   flex-direction: column;
   color: #ffffff;
   font-weight: 700;
-  font-size: clamp(1.5rem, 2.5vw, 2rem); 
+  border-spacing: 0.5rem;
+  font-size: 30px; 
   letter-spacing: -0.063rem;
-  min-width: 500px;
   height: 60px;
+  line-height: 1;
 }
 
 .left-option mat-card {
@@ -122,7 +131,6 @@
   border-left: 2px solid rgba(0, 0, 0, 0.2);
   border-right: 2px solid rgba(0, 0, 0, 0.2);
   border-bottom: 2px solid rgba(0, 0, 0, 0.2);
-  box-sizing: border-box;
 }
 
 .right-option mat-card {
@@ -132,7 +140,6 @@
   border-left: 2px solid rgba(0, 0, 0, 0.2);
   border-right: 2px solid rgba(0, 0, 0, 0.2);
   border-bottom: 2px solid rgba(0, 0, 0, 0.2);
-  box-sizing: border-box;
 }
 
 .option-card.correct mat-card {
@@ -146,37 +153,57 @@
 .option-card.selected.correct mat-card {
   background-color: #2e7d32;
 }
+
 mat-progress-bar {
   width: 100%;
-  height: 4rem; 
+  padding: 20px 0;
   border-radius: 5px;
 }
 
+@media (max-width: 1360px) {
+  .center-container {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+  
+@media (max-width: 1200px) {
+  .center-container {
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+}
+
+@media (max-width: 1024px) {
+  .center-container {
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+}
+
+@media (max-width: 910px) {
+  .center-container {
+    transform: translate(-50%, -50%) scale(0.7);
+  }
+}
+
 @media (max-width: 768px) {
-  .game-thematic-container, .final-score-container .question-card {
-    min-height: calc(100vh - 56px);
-    background-image: none;
+  .center-container {
+    transform: translate(-50%, -50%) scale(1);
+    width: 95%;
+    border: none;
+    box-shadow: none;
+    padding: 10px;
+    border-radius: 0;
+  }
+
+  .final-score-card {
+    width: 95%;
   }
   
   .mat-image {
-    max-width: 380px;
+    max-width: 370px;
     height: 250px;
-  }
-
-  .mat-title {
-    padding: 2rem 2rem;
   }
 
   .mat-mdc-card-content {
     padding: 0;
-  }
-
-  .card-content {
-    min-width: 150px;
-    min-height: 60px;
-  }
-
-  .option-card {
-    padding: 0px;
   }
 }

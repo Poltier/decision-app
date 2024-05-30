@@ -1,5 +1,6 @@
 <div class="body">
-  <div *ngIf="!gameFinished">
+  <div class="center-container">
+    <div *ngIf="!gameFinished">
     <div *ngIf="currentQuestion" class="game-thematic-container">
       <mat-card class="question-card">
         <mat-card-title class="mat-title">{{ currentQuestion.questionText }}</mat-card-title>
@@ -30,11 +31,11 @@
     <div *ngIf="!currentQuestion" class="loading-container">
       <p>Loading question...</p>
     </div>
-  </div>
+    </div>
   
-  <div *ngIf="gameFinished" class="final-score-container">
+    <div *ngIf="gameFinished" class="final-score-container">
     <mat-card class="final-score-card">
-      <mat-card-title>Final Scores</mat-card-title>
+      <mat-card-title>Final Score</mat-card-title>
       <table mat-table [dataSource]="allScores">
         <ng-container matColumnDef="username">
           <th mat-header-cell *matHeaderCellDef>Username</th>
@@ -52,6 +53,7 @@
         <button *ngIf="isHost || soloPlay" mat-button (click)="goToLobby()">Return to Lobby</button>
       </mat-card-actions>
     </mat-card>
+    </div>
   </div>
 </div>
 
