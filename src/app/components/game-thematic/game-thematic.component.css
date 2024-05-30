@@ -206,4 +206,8 @@ mat-progress-bar {
   .mat-mdc-card-content {
     padding: 0;
   }
+
+  .card-content {
+    width: 160px;
+  }
 }
