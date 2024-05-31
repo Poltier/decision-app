@@ -34,7 +34,7 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   timer: number = 10;
   displayedColumns: string[] = ['username', 'score'];
   currentQuestionIsCorrect:boolean = false;
-  watchOn:boolean = false;
+  watchOn: boolean = false;
 
   constructor(
     private gameService: GameService,
@@ -136,21 +136,6 @@ export class GameThematicComponent implements OnInit, OnDestroy {
   }
 
   resetGame() {
-    this.score = 0;
-    this.gameFinished = false;
-    this.allowAnswer = true;
-    this.progressValue = 100;
-    this.allScores = [];
-    this.currentQuestionIndex = 0;
-    this.timer = 10;
-  
-    if (this.countdownInterval) {
-      clearInterval(this.countdownInterval);
-      this.countdownInterval = null;
-    }
-  
-    this.countdown = 10;
-  
     this.gameService.resetGame();
   
     if (this.roomId && !this.soloPlay) {
@@ -161,33 +146,7 @@ export class GameThematicComponent implements OnInit, OnDestroy {
         this.snackBar.open('Failed to reset room. Please try again.', 'Close', { duration: 3000 });
       });
     }
-  }
-
-  // restartGame(): void {
-  //   if (!this.isHost && !this.soloPlay) {
-  //     this.snackBar.open("Only the host or solo players can restart the game.", "Close", { duration: 3000 });
-  //     return;
-  //   }
-  
-  //   if (this.soloPlay) {
-  //     this.startGame();
-  //     this.snackBar.open("Game restarted successfully.", "Close", { duration: 3000 });
-  //   } else if (this.roomId) {
-  //     this.roomService.restartGame(this.roomId, this.authService.getCurrentUserId())
-  //       .then(() => {
-  //         this.snackBar.open("Game restarted successfully.", "Close", { duration: 3000 });
-  //         this.router.navigate(['/game-room', { roomId: this.roomId, username: this.username }]); // Navegar a la sala de juego
-  //       })
-  //       .catch(error => {
-  //         console.error("Failed to restart game", error);
-  //         this.snackBar.open("Failed to restart game: " + error.message, "Close", { duration: 3000 });
-  //       });
-  //   } else {
-  //     console.error("Room ID is missing");
-  //     this.snackBar.open("Error: Room ID is missing.", "Close", { duration: 3000 });
-  //   }
-  // }
-  
+  }  
 
   onOptionSelected(option: QuestionOption): void {
     if (!this.currentQuestion || !this.allowAnswer) return;
@@ -219,11 +178,10 @@ export class GameThematicComponent implements OnInit, OnDestroy {
     } else {
       this.roomService.getRoomByIdentifier(this.roomId!).subscribe({
         next: (room: Room | null) => {
-          if (room) {
+          if (room && room.isHost) {
             const nextIndex = this.currentQuestionIndex + 1;
             this.roomService.updateTimerAndQuestionIndex(this.roomId!, this.timer, nextIndex).then(() => {
               this.currentQuestionIndex = nextIndex;
-              this.getNextQuestion();
             }).catch(error => {
               console.error("Error updating question index and timer:", error);
               this.snackBar.open("Error updating question index and timer. Please try again.", "Close", { duration: 3000 });
@@ -255,7 +213,8 @@ export class GameThematicComponent implements OnInit, OnDestroy {
         if (question) {
           this.currentQuestion = question;
           this.currentQuestion.options = this.shuffleOptions(this.currentQuestion.options);
-          this.resetAndStartCountdown();
+          this.allowAnswer = true;
+
         } else {
           this.markGameAsFinished();
         }
@@ -350,7 +309,7 @@ export class GameThematicComponent implements OnInit, OnDestroy {
         score: this.score
       }];
     } else if (this.roomId) {
-      this.roomService.getRoomById(this.roomId).subscribe(room => {
+      this.roomService.getRoomByIdentifier(this.roomId).subscribe(room => {
         if (room && room.participants) {
           this.allScores = room.participants.map(p => ({
             username: p.username,
@@ -393,6 +352,10 @@ export class GameThematicComponent implements OnInit, OnDestroy {
       distinctUntilChanged((prev, curr) => prev.timer === curr.timer && prev.currentQuestionIndex === curr.currentQuestionIndex)
     ).subscribe(state => {
       if (state) {
+        if(state.isFinished){
+          this.markGameAsFinished();
+          return;
+        }
         if (this.countdown !== state.timer) {
           this.countdown = state.timer;
           this.progressValue = (this.countdown / this.timer) * 100;
@@ -406,6 +369,7 @@ export class GameThematicComponent implements OnInit, OnDestroy {
           this.currentQuestionIndex = state.currentQuestionIndex;
           this.getNextQuestion();
         }
+
       }
     });
   }

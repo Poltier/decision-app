@@ -7,7 +7,7 @@ import { AdminComponent } from './pages/admin/admin.component';
 import { AuthGuard } from './auth/auth.guard';
 import { AdminGuard } from './auth/admin.guard';
 import { WelcomeComponent } from './pages/welcome/welcome.component';
-import { GameThematicComponent } from './components/game-thematic/game-thematic.component';
+import { GameThematicComponent } from './pages/game-thematic/game-thematic.component';
 import { SubmitQuestionComponent } from './pages/submit-question/submit-question.component';
 import { LobbyComponent } from './pages/lobby/lobby.component';
 

@@ -30,6 +30,7 @@ export class LobbyComponent implements OnInit, OnDestroy {
   currentUserId: string = this.roomService.getCurrentUserIdOrGuest();
   subscription: Subscription = new Subscription();
   watchOn:boolean = false;
+  currentSlideIndex: number = 0;
 
   thematics: Thematic[] = [
     { name: 'Science', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/decisiondevelopmentapp.appspot.com/o/game-thematic%2Fscience-thematic.webp?alt=media&token=3d5179f4-b296-489d-b818-3b54641b2675' },
@@ -291,3 +292,4 @@ export class LobbyComponent implements OnInit, OnDestroy {
       });
   }
 }
+

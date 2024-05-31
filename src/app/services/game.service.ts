@@ -32,8 +32,13 @@ export class GameService {
     if (!thematic) throw new Error('Thematic is undefined');
   
     return new Promise((resolve, reject) => {
-      let query = this.firestore.collection<Question>('questions', ref => 
-        ref.where('approved', '==', true).where('thematic', thematic !== 'Mix' ? '==' : '!=', thematic));
+      let query = this.firestore.collection<Question>('questions', ref => {
+        let queryRef = ref.where('approved', '==', true);
+        if (thematic !== 'Mix') {
+          queryRef = queryRef.where('thematic', '==', thematic);
+        }
+        return queryRef;
+      });
   
       query.valueChanges({ idField: 'id' })
         .pipe(
@@ -60,10 +65,8 @@ export class GameService {
 
   getQuestionByIndex(roomIdOrIndex: string | number, index?: number): Observable<Question | undefined> {
     if (typeof roomIdOrIndex === 'string' && index !== undefined) {
-      console.log("getQuestionByIndex - roomId:", roomIdOrIndex, "index:", index);
       return this.roomService.getRoomByIdentifier(roomIdOrIndex).pipe(
         map(room => {
-          console.log("getQuestionByIndex - room:", room);
           return room?.questions?.find(q => q.index === index);
         })
       );

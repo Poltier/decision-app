@@ -59,16 +59,12 @@ export class SubmitQuestionComponent implements OnInit {
   }
 
   populateForm(question: any): void {
-    console.log('Populating form with question:', question);
   
     this.editingQuestionId = question.id;
   
     const option1Text = question.option1 || '';
     const option2Text = question.option2 || '';
-    
-    console.log('option1:', option1Text);
-    console.log('option2:', option2Text);
-  
+   
     this.questionForm.setValue({
       questionText: question.questionText || '',
       imageUrl: question.imageUrl || this.defaultImageUrl,

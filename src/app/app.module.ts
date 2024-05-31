@@ -2,13 +2,13 @@
 
 import { AppComponent } from './app.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
-import { HeaderComponent } from './pages/header/header.component';
+import { HeaderComponent } from './components/header/header.component';
 import { WelcomeComponent } from './pages/welcome/welcome.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { SubmitQuestionComponent } from './pages/submit-question/submit-question.component';
-import { GameThematicComponent } from './components/game-thematic/game-thematic.component';
+import { GameThematicComponent } from './pages/game-thematic/game-thematic.component';
 import { ReauthenticateDialogComponent } from './components/reauthenticate-dialog/reauthenticate-dialog.component';
 import { LobbyComponent } from './pages/lobby/lobby.component';
 

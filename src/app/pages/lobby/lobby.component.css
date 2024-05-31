@@ -86,6 +86,10 @@
   padding: 0;
 }
 
+.carousel {
+  display: none;
+}
+
 .participant-grid li, .empty-slot  {
   background-color: #fff;
   border-radius: 10px;
@@ -164,6 +168,11 @@
 
 .game-card:hover {
   transform: scale(1.05);
+}
+
+h3 {
+  margin: 0;
+  font-weight: 500;
 }
 
 .game-card.selected {
@@ -273,8 +282,7 @@ button:hover {
   }
 
   .games-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    display: none;
   }
 
   .participant-grid {
@@ -294,6 +302,7 @@ button:hover {
     flex-direction: column;
     text-align: center;
     padding: 15px;
+    width: 90%;
   }
 
   .join-room-text {
@@ -310,5 +319,60 @@ button:hover {
   .room-code {
     font-size: 16px;
     padding: 10px;
+  }
+
+  .carousel {
+    display: block;
+  }
+
+  h2 {
+    margin: 0;
+  }
+
+  .game-selection h2 {
+    padding-bottom: 20px;
+  }
+
+  .game-selection {
+    margin-bottom: 0;
+  }
+
+  .carousel-slide img {
+    max-width: 100%;
+    max-height: 100px;
+  }
+
+  .carousel-indicators {
+    text-align: center;
+    padding-top: 20px;
+  }
+
+  .carousel-indicators span {
+    height: 15px;
+    width: 15px;
+    margin: 0 7px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    transition: background-color 0.6s ease;
+  }
+
+  .carousel-indicators span.active {
+    background-color: #717171;
+  }
+
+  .carousel-slide {
+    background-color: #e0e0e0;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.3s;
+    border: 2px solid transparent;
+  }
+    
+  .carousel-slide.selected {
+    border-color: #5c6bc0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   }
 }
