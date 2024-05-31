@@ -16,25 +16,44 @@ export class RoomService {
 
   defaultTimer: number = 10;
   maxQuestions: number = 10;
+
   constructor(
     private firestore: AngularFirestore,
     private authService: FirebaseService
   ) {}
 
+  private generateRoomCode(): string {
+    return Math.floor(10000 + Math.random() * 90000).toString();
+  }
+
+  private async isRoomCodeUnique(roomCode: string): Promise<boolean> {
+    const roomDoc = await this.firestore.collection('rooms').doc(roomCode).get().toPromise();
+    return roomDoc?.exists === false;
+  }
+  
+  private async generateUniqueRoomCode(): Promise<string> {
+    let roomCode = this.generateRoomCode();
+    while (!(await this.isRoomCodeUnique(roomCode))) {
+      roomCode = this.generateRoomCode();
+    }
+    return roomCode;
+  }
+
   async createRoom(roomData: any): Promise<string> {
+    const roomCode = await this.generateUniqueRoomCode();
     const newRoomData = {
       ...roomData,
       hostId: this.getCurrentUserIdOrGuest(),
-      participants: [{userId: this.getCurrentUserIdOrGuest(), username: roomData.username}],
+      participants: [{ userId: this.getCurrentUserIdOrGuest(), username: roomData.username }],
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       gameStarted: false,
       currentQuestionIndex: 0,
       timer: 10
     };
 
-    const docRef = await this.firestore.collection('rooms').add(newRoomData);
-    sessionStorage.setItem('currentRoomId', docRef.id);
-    return docRef.id;
+    await this.firestore.collection('rooms').doc(roomCode).set(newRoomData);
+    sessionStorage.setItem('currentRoomId', roomCode);
+    return roomCode;
   }
 
   async leaveRoom(roomId: string, userId: string): Promise<boolean> {
@@ -78,25 +97,25 @@ export class RoomService {
   private async startTimer(roomId: string) {
     const roomRef = this.firestore.collection('rooms').doc(roomId);
     roomRef.update({ timer: this.defaultTimer });
-    
+
     let roomDoc = await roomRef.get().toPromise();
     let room = roomDoc?.data() as Room;
 
-    if(room.hostId === this.getCurrentUserIdOrGuest()){
-      const interval = setInterval(async () => {  
-         roomDoc = await roomRef.get().toPromise();
-         room = roomDoc?.data() as Room;
-        if (room && room.timer !== undefined && room.timer > 0 ) {
+    if (room.hostId === this.getCurrentUserIdOrGuest()) {
+      const interval = setInterval(async () => {
+        roomDoc = await roomRef.get().toPromise();
+        room = roomDoc?.data() as Room;
+        if (room && room.timer !== undefined && room.timer > 0) {
           roomRef.update({ timer: room.timer - 1 });
-      } 
-      if(!room || !room.gameStarted) {
-        clearInterval(interval);
-        this.markCorrectAnswerAndSimulateResponses(roomId);
-      }
-    }, 1000);
+        }
+        if (!room || !room.gameStarted) {
+          clearInterval(interval);
+          this.markCorrectAnswerAndSimulateResponses(roomId);
+        }
+      }, 1000);
+    }
   }
-  }
-  
+
   private async markCorrectAnswerAndSimulateResponses(roomId: string) {
     const roomRef = this.firestore.collection('rooms').doc(roomId);
     const roomDoc = await roomRef.get().toPromise();
@@ -122,27 +141,27 @@ export class RoomService {
   async answerQuestion(roomId: string, userId: string, isCorrect: boolean): Promise<void> {
     const roomRef = this.firestore.collection('rooms').doc(roomId);
     const roomDoc = await roomRef.get().toPromise();
-  
+
     if (!roomDoc || !roomDoc.exists) {
       throw new Error("Room not found");
     }
-  
+
     const room = roomDoc.data() as Room;
-  
+
     if (isCorrect) {
       const participant = room.participants.find(p => p.userId === userId);
       if (participant) {
         participant.score = (participant.score || 0) + 1;
       }
     }
-  
+
     await roomRef.update({ participants: room.participants });
   }
 
   getRoomById(id: string): Observable<Room | null> {
     return this.firestore.collection<Room>('rooms').doc(id).valueChanges().pipe(
       map(room => {
-        return room ? {...room, isHost: room.hostId === this.getCurrentUserIdOrGuest()} : null
+        return room ? { ...room, isHost: room.hostId === this.getCurrentUserIdOrGuest() } : null;
       })
     );
   }
@@ -151,7 +170,7 @@ export class RoomService {
     return this.firestore.collection<Room>('rooms').doc(id).get().pipe(
       map(doc => {
         let room = { id: doc.id, ...doc.data() as Room };
-        return room ? {...room, isHost: room.hostId === this.getCurrentUserIdOrGuest()} : null
+        return room ? { ...room, isHost: room.hostId === this.getCurrentUserIdOrGuest() } : null;
       })
     );
   }
@@ -207,13 +226,13 @@ export class RoomService {
     const roomRef = this.firestore.collection('rooms').doc(roomId);
     const roomDoc = await roomRef.get().toPromise();
     const room = roomDoc?.data() as Room;
-  
+
     if (room && room.questions && room.hostId === this.getCurrentUserIdOrGuest()) {
       await roomRef.update({
         timer: timer,
         currentQuestionIndex: questionIndex
       });
-      console.log("Actualizando nuevo indice de pregunta: "+ questionIndex);
+      console.log("Actualizando nuevo indice de pregunta: " + questionIndex);
     }
   }
 
@@ -236,26 +255,21 @@ export class RoomService {
   async resetRoom(roomId: string): Promise<void> {
     const roomRef = this.firestore.collection('rooms').doc(roomId);
     const roomDoc = await roomRef.get().toPromise();
-  
+
     if (!roomDoc || !roomDoc.exists) {
       throw new Error("Room not found");
     }
-  
+
     const room = roomDoc.data() as Room;
     const updatedParticipants = room.participants.map(participant => ({
       ...participant,
       score: 0
     }));
-  
-    await roomRef.update({ 
+
+    await roomRef.update({
       participants: updatedParticipants,
       currentQuestionIndex: 0,
       questions: []
     });
   }
 }
-
-
-
-
-
