@@ -34,7 +34,7 @@
 .lobby-header {
   display: flex;
   align-items: center;
-  text-align: center;
+  justify-content: space-between;
   width: 100%;
   position: relative;
   margin-bottom: 20px;
@@ -42,9 +42,13 @@
 
 .lobby-header h1 {
   margin: 0 auto;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  position: static;
+  transform: none;
+  text-align: center;
+}
+
+.lobby-header button {
+  flex-shrink: 0;
 }
 
 .lobby-columns {
