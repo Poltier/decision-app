@@ -65,6 +65,18 @@
               <p>{{ thematic.name }}</p>
             </div>
           </div>
+          <div class="carousel">
+            <div class="carousel-slide" *ngFor="let thematic of thematics; let i = index" [class.selected]="selectedTheme?.name === thematic.name" [hidden]="i !== currentSlideIndex" (click)="room?.isHost && selectTheme(thematic)">
+              <img [src]="thematic.imageUrl" [alt]="thematic.name">
+              <h3>{{ thematic.name }}</h3>
+            </div>
+            <div class="carousel-indicators">
+              <span *ngFor="let thematic of thematics; let i = index" 
+                    (click)="currentSlideIndex = i"
+                    [class.active]="i === currentSlideIndex">
+              </span>
+            </div>
+          </div>
           <button class="start-button" *ngIf="soloPlay" (click)="startSelectedGame()">Start Game</button>
         </div>
       </div>
