@@ -60,7 +60,7 @@
         <div class="game-selection-solo">
           <h2>Choose a thematic game:</h2>
           <div class="games-grid-solo">
-            <div class="game-card" *ngFor="let thematic of thematics" [class.selected]="selectedTheme?.name === thematic.name" (click)="selectTheme(thematic)">
+            <div class="game-card" *ngFor="let thematic of thematics" [class.selgiected]="selectedTheme?.name === thematic.name" (click)="selectTheme(thematic)">
               <img class="solo-img" [src]="thematic.imageUrl" [alt]="thematic.name">
               <p>{{ thematic.name }}</p>
             </div>
