@@ -55,26 +55,14 @@
       <div *ngIf="soloPlay">
         <div class="lobby-header">
           <button (click)="onExitLobby()">Exit</button>
-          <h1>Welcome to the Game</h1>
+          <h1>Lobby</h1>
         </div>
         <div class="game-selection-solo">
           <h2>Choose a thematic game:</h2>
-          <div class="games-grid">
+          <div class="games-grid-solo">
             <div class="game-card" *ngFor="let thematic of thematics" [class.selected]="selectedTheme?.name === thematic.name" (click)="selectTheme(thematic)">
               <img class="solo-img" [src]="thematic.imageUrl" [alt]="thematic.name">
               <p>{{ thematic.name }}</p>
-            </div>
-          </div>
-          <div class="carousel">
-            <div class="carousel-slide" *ngFor="let thematic of thematics; let i = index" [class.selected]="selectedTheme?.name === thematic.name" [hidden]="i !== currentSlideIndex" (click)="room?.isHost && selectTheme(thematic)">
-              <img [src]="thematic.imageUrl" [alt]="thematic.name">
-              <h3>{{ thematic.name }}</h3>
-            </div>
-            <div class="carousel-indicators">
-              <span *ngFor="let thematic of thematics; let i = index" 
-                    (click)="currentSlideIndex = i"
-                    [class.active]="i === currentSlideIndex">
-              </span>
             </div>
           </div>
           <button class="start-button" *ngIf="soloPlay" (click)="startSelectedGame()">Start Game</button>
