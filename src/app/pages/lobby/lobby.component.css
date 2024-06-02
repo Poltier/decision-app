@@ -92,7 +92,7 @@
 
 .games-grid-solo {
   display: grid;
-  grid-template-columns: repeat(1, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   width: 100%;
   padding: 0;
@@ -345,6 +345,10 @@ button:hover {
 
   .game-selection {
     margin-bottom: 0;
+  }
+
+  .games-grid-solo {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .carousel-slide img {
