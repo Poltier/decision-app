@@ -15,7 +15,7 @@ import { Question } from '../models/question';
 export class RoomService {
 
   defaultTimer: number = 10;
-  maxQuestions: number = 10;
+  maxQuestions: number = 5;
 
   constructor(
     private firestore: AngularFirestore,
