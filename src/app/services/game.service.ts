@@ -43,7 +43,7 @@ export class GameService {
       query.valueChanges({ idField: 'id' })
         .pipe(
           tap(questions => {
-            const shuffledQuestions = this.shuffleArray(questions).slice(0, 10);
+            const shuffledQuestions = this.shuffleArray(questions).slice(0, 5);
             this.questions$.next(shuffledQuestions);
             resolve(shuffledQuestions);
           }),
